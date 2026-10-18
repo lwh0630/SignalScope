@@ -1,0 +1,101 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Widget Preview related
+.widget_preview/
+
+# ---------------------------------------------------------------------------
+# Additions for the public release (kept additive; template rules above stay)
+# ---------------------------------------------------------------------------
+
+# Flutter / Dart / Pub (pubspec.lock is intentionally NOT ignored: this is an app)
+.dart_tool/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+build/
+coverage/
+
+# Android / Gradle (the Gradle Wrapper is intentionally NOT ignored)
+.gradle/
+**/android/.gradle/
+**/android/captures/
+**/android/local.properties
+local.properties
+**/android/**/GeneratedPluginRegistrant.java
+.cxx/
+*.apk
+*.aab
+*.hprof
+
+# IDE / editor (personal settings)
+.idea/
+*.iml
+.vscode/
+*.code-workspace
+.fleet/
+
+# Python helper scripts (assets/branding/generate_icons.py)
+__pycache__/
+
+# Sensitive files: never commit these
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+key.properties
+**/key.properties
+**/signing.properties
+google-services.json
+GoogleService-Info.plist
+secrets.*
+*.secret

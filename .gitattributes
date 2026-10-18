@@ -1,0 +1,11 @@
+* text=auto
+
+# Keep Unix scripts and the license text with LF line endings on every OS
+android/gradlew text eol=lf
+LICENSE text eol=lf
+*.bat text eol=crlf
+
+# Binary files
+*.png binary
+*.ico binary
+*.jar binary

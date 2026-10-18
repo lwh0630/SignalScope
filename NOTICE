@@ -1,0 +1,23 @@
+SignalScope
+Copyright (c) 2026 Wenhai Liu
+
+Project URL: https://github.com/lwh0630/SignalScope
+
+This work is licensed under the Creative Commons
+Attribution-NonCommercial-ShareAlike 4.0 International License
+(CC BY-NC-SA 4.0).
+
+To view a copy of this license, visit
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+or see the LICENSE file in this repository.
+
+The full, unmodified legal code is in the LICENSE file. If this NOTICE and the
+LICENSE ever differ, the LICENSE controls.
+
+Attribution policy: see ATTRIBUTION.md.
+
+Third-party software: this project depends on open-source Flutter / Dart
+packages (for example flutter_riverpod, fl_chart, intl). They remain under
+their own licenses; see pubspec.yaml / pubspec.lock for the list, and the
+license pages of those packages. The CC BY-NC-SA 4.0 license of this
+project does not change the license of those dependencies.
