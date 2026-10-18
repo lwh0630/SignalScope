@@ -50,14 +50,17 @@ class SignalGauge extends StatelessWidget {
                       valueText,
                       style: theme.textTheme.displayMedium?.copyWith(
                         fontWeight: FontWeight.w800,
-                        color: fraction == null ? theme.colorScheme.onSurfaceVariant : color,
+                        color: fraction == null
+                            ? theme.colorScheme.onSurfaceVariant
+                            : color,
                         fontFeatures: const [FontFeature.tabularFigures()],
                       ),
                     ),
                     Text(
                       unit,
-                      style: theme.textTheme.titleSmall
-                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     if (caption != null) ...[
                       const SizedBox(height: 4),

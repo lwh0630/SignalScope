@@ -103,7 +103,9 @@ class InfoRow extends StatelessWidget {
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: emphasize ? FontWeight.w700 : FontWeight.w600,
                     color: missing
-                        ? theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6)
+                        ? theme.colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.6,
+                          )
                         : valueColor,
                     fontFeatures: const [FontFeature.tabularFigures()],
                   ),
@@ -113,7 +115,9 @@ class InfoRow extends StatelessWidget {
                     note!,
                     textAlign: TextAlign.end,
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
+                      color: theme.colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.75,
+                      ),
                     ),
                   ),
               ],
@@ -127,7 +131,12 @@ class InfoRow extends StatelessWidget {
 
 /// Small coloured status chip.
 class StatusPill extends StatelessWidget {
-  const StatusPill({super.key, required this.text, required this.color, this.icon});
+  const StatusPill({
+    super.key,
+    required this.text,
+    required this.color,
+    this.icon,
+  });
 
   final String text;
   final Color color;
@@ -151,10 +160,8 @@ class StatusPill extends StatelessWidget {
           ],
           Text(
             text,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w700,
-                ),
+            style: Theme.of(context).textTheme.labelMedium
+                ?.copyWith(color: color, fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -177,16 +184,23 @@ class UnsupportedNotice extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.desktop_access_disabled_rounded,
-                size: 56, color: theme.colorScheme.onSurfaceVariant),
+            Icon(
+              Icons.desktop_access_disabled_rounded,
+              size: 56,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 16),
-            Text(context.tr('platform.unsupportedTitle'),
-                style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
+            Text(
+              context.tr('platform.unsupportedTitle'),
+              style: theme.textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 8),
             Text(
               context.tr('platform.unsupportedBody', [platformName]),
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
               textAlign: TextAlign.center,
             ),
           ],

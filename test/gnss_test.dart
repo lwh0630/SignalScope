@@ -35,8 +35,22 @@ void main() {
           'provider': 'gps',
         },
         'satellites': [
-          {'svid': 5, 'constellation': 1, 'azimuthDeg': 120.0, 'elevationDeg': 45.0, 'cn0DbHz': 38.5, 'usedInFix': true},
-          {'svid': 12, 'constellation': 5, 'azimuthDeg': 10.0, 'elevationDeg': 80.0, 'cn0DbHz': 0.0, 'usedInFix': false},
+          {
+            'svid': 5,
+            'constellation': 1,
+            'azimuthDeg': 120.0,
+            'elevationDeg': 45.0,
+            'cn0DbHz': 38.5,
+            'usedInFix': true,
+          },
+          {
+            'svid': 12,
+            'constellation': 5,
+            'azimuthDeg': 10.0,
+            'elevationDeg': 80.0,
+            'cn0DbHz': 0.0,
+            'usedInFix': false,
+          },
         ],
         'issues': <Object?>[],
       });
@@ -71,7 +85,9 @@ void main() {
     });
 
     test('average is null when nothing is tracked', () {
-      const sats = [SatelliteInfo(svid: 3, constellation: Constellation.gps, cn0DbHz: 0)];
+      const sats = [
+        SatelliteInfo(svid: 3, constellation: Constellation.gps, cn0DbHz: 0),
+      ];
       expect(GnssRepository.averageCn0(sats), isNull);
       expect(GnssRepository.averageCn0(const []), isNull);
     });
@@ -80,31 +96,65 @@ void main() {
   group('sky plot geometry', () {
     test('zenith is the centre, horizon is the rim, north is up', () {
       final zenith = SkyPlotPainter.unitPosition(
-          const SatelliteInfo(svid: 1, constellation: Constellation.gps, azimuthDeg: 123, elevationDeg: 90))!;
+        const SatelliteInfo(
+          svid: 1,
+          constellation: Constellation.gps,
+          azimuthDeg: 123,
+          elevationDeg: 90,
+        ),
+      )!;
       expect(zenith.distance, closeTo(0, 1e-9));
 
       final north = SkyPlotPainter.unitPosition(
-          const SatelliteInfo(svid: 1, constellation: Constellation.gps, azimuthDeg: 0, elevationDeg: 0))!;
+        const SatelliteInfo(
+          svid: 1,
+          constellation: Constellation.gps,
+          azimuthDeg: 0,
+          elevationDeg: 0,
+        ),
+      )!;
       expect(north.dx, closeTo(0, 1e-9));
       expect(north.dy, closeTo(-1, 1e-9));
 
       final east = SkyPlotPainter.unitPosition(
-          const SatelliteInfo(svid: 1, constellation: Constellation.gps, azimuthDeg: 90, elevationDeg: 0))!;
+        const SatelliteInfo(
+          svid: 1,
+          constellation: Constellation.gps,
+          azimuthDeg: 90,
+          elevationDeg: 0,
+        ),
+      )!;
       expect(east.dx, closeTo(1, 1e-9));
       expect(east.dy, closeTo(0, 1e-9));
 
       final mid = SkyPlotPainter.unitPosition(
-          const SatelliteInfo(svid: 1, constellation: Constellation.gps, azimuthDeg: 180, elevationDeg: 45))!;
+        const SatelliteInfo(
+          svid: 1,
+          constellation: Constellation.gps,
+          azimuthDeg: 180,
+          elevationDeg: 45,
+        ),
+      )!;
       expect(mid.dx, closeTo(0, 1e-9));
       expect(mid.dy, closeTo(0.5, 1e-9));
       expect(math.sqrt(mid.dx * mid.dx + mid.dy * mid.dy), closeTo(0.5, 1e-9));
     });
 
     test('unknown azimuth or elevation is not plotted', () {
-      expect(SkyPlotPainter.unitPosition(const SatelliteInfo(svid: 1, constellation: Constellation.gps)), isNull);
       expect(
         SkyPlotPainter.unitPosition(
-            const SatelliteInfo(svid: 1, constellation: Constellation.gps, azimuthDeg: 10)),
+          const SatelliteInfo(svid: 1, constellation: Constellation.gps),
+        ),
+        isNull,
+      );
+      expect(
+        SkyPlotPainter.unitPosition(
+          const SatelliteInfo(
+            svid: 1,
+            constellation: Constellation.gps,
+            azimuthDeg: 10,
+          ),
+        ),
         isNull,
       );
     });
@@ -115,7 +165,11 @@ void main() {
         SatelliteInfo(svid: 20, constellation: Constellation.gps),
         SatelliteInfo(svid: 3, constellation: Constellation.gps),
       ]);
-      expect(sorted.map((s) => '${s.constellation.code}-${s.svid}'), ['1-3', '1-20', '5-9']);
+      expect(sorted.map((s) => '${s.constellation.code}-${s.svid}'), [
+        '1-3',
+        '1-20',
+        '5-9',
+      ]);
     });
   });
 
@@ -127,40 +181,69 @@ void main() {
     });
 
     test('unsupported hardware', () {
-      expect(stateOf(const GnssSnapshot(gnssSupported: false, issues: ['gnss_unsupported'])).fixState,
-          FixState.unsupported);
+      expect(
+        stateOf(
+          const GnssSnapshot(
+            gnssSupported: false,
+            issues: ['gnss_unsupported'],
+          ),
+        ).fixState,
+        FixState.unsupported,
+      );
     });
 
     test('blocked by permission / location switch', () {
-      expect(stateOf(const GnssSnapshot(gnssSupported: true, issues: ['no_location_permission'])).fixState,
-          FixState.blocked);
-      expect(stateOf(const GnssSnapshot(gnssSupported: true, issues: ['location_off'])).fixState, FixState.blocked);
+      expect(
+        stateOf(
+          const GnssSnapshot(
+            gnssSupported: true,
+            issues: ['no_location_permission'],
+          ),
+        ).fixState,
+        FixState.blocked,
+      );
+      expect(
+        stateOf(
+          const GnssSnapshot(gnssSupported: true, issues: ['location_off']),
+        ).fixState,
+        FixState.blocked,
+      );
     });
 
-    test('searching without location, fixed with fresh location, stale when old', () {
-      expect(stateOf(const GnssSnapshot(gnssSupported: true)).fixState, FixState.searching);
-      const fresh = GnssSnapshot(
-        gnssSupported: true,
-        timestampMs: 100000,
-        location: GnssLocationInfo(latitude: 1, longitude: 2, timeMs: 95000),
-      );
-      expect(stateOf(fresh).fixState, FixState.fixed);
-      expect(stateOf(fresh).fixAgeMs, 5000);
-      const old = GnssSnapshot(
-        gnssSupported: true,
-        timestampMs: 100000,
-        location: GnssLocationInfo(latitude: 1, longitude: 2, timeMs: 80000),
-      );
-      expect(stateOf(old).fixState, FixState.stale);
-    });
+    test(
+      'searching without location, fixed with fresh location, stale when old',
+      () {
+        expect(
+          stateOf(const GnssSnapshot(gnssSupported: true)).fixState,
+          FixState.searching,
+        );
+        const fresh = GnssSnapshot(
+          gnssSupported: true,
+          timestampMs: 100000,
+          location: GnssLocationInfo(latitude: 1, longitude: 2, timeMs: 95000),
+        );
+        expect(stateOf(fresh).fixState, FixState.fixed);
+        expect(stateOf(fresh).fixAgeMs, 5000);
+        const old = GnssSnapshot(
+          gnssSupported: true,
+          timestampMs: 100000,
+          location: GnssLocationInfo(latitude: 1, longitude: 2, timeMs: 80000),
+        );
+        expect(stateOf(old).fixState, FixState.stale);
+      },
+    );
   });
 
   group('GnssController', () {
     ProviderContainer makeContainer(FakeAndroidPlatform p) {
-      final c = ProviderContainer(overrides: [
-        signalPlatformProvider.overrideWithValue(p),
-        initialSettingsProvider.overrideWithValue(const AppSettings(updateIntervalMs: 500)),
-      ]);
+      final c = ProviderContainer(
+        overrides: [
+          signalPlatformProvider.overrideWithValue(p),
+          initialSettingsProvider.overrideWithValue(
+            const AppSettings(updateIntervalMs: 500),
+          ),
+        ],
+      );
       addTearDown(c.dispose);
       return c;
     }
@@ -191,16 +274,38 @@ void main() {
       c.read(currentTabProvider.notifier).select(AppTab.gnss);
       await Future<void>.delayed(const Duration(milliseconds: 30));
 
-      p.gnssController.add(const GnssSnapshot(
-        gnssSupported: true,
-        timestampMs: 1000,
-        location: GnssLocationInfo(latitude: 1, longitude: 2, horizontalAccuracyM: 6, timeMs: 900),
-        satellites: [
-          SatelliteInfo(svid: 1, constellation: Constellation.gps, cn0DbHz: 40, usedInFix: true),
-          SatelliteInfo(svid: 2, constellation: Constellation.gps, cn0DbHz: 30, usedInFix: false),
-          SatelliteInfo(svid: 3, constellation: Constellation.gps, cn0DbHz: 0, usedInFix: false),
-        ],
-      ));
+      p.gnssController.add(
+        const GnssSnapshot(
+          gnssSupported: true,
+          timestampMs: 1000,
+          location: GnssLocationInfo(
+            latitude: 1,
+            longitude: 2,
+            horizontalAccuracyM: 6,
+            timeMs: 900,
+          ),
+          satellites: [
+            SatelliteInfo(
+              svid: 1,
+              constellation: Constellation.gps,
+              cn0DbHz: 40,
+              usedInFix: true,
+            ),
+            SatelliteInfo(
+              svid: 2,
+              constellation: Constellation.gps,
+              cn0DbHz: 30,
+              usedInFix: false,
+            ),
+            SatelliteInfo(
+              svid: 3,
+              constellation: Constellation.gps,
+              cn0DbHz: 0,
+              usedInFix: false,
+            ),
+          ],
+        ),
+      );
       await Future<void>.delayed(const Duration(milliseconds: 30));
 
       final h = c.read(historyProvider).series;
@@ -211,7 +316,10 @@ void main() {
 
       c.read(gnssControllerProvider.notifier).stop();
       await Future<void>.delayed(const Duration(milliseconds: 30));
-      expect(c.read(historyProvider).series.keys.where((k) => k.startsWith('gnss.')), isEmpty);
+      expect(
+        c.read(historyProvider).series.keys.where((k) => k.startsWith('gnss.')),
+        isEmpty,
+      );
       expect(c.read(gnssControllerProvider).status, MonitorStatus.stopped);
       expect(c.read(gnssControllerProvider).snapshot, isNull);
       expect(p.gnssCancels, 1);

@@ -30,14 +30,20 @@ class PermissionController extends Notifier<PermissionSnapshot> {
   }
 
   Future<void> request(Set<PermGroup> groups) async {
-    final snap = await ref.read(signalPlatformProvider).requestPermissions(groups);
+    final snap = await ref
+        .read(signalPlatformProvider)
+        .requestPermissions(groups);
     if (_alive) state = snap;
   }
 
-  Future<void> openAppSettings() => ref.read(signalPlatformProvider).openAppSettings();
+  Future<void> openAppSettings() =>
+      ref.read(signalPlatformProvider).openAppSettings();
 
-  Future<void> openLocationSettings() => ref.read(signalPlatformProvider).openLocationSettings();
+  Future<void> openLocationSettings() =>
+      ref.read(signalPlatformProvider).openLocationSettings();
 }
 
 final permissionProvider =
-    NotifierProvider<PermissionController, PermissionSnapshot>(PermissionController.new);
+    NotifierProvider<PermissionController, PermissionSnapshot>(
+      PermissionController.new,
+    );

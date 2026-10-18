@@ -12,12 +12,19 @@ Future<void> copyToClipboard(BuildContext context, String text) async {
   await Clipboard.setData(ClipboardData(text: text));
   messenger
     ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message), duration: const Duration(seconds: 2)));
+    ..showSnackBar(
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
+    );
 }
 
 /// [InfoRow] whose value is copied on long press.
 class CopyableInfoRow extends StatelessWidget {
-  const CopyableInfoRow({super.key, required this.label, required this.value, this.note});
+  const CopyableInfoRow({
+    super.key,
+    required this.label,
+    required this.value,
+    this.note,
+  });
 
   final String label;
   final String? value;
@@ -28,7 +35,9 @@ class CopyableInfoRow extends StatelessWidget {
     final v = value;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onLongPress: v == null || v.isEmpty ? null : () => copyToClipboard(context, v),
+      onLongPress: v == null || v.isEmpty
+          ? null
+          : () => copyToClipboard(context, v),
       child: InfoRow(label: label, value: v, note: note),
     );
   }
@@ -62,7 +71,9 @@ class AddressLines extends StatelessWidget {
         for (final e in entries)
           GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onLongPress: e.value == null ? null : () => copyToClipboard(context, e.value!),
+            onLongPress: e.value == null
+                ? null
+                : () => copyToClipboard(context, e.value!),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 2),
               child: Row(
@@ -70,14 +81,23 @@ class AddressLines extends StatelessWidget {
                 children: [
                   SizedBox(
                     width: 104,
-                    child: Text(e.label, style: theme.textTheme.labelMedium?.copyWith(color: muted)),
+                    child: Text(
+                      e.label,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: muted,
+                      ),
+                    ),
                   ),
                   Expanded(
                     child: Text(
                       e.value ?? (e.hint ?? kUnavailable),
                       style: theme.textTheme.bodySmall?.copyWith(
-                        fontWeight: e.value == null ? FontWeight.w400 : FontWeight.w600,
-                        color: e.value == null ? muted.withValues(alpha: 0.8) : null,
+                        fontWeight: e.value == null
+                            ? FontWeight.w400
+                            : FontWeight.w600,
+                        color: e.value == null
+                            ? muted.withValues(alpha: 0.8)
+                            : null,
                         fontFeatures: const [FontFeature.tabularFigures()],
                       ),
                     ),

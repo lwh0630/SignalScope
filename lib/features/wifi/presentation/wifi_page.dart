@@ -25,7 +25,10 @@ import 'channel_graph.dart';
 class WifiPage extends ConsumerWidget {
   const WifiPage({super.key});
 
-  static const Set<PermGroup> _groups = {PermGroup.location, PermGroup.nearbyWifi};
+  static const Set<PermGroup> _groups = {
+    PermGroup.location,
+    PermGroup.nearbyWifi,
+  };
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,14 +45,19 @@ class WifiPage extends ConsumerWidget {
     final conn = state.connection;
     final wifiOff = conn?.wifiEnabled == false;
     // Hide the "disabled" note: the dedicated card already says so.
-    final issues = <String>{...?conn?.issues, ...?state.scan?.issues}
-        .where((i) => i != 'wifi_disabled')
-        .toList();
+    final issues = <String>{
+      ...?conn?.issues,
+      ...?state.scan?.issues,
+    }.where((i) => i != 'wifi_disabled').toList();
 
     return PageScaffold(
       title: context.tr('nav.wifi'),
       children: [
-        if (PermissionBanner.isNeeded(perms, _groups, needsLocationServices: true))
+        if (PermissionBanner.isNeeded(
+          perms,
+          _groups,
+          needsLocationServices: true,
+        ))
           const PermissionBanner(
             groups: _groups,
             messageKey: 'wifi.permWhy',
@@ -84,18 +92,25 @@ class _WifiOffCard extends ConsumerWidget {
     return SectionCard(
       child: Column(
         children: [
-          Icon(Icons.wifi_off_rounded, size: 48, color: theme.colorScheme.onSurfaceVariant),
+          Icon(
+            Icons.wifi_off_rounded,
+            size: 48,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
           const SizedBox(height: 12),
           Text(context.tr('wifi.disabled'), style: theme.textTheme.titleMedium),
           const SizedBox(height: 4),
           Text(
             context.tr('wifi.disabledHint'),
             textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 12),
           FilledButton.tonal(
-            onPressed: () => ref.read(signalPlatformProvider).openWifiSettings(),
+            onPressed: () =>
+                ref.read(signalPlatformProvider).openWifiSettings(),
             child: Text(context.tr('wifi.openWifiSettings')),
           ),
         ],
@@ -128,28 +143,38 @@ class _ConnectionGauge extends StatelessWidget {
                       connected
                           ? (conn?.ssid ?? context.tr('wifi.hiddenSsid'))
                           : context.tr('wifi.notConnected'),
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     if (connected)
                       Text(
                         fmtText(conn?.bssid),
-                        style: theme.textTheme.labelMedium
-                            ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
                   ],
                 ),
               ),
               if (connected && conn!.band != WifiBand.unknown)
-                StatusPill(text: conn!.band.label, color: theme.colorScheme.primary),
+                StatusPill(
+                  text: conn!.band.label,
+                  color: theme.colorScheme.primary,
+                ),
             ],
           ),
           const SizedBox(height: 8),
           SignalGauge(
-            fraction: rssi == null ? null : SignalQuality.fraction(rssi, min: -100, max: -30),
+            fraction: rssi == null
+                ? null
+                : SignalQuality.fraction(rssi, min: -100, max: -30),
             color: grade.color,
             valueText: rssi == null ? kUnavailable : '$rssi',
             unit: rssi == null ? '' : 'dBm',
-            caption: rssi == null ? null : '${conn!.percent}% · ${context.tr(grade.labelKey)}',
+            caption: rssi == null
+                ? null
+                : '${conn!.percent}% · ${context.tr(grade.labelKey)}',
           ),
           if (connected) ...[
             const SizedBox(height: 8),
@@ -159,7 +184,11 @@ class _ConnectionGauge extends StatelessWidget {
               alignment: WrapAlignment.center,
               children: [
                 if (conn!.standardLabel != null)
-                  StatusPill(text: conn!.standardLabel!, color: SignalColors.chartB, icon: Icons.bolt_rounded),
+                  StatusPill(
+                    text: conn!.standardLabel!,
+                    color: SignalColors.chartB,
+                    icon: Icons.bolt_rounded,
+                  ),
                 if (conn!.linkSpeedMbps != null)
                   StatusPill(
                     text: '${conn!.linkSpeedMbps} Mbps',
@@ -183,7 +212,12 @@ class _RssiTrend extends StatelessWidget {
     return TrendCard(
       title: context.tr('common.trend'),
       series: const [
-        TrendSeries(key: 'wifi.rssi', label: 'RSSI', unit: 'dBm', color: SignalColors.chartD),
+        TrendSeries(
+          key: 'wifi.rssi',
+          label: 'RSSI',
+          unit: 'dBm',
+          color: SignalColors.chartD,
+        ),
       ],
       minY: -100,
       maxY: -30,
@@ -203,19 +237,30 @@ class _ConnectionDetails extends StatelessWidget {
       child: Column(
         children: [
           InfoRow(label: 'SSID', value: conn.ssid),
-          CopyableInfoRow(label: context.tr('addr.routerMac'), value: conn.bssid),
+          CopyableInfoRow(
+            label: context.tr('addr.routerMac'),
+            value: conn.bssid,
+          ),
           CopyableInfoRow(
             label: context.tr('addr.mac'),
             value: conn.macAddress,
-            note: conn.macAddress == null ? context.tr('addr.macHidden') : context.tr('addr.macReported'),
+            note: conn.macAddress == null
+                ? context.tr('addr.macHidden')
+                : context.tr('addr.macReported'),
           ),
-          InfoRow(label: 'RSSI', value: fmtNum(conn.rssi, unit: 'dBm')),
+          InfoRow(
+            label: 'RSSI',
+            value: fmtNum(conn.rssi, unit: 'dBm'),
+          ),
           InfoRow(
             label: context.tr('wifi.signalPercent'),
             value: conn.percent == null ? null : '${conn.percent}%',
             note: conn.percent == null ? null : context.tr('wifi.percentNote'),
           ),
-          InfoRow(label: context.tr('wifi.frequency'), value: fmtNum(conn.frequencyMhz, unit: 'MHz')),
+          InfoRow(
+            label: context.tr('wifi.frequency'),
+            value: fmtNum(conn.frequencyMhz, unit: 'MHz'),
+          ),
           InfoRow(
             label: context.tr('wifi.channel'),
             value: fmtNum(conn.channel),
@@ -223,13 +268,30 @@ class _ConnectionDetails extends StatelessWidget {
           ),
           InfoRow(
             label: context.tr('wifi.bandwidth'),
-            value: conn.channelWidthMhz == null ? null : '${conn.channelWidthMhz} MHz',
-            note: conn.channelWidthMhz == null ? null : context.tr('wifi.widthNote'),
+            value: conn.channelWidthMhz == null
+                ? null
+                : '${conn.channelWidthMhz} MHz',
+            note: conn.channelWidthMhz == null
+                ? null
+                : context.tr('wifi.widthNote'),
           ),
-          InfoRow(label: context.tr('wifi.linkSpeed'), value: fmtNum(conn.linkSpeedMbps, unit: 'Mbps')),
-          InfoRow(label: context.tr('wifi.txRate'), value: fmtNum(conn.txLinkSpeedMbps, unit: 'Mbps')),
-          InfoRow(label: context.tr('wifi.rxRate'), value: fmtNum(conn.rxLinkSpeedMbps, unit: 'Mbps')),
-          CopyableInfoRow(label: context.tr('addr.ipv4'), value: conn.ipAddress, note: context.tr('addr.copyHint')),
+          InfoRow(
+            label: context.tr('wifi.linkSpeed'),
+            value: fmtNum(conn.linkSpeedMbps, unit: 'Mbps'),
+          ),
+          InfoRow(
+            label: context.tr('wifi.txRate'),
+            value: fmtNum(conn.txLinkSpeedMbps, unit: 'Mbps'),
+          ),
+          InfoRow(
+            label: context.tr('wifi.rxRate'),
+            value: fmtNum(conn.rxLinkSpeedMbps, unit: 'Mbps'),
+          ),
+          CopyableInfoRow(
+            label: context.tr('addr.ipv4'),
+            value: conn.ipAddress,
+            note: context.tr('addr.copyHint'),
+          ),
           CopyableInfoRow(
             label: context.tr('addr.ipv6'),
             value: conn.ipv6.isEmpty ? null : conn.ipv6.join('\n'),
@@ -242,9 +304,18 @@ class _ConnectionDetails extends StatelessWidget {
               note: context.tr('addr.ipv6LinkNote'),
             ),
           InfoRow(label: context.tr('wifi.gateway'), value: conn.gateway),
-          InfoRow(label: 'DNS', value: conn.dns.isEmpty ? null : conn.dns.join('\n')),
-          InfoRow(label: context.tr('wifi.security'), value: conn.securityLabel),
-          InfoRow(label: context.tr('wifi.standard'), value: conn.standardLabel),
+          InfoRow(
+            label: 'DNS',
+            value: conn.dns.isEmpty ? null : conn.dns.join('\n'),
+          ),
+          InfoRow(
+            label: context.tr('wifi.security'),
+            value: conn.securityLabel,
+          ),
+          InfoRow(
+            label: context.tr('wifi.standard'),
+            value: conn.standardLabel,
+          ),
         ],
       ),
     );
@@ -272,7 +343,9 @@ class _NearbyCard extends ConsumerWidget {
         case ScanNotice.refusedByOs:
           return context.tr('wifi.notice.refused');
         case ScanNotice.budgetUsed:
-          return context.tr('wifi.notice.budget', [state.retryAfterSeconds ?? '--']);
+          return context.tr('wifi.notice.budget', [
+            state.retryAfterSeconds ?? '--',
+          ]);
       }
     }
 
@@ -283,7 +356,11 @@ class _NearbyCard extends ConsumerWidget {
       trailing: FilledButton.tonalIcon(
         onPressed: state.scanning ? null : c.requestScan,
         icon: state.scanning
-            ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+            ? const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
             : const Icon(Icons.radar_rounded, size: 18),
         label: Text(context.tr('wifi.scan')),
       ),
@@ -294,7 +371,13 @@ class _NearbyCard extends ConsumerWidget {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _bandChip(context, c, state, null, context.tr('wifi.filter.all')),
+                _bandChip(
+                  context,
+                  c,
+                  state,
+                  null,
+                  context.tr('wifi.filter.all'),
+                ),
                 _bandChip(context, c, state, WifiBand.ghz24, '2.4 GHz'),
                 _bandChip(context, c, state, WifiBand.ghz5, '5 GHz'),
                 _bandChip(context, c, state, WifiBand.ghz6, '6 GHz'),
@@ -304,7 +387,10 @@ class _NearbyCard extends ConsumerWidget {
           const SizedBox(height: 4),
           Row(
             children: [
-              Text(context.tr('wifi.sortBy'), style: theme.textTheme.labelMedium),
+              Text(
+                context.tr('wifi.sortBy'),
+                style: theme.textTheme.labelMedium,
+              ),
               const SizedBox(width: 8),
               SegmentedButton<WifiSort>(
                 showSelectedIcon: false,
@@ -313,9 +399,18 @@ class _NearbyCard extends ConsumerWidget {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 segments: [
-                  ButtonSegment(value: WifiSort.signal, label: Text(context.tr('wifi.sort.signal'))),
-                  ButtonSegment(value: WifiSort.channel, label: Text(context.tr('wifi.sort.channel'))),
-                  ButtonSegment(value: WifiSort.name, label: Text(context.tr('wifi.sort.name'))),
+                  ButtonSegment(
+                    value: WifiSort.signal,
+                    label: Text(context.tr('wifi.sort.signal')),
+                  ),
+                  ButtonSegment(
+                    value: WifiSort.channel,
+                    label: Text(context.tr('wifi.sort.channel')),
+                  ),
+                  ButtonSegment(
+                    value: WifiSort.name,
+                    label: Text(context.tr('wifi.sort.name')),
+                  ),
                 ],
                 selected: {state.sort},
                 onSelectionChanged: (s) => c.setSort(s.first),
@@ -324,7 +419,12 @@ class _NearbyCard extends ConsumerWidget {
           ),
           if (notice != null) ...[
             const SizedBox(height: 8),
-            Text(notice, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.primary)),
+            Text(
+              notice,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.primary,
+              ),
+            ),
           ],
           const SizedBox(height: 8),
           if (aps.isEmpty)
@@ -332,20 +432,33 @@ class _NearbyCard extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(
                 context.tr('wifi.noAps'),
-                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             )
           else
             for (var i = 0; i < aps.length; i++) ...[
               if (i > 0) const Divider(),
-              _ApTile(ap: aps[i], connected: connectedBssid != null && aps[i].bssid.toLowerCase() == connectedBssid),
+              _ApTile(
+                ap: aps[i],
+                connected:
+                    connectedBssid != null &&
+                    aps[i].bssid.toLowerCase() == connectedBssid,
+              ),
             ],
         ],
       ),
     );
   }
 
-  Widget _bandChip(BuildContext context, WifiController c, WifiState s, WifiBand? band, String label) {
+  Widget _bandChip(
+    BuildContext context,
+    WifiController c,
+    WifiState s,
+    WifiBand? band,
+    String label,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
@@ -399,17 +512,25 @@ class _ApTile extends StatelessWidget {
                     ),
                     if (connected) ...[
                       const SizedBox(width: 8),
-                      Icon(Icons.check_circle_rounded, size: 16, color: theme.colorScheme.primary),
+                      Icon(
+                        Icons.check_circle_rounded,
+                        size: 16,
+                        color: theme.colorScheme.primary,
+                      ),
                     ],
                   ],
                 ),
                 Text(
                   ap.bssid,
-                  style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
                 Text(
                   details.join(' · '),
-                  style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -486,9 +607,18 @@ class _IssueList extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.info_outline_rounded, size: 16, color: theme.colorScheme.onSurfaceVariant),
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 16,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(context.tr('wifiissue.$i'), style: theme.textTheme.bodySmall)),
+                  Expanded(
+                    child: Text(
+                      context.tr('wifiissue.$i'),
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ),
                 ],
               ),
             ),

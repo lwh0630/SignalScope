@@ -24,15 +24,19 @@ class _DemoBanner extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(16, 6, 8, 6),
         child: Row(
           children: [
-            Icon(Icons.science_outlined, size: 18, color: scheme.onErrorContainer),
+            Icon(
+              Icons.science_outlined,
+              size: 18,
+              color: scheme.onErrorContainer,
+            ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 context.tr('demo.banner'),
-                style: Theme.of(context)
-                    .textTheme
-                    .labelMedium
-                    ?.copyWith(color: scheme.onErrorContainer, fontWeight: FontWeight.w700),
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: scheme.onErrorContainer,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
             TextButton(

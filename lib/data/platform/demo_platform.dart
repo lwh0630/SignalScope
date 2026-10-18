@@ -29,7 +29,8 @@ class DemoPlatform implements SignalPlatform {
   bool get isAndroid => true;
 
   @override
-  Future<PlatformCapabilities> getCapabilities() async => const PlatformCapabilities(
+  Future<PlatformCapabilities> getCapabilities() async =>
+      const PlatformCapabilities(
         platform: 'demo',
         hasTelephony: true,
         hasWifi: true,
@@ -42,7 +43,8 @@ class DemoPlatform implements SignalPlatform {
   Future<PermissionSnapshot> getPermissions() async => _granted;
 
   @override
-  Future<PermissionSnapshot> requestPermissions(Set<PermGroup> groups) async => _granted;
+  Future<PermissionSnapshot> requestPermissions(Set<PermGroup> groups) async =>
+      _granted;
 
   static const PermissionSnapshot _granted = PermissionSnapshot(
     location: PermStatus.granted,
@@ -66,31 +68,38 @@ class DemoPlatform implements SignalPlatform {
   Future<List<SimInfo>> getSimList() async => DemoData.sims;
 
   @override
-  Stream<CellularEvent> cellularStream(List<int> subscriptionIds) =>
-      _ticker((tick) {
-        // Streams are cancelled with the subscription; one event per SIM per tick.
-        return [
-          for (final id in subscriptionIds)
-            if (DemoData.cellular(id, tick) case final info?) CellularSnapshotEvent(info),
-        ];
-      });
+  Stream<CellularEvent> cellularStream(List<int> subscriptionIds) => _ticker((
+    tick,
+  ) {
+    // Streams are cancelled with the subscription; one event per SIM per tick.
+    return [
+      for (final id in subscriptionIds)
+        if (DemoData.cellular(id, tick) case final info?)
+          CellularSnapshotEvent(info),
+    ];
+  });
 
   // ---- Wi-Fi ----
 
   @override
-  Future<WifiConnectionInfo?> getWifiConnection() async => DemoData.wifiConnection(0);
+  Future<WifiConnectionInfo?> getWifiConnection() async =>
+      DemoData.wifiConnection(0);
 
   @override
-  Stream<WifiConnectionInfo> wifiConnectionStream() => _ticker((tick) => [DemoData.wifiConnection(tick)]);
+  Stream<WifiConnectionInfo> wifiConnectionStream() =>
+      _ticker((tick) => [DemoData.wifiConnection(tick)]);
 
   @override
-  Future<WifiScanResult> getWifiScanResults() async => DemoData.wifiScan(0, started: null);
+  Future<WifiScanResult> getWifiScanResults() async =>
+      DemoData.wifiScan(0, started: null);
 
   @override
-  Future<WifiScanResult> requestWifiScan() async => DemoData.wifiScan(0, started: true);
+  Future<WifiScanResult> requestWifiScan() async =>
+      DemoData.wifiScan(0, started: true);
 
   @override
-  Stream<WifiScanResult> wifiScanStream() => _ticker((tick) => [DemoData.wifiScan(tick, started: null)], every: 3);
+  Stream<WifiScanResult> wifiScanStream() =>
+      _ticker((tick) => [DemoData.wifiScan(tick, started: null)], every: 3);
 
   // ---- GNSS ----
 
@@ -106,12 +115,18 @@ class DemoPlatform implements SignalPlatform {
   Future<void> saveSettings(String json) => _real.saveSettings(json);
 
   @override
-  Future<String?> saveExport(String fileName, String mimeType, String content) =>
-      _real.saveExport(fileName, mimeType, content);
+  Future<String?> saveExport(
+    String fileName,
+    String mimeType,
+    String content,
+  ) => _real.saveExport(fileName, mimeType, content);
 
   /// Emits [build] results immediately and then once per second (per [every]
   /// seconds). The timer is cancelled when the listener cancels.
-  static Stream<T> _ticker<T>(List<T> Function(int tick) build, {int every = 1}) {
+  static Stream<T> _ticker<T>(
+    List<T> Function(int tick) build, {
+    int every = 1,
+  }) {
     late StreamController<T> controller;
     Timer? timer;
     var tick = 0;
@@ -140,8 +155,12 @@ class DemoPlatform implements SignalPlatform {
 class DemoData {
   DemoData._();
 
-  static int _wave(int tick, double period, double amplitude, {double phase = 0}) =>
-      (amplitude * math.sin(tick * 2 * math.pi / period + phase)).round();
+  static int _wave(
+    int tick,
+    double period,
+    double amplitude, {
+    double phase = 0,
+  }) => (amplitude * math.sin(tick * 2 * math.pi / period + phase)).round();
 
   static const List<SimInfo> sims = [
     SimInfo(
@@ -344,7 +363,14 @@ class DemoData {
     ('Neighbour-2G', '02:00:00:cc:dd:03', -72, 2412, 0, '[WPA2-PSK-CCMP][ESS]'),
     ('CafeGuest', '02:00:00:cc:dd:04', -78, 2462, 0, '[ESS]'),
     ('Neighbour-5G', '02:00:00:cc:dd:05', -81, 5240, 1, '[WPA2-PSK-CCMP][ESS]'),
-    ('Office-5G', '02:00:00:ee:ff:06', -66, 5745, 2, '[WPA2-EAP/SHA1-CCMP][ESS]'),
+    (
+      'Office-5G',
+      '02:00:00:ee:ff:06',
+      -66,
+      5745,
+      2,
+      '[WPA2-EAP/SHA1-CCMP][ESS]',
+    ),
     ('DemoNet-6G', '02:00:00:aa:bb:07', -70, 6055, 3, '[WPA3-SAE-CCMP][ESS]'),
     ('', '02:00:00:cc:dd:08', -85, 2447, 0, '[WPA2-PSK-CCMP][ESS]'),
   ];
@@ -368,7 +394,8 @@ class DemoData {
           {
             'bssid': _aps[i].$2,
             'ssid': _aps[i].$1.isEmpty ? null : _aps[i].$1,
-            'rssi': _aps[i].$3 + _wave(tick, 24 + i * 3, 3, phase: i.toDouble()),
+            'rssi':
+                _aps[i].$3 + _wave(tick, 24 + i * 3, 3, phase: i.toDouble()),
             'frequencyMhz': _aps[i].$4,
             // Wide channels are centred on the middle of their block, not on the primary channel.
             'centerFreq0Mhz': _centers[_aps[i].$4],
@@ -408,7 +435,9 @@ class DemoData {
       final el = s.$4;
       // Signal grows with elevation; the lowest satellites are not tracked at all.
       final tracked = el >= 10;
-      final cn0 = tracked ? 22 + el * 0.28 + 2.5 * math.sin(tick * 0.4 + s.$2) : 0.0;
+      final cn0 = tracked
+          ? 22 + el * 0.28 + 2.5 * math.sin(tick * 0.4 + s.$2)
+          : 0.0;
       sats.add({
         'svid': s.$2,
         'constellation': s.$1,

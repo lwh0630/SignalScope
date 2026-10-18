@@ -7,7 +7,11 @@ import 'latency_targets.dart';
 
 /// Raw outcome of probing one target.
 class LatencyMeasurement {
-  const LatencyMeasurement({this.dnsMs, this.tcpMs = const [], this.dnsFailed = false});
+  const LatencyMeasurement({
+    this.dnsMs,
+    this.tcpMs = const [],
+    this.dnsFailed = false,
+  });
 
   /// DNS resolution time; `null` for IP literals or when resolution failed.
   final double? dnsMs;
@@ -112,7 +116,10 @@ class SocketLatencyProbe implements LatencyProbe {
         sw.stop();
         if (list.isEmpty) return const LatencyMeasurement(dnsFailed: true);
         // Prefer IPv4 so results are comparable between sites.
-        address = list.firstWhere((a) => a.type == InternetAddressType.IPv4, orElse: () => list.first);
+        address = list.firstWhere(
+          (a) => a.type == InternetAddressType.IPv4,
+          orElse: () => list.first,
+        );
         dnsMs = sw.elapsedMicroseconds / 1000;
       } on Object {
         return const LatencyMeasurement(dnsFailed: true);
@@ -124,17 +131,25 @@ class SocketLatencyProbe implements LatencyProbe {
       if (isCancelled()) break;
       final sw = Stopwatch()..start();
       try {
-        final socket = await Socket.connect(address, target.port, timeout: timeout);
+        final socket = await Socket.connect(
+          address,
+          target.port,
+          timeout: timeout,
+        );
         sw.stop();
         socket.destroy();
         results.add(sw.elapsedMicroseconds / 1000);
       } on Object {
         results.add(null);
       }
-      if (i < samples - 1) await Future<void>.delayed(const Duration(milliseconds: 120));
+      if (i < samples - 1) {
+        await Future<void>.delayed(const Duration(milliseconds: 120));
+      }
     }
     return LatencyMeasurement(dnsMs: dnsMs, tcpMs: results);
   }
 }
 
-final latencyProbeProvider = Provider<LatencyProbe>((ref) => const SocketLatencyProbe());
+final latencyProbeProvider = Provider<LatencyProbe>(
+  (ref) => const SocketLatencyProbe(),
+);

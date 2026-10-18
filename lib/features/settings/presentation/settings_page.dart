@@ -27,7 +27,10 @@ class SettingsPage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(context.tr('settings.theme'), style: theme.textTheme.bodyMedium),
+              Text(
+                context.tr('settings.theme'),
+                style: theme.textTheme.bodyMedium,
+              ),
               const SizedBox(height: 8),
               SegmentedButton<ThemeMode>(
                 showSelectedIcon: false,
@@ -53,7 +56,10 @@ class SettingsPage extends ConsumerWidget {
                     notifier.update((c) => c.copyWith(themeMode: s.first)),
               ),
               const SizedBox(height: 16),
-              Text(context.tr('settings.language'), style: theme.textTheme.bodyMedium),
+              Text(
+                context.tr('settings.language'),
+                style: theme.textTheme.bodyMedium,
+              ),
               const SizedBox(height: 8),
               SegmentedButton<String>(
                 showSelectedIcon: false,
@@ -83,7 +89,10 @@ class SettingsPage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(context.tr('settings.updateRate'), style: theme.textTheme.bodyMedium),
+              Text(
+                context.tr('settings.updateRate'),
+                style: theme.textTheme.bodyMedium,
+              ),
               const SizedBox(height: 8),
               SegmentedButton<int>(
                 showSelectedIcon: false,
@@ -91,20 +100,24 @@ class SettingsPage extends ConsumerWidget {
                   for (final ms in AppSettings.updateIntervalOptionsMs)
                     ButtonSegment(
                       value: ms,
-                      label: Text(ms >= 1000
-                          ? context.tr('settings.seconds', [ms ~/ 1000])
-                          : context.tr('settings.milliseconds', [ms])),
+                      label: Text(
+                        ms >= 1000
+                            ? context.tr('settings.seconds', [ms ~/ 1000])
+                            : context.tr('settings.milliseconds', [ms]),
+                      ),
                     ),
                 ],
                 selected: {settings.updateIntervalMs},
-                onSelectionChanged: (s) =>
-                    notifier.update((c) => c.copyWith(updateIntervalMs: s.first)),
+                onSelectionChanged: (s) => notifier.update(
+                  (c) => c.copyWith(updateIntervalMs: s.first),
+                ),
               ),
               const SizedBox(height: 6),
               Text(
                 context.tr('settings.updateRateHint'),
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),
@@ -119,10 +132,14 @@ class SettingsPage extends ConsumerWidget {
                 title: Text(context.tr('settings.recordHistory')),
                 subtitle: Text(context.tr('settings.recordHistoryHint')),
                 value: settings.recordHistory,
-                onChanged: (v) => notifier.update((c) => c.copyWith(recordHistory: v)),
+                onChanged: (v) =>
+                    notifier.update((c) => c.copyWith(recordHistory: v)),
               ),
               const SizedBox(height: 8),
-              Text(context.tr('settings.historyWindow'), style: theme.textTheme.bodyMedium),
+              Text(
+                context.tr('settings.historyWindow'),
+                style: theme.textTheme.bodyMedium,
+              ),
               const SizedBox(height: 8),
               SegmentedButton<int>(
                 showSelectedIcon: false,
@@ -154,11 +171,15 @@ class SettingsPage extends ConsumerWidget {
               Text('SignalScope', style: theme.textTheme.titleMedium),
               Text(
                 context.tr('settings.version', [kAppVersion]),
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 8),
-              Text(context.tr('settings.aboutBody'), style: theme.textTheme.bodyMedium),
+              Text(
+                context.tr('settings.aboutBody'),
+                style: theme.textTheme.bodyMedium,
+              ),
             ],
           ),
         ),

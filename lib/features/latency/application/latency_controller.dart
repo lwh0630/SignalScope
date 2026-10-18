@@ -10,7 +10,11 @@ enum TargetStatus { idle, testing, done, failed }
 enum FailureKind { none, dns, unreachable }
 
 class TargetResult {
-  const TargetResult({this.status = TargetStatus.idle, this.stats, this.failure = FailureKind.none});
+  const TargetResult({
+    this.status = TargetStatus.idle,
+    this.stats,
+    this.failure = FailureKind.none,
+  });
 
   final TargetStatus status;
   final LatencyStats? stats;
@@ -35,7 +39,12 @@ enum LatencyGrade {
 }
 
 class LatencyState {
-  const LatencyState({this.results = const {}, this.running = false, this.total = 0, this.finished = 0});
+  const LatencyState({
+    this.results = const {},
+    this.running = false,
+    this.total = 0,
+    this.finished = 0,
+  });
 
   final Map<String, TargetResult> results;
   final bool running;
@@ -46,13 +55,17 @@ class LatencyState {
 
   TargetResult resultOf(String id) => results[id] ?? const TargetResult();
 
-  LatencyState copyWith({Map<String, TargetResult>? results, bool? running, int? total, int? finished}) =>
-      LatencyState(
-        results: results ?? this.results,
-        running: running ?? this.running,
-        total: total ?? this.total,
-        finished: finished ?? this.finished,
-      );
+  LatencyState copyWith({
+    Map<String, TargetResult>? results,
+    bool? running,
+    int? total,
+    int? finished,
+  }) => LatencyState(
+    results: results ?? this.results,
+    running: running ?? this.running,
+    total: total ?? this.total,
+    finished: finished ?? this.finished,
+  );
 
   /// Mean of the average latency of reachable targets in [targets]; `null` if none.
   double? groupAverage(Iterable<LatencyTarget> targets) {
@@ -92,7 +105,10 @@ class LatencyController extends Notifier<LatencyState> {
   }
 
   /// Built-in targets plus the user's custom ones, in display order.
-  List<LatencyTarget> get targets => [...LatencyTarget.builtIn, ...customTargets];
+  List<LatencyTarget> get targets => [
+    ...LatencyTarget.builtIn,
+    ...customTargets,
+  ];
 
   List<LatencyTarget> get customTargets {
     final list = <LatencyTarget>[];
@@ -112,7 +128,9 @@ class LatencyController extends Notifier<LatencyState> {
     _epoch++;
     final reset = {
       for (final e in state.results.entries)
-        e.key: e.value.status == TargetStatus.testing ? const TargetResult() : e.value,
+        e.key: e.value.status == TargetStatus.testing
+            ? const TargetResult()
+            : e.value,
     };
     state = state.copyWith(results: reset, running: false);
   }
@@ -128,7 +146,8 @@ class LatencyController extends Notifier<LatencyState> {
       finished: 0,
       results: {
         ...state.results,
-        for (final t in list) t.id: const TargetResult(status: TargetStatus.testing),
+        for (final t in list)
+          t.id: const TargetResult(status: TargetStatus.testing),
       },
     );
 
@@ -136,16 +155,28 @@ class LatencyController extends Notifier<LatencyState> {
     Future<void> worker() async {
       while (queue.isNotEmpty && !cancelled()) {
         final t = queue.removeAt(0);
-        final m = await _probe.measure(t, samples: samples, timeout: timeout, isCancelled: cancelled);
+        final m = await _probe.measure(
+          t,
+          samples: samples,
+          timeout: timeout,
+          isCancelled: cancelled,
+        );
         if (cancelled()) return;
         final TargetResult result;
         if (m.dnsFailed) {
-          result = const TargetResult(status: TargetStatus.failed, failure: FailureKind.dns);
+          result = const TargetResult(
+            status: TargetStatus.failed,
+            failure: FailureKind.dns,
+          );
         } else {
           final stats = LatencyStats.fromSamples(m.tcpMs, dnsMs: m.dnsMs);
           result = stats.reachable
               ? TargetResult(status: TargetStatus.done, stats: stats)
-              : TargetResult(status: TargetStatus.failed, stats: stats, failure: FailureKind.unreachable);
+              : TargetResult(
+                  status: TargetStatus.failed,
+                  stats: stats,
+                  failure: FailureKind.unreachable,
+                );
         }
         state = state.copyWith(
           results: {...state.results, t.id: result},
@@ -164,16 +195,26 @@ class LatencyController extends Notifier<LatencyState> {
     final t = LatencyTarget.parseCustom(input);
     if (t == null) return AddTargetOutcome.invalid;
     final current = ref.read(settingsProvider).customLatencyTargets;
-    if (customTargets.any((e) => e.id == t.id)) return AddTargetOutcome.duplicate;
-    if (current.length >= LatencyTarget.maxCustom) return AddTargetOutcome.limitReached;
-    ref.read(settingsProvider.notifier).update(
-          (s) => s.copyWith(customLatencyTargets: [...s.customLatencyTargets, t.storageKey]),
+    if (customTargets.any((e) => e.id == t.id)) {
+      return AddTargetOutcome.duplicate;
+    }
+    if (current.length >= LatencyTarget.maxCustom) {
+      return AddTargetOutcome.limitReached;
+    }
+    ref
+        .read(settingsProvider.notifier)
+        .update(
+          (s) => s.copyWith(
+            customLatencyTargets: [...s.customLatencyTargets, t.storageKey],
+          ),
         );
     return AddTargetOutcome.added;
   }
 
   void removeCustom(LatencyTarget target) {
-    ref.read(settingsProvider.notifier).update(
+    ref
+        .read(settingsProvider.notifier)
+        .update(
           (s) => s.copyWith(
             customLatencyTargets: [
               for (final e in s.customLatencyTargets)
@@ -186,4 +227,6 @@ class LatencyController extends Notifier<LatencyState> {
 }
 
 final latencyControllerProvider =
-    NotifierProvider.autoDispose<LatencyController, LatencyState>(LatencyController.new);
+    NotifierProvider.autoDispose<LatencyController, LatencyState>(
+      LatencyController.new,
+    );

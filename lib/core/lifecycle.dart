@@ -28,8 +28,9 @@ class AppForegroundNotifier extends Notifier<bool> with WidgetsBindingObserver {
   }
 }
 
-final appForegroundProvider =
-    NotifierProvider<AppForegroundNotifier, bool>(AppForegroundNotifier.new);
+final appForegroundProvider = NotifierProvider<AppForegroundNotifier, bool>(
+  AppForegroundNotifier.new,
+);
 
 /// Signal sources that can be monitored independently.
 enum Sensor { cellular, wifi, gnss }

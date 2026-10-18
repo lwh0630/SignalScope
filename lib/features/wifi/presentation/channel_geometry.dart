@@ -55,7 +55,8 @@ class ChannelGeometry {
     }
   }
 
-  static double? centerMhz(WifiScanInfo ap) => (ap.centerFreq0Mhz ?? ap.frequencyMhz)?.toDouble();
+  static double? centerMhz(WifiScanInfo ap) =>
+      (ap.centerFreq0Mhz ?? ap.frequencyMhz)?.toDouble();
 
   /// Occupied width in MHz. A 20 MHz 2.4 GHz transmission occupies ~22 MHz
   /// (DSSS mask), which is why neighbouring 2.4 GHz channels overlap.

@@ -37,8 +37,7 @@ const Map<String, String> stringsEn = {
 
   // platform
   'platform.unsupportedTitle': 'Not supported on this platform',
-  'platform.unsupportedBody':
-      'There is no native signal collector for {0}, so no data is shown here. Cellular, Wi-Fi and GNSS collection currently works on Android only.',
+  'platform.unsupportedBody': 'There is no native signal collector for {0}, so no data is shown here. Cellular, Wi-Fi and GNSS collection currently works on Android only.',
 
   // settings
   'settings.title': 'Settings',
@@ -53,8 +52,7 @@ const Map<String, String> stringsEn = {
   'settings.language.en': 'English',
   'settings.monitoring': 'Monitoring',
   'settings.updateRate': 'Display update rate',
-  'settings.updateRateHint':
-      'Limits the minimum interval between samples shown in the UI and history. Data still comes from system callbacks; polling is not increased.',
+  'settings.updateRateHint': 'Limits the minimum interval between samples shown in the UI and history. Data still comes from system callbacks; polling is not increased.',
   'settings.history': 'Signal history',
   'settings.historyWindow': 'History window',
   'settings.recordHistory': 'Record signal history',
@@ -72,19 +70,15 @@ const Map<String, String> stringsEn = {
   'settings.minutes': '{0} min',
   'settings.milliseconds': '{0} ms',
   'settings.version': 'Version {0}',
-  'settings.aboutBody':
-      'SignalScope is a network signal inspector built on public Android APIs. Every value is what the system actually returned; fields the system does not provide are shown as "--" and are never replaced by 0 or simulated values.',
+  'settings.aboutBody': 'SignalScope is a network signal inspector built on public Android APIs. Every value is what the system actually returned; fields the system does not provide are shown as "--" and are never replaced by 0 or simulated values.',
   'common.updatedAt': 'Updated {0}',
 
   // permissions
-  'perm.cellularWhy':
-      'Reading SIM and cellular signal needs the Phone permission; reading cell identity (PCI, TAC, CI ...) also needs Location.',
+  'perm.cellularWhy': 'Reading SIM and cellular signal needs the Phone permission; reading cell identity (PCI, TAC, CI ...) also needs Location.',
   'perm.openAppSettings': 'Open app settings',
-  'perm.locationOff':
-      'The system location switch is off. Android requires it for cell, Wi-Fi and GNSS data.',
+  'perm.locationOff': 'The system location switch is off. Android requires it for cell, Wi-Fi and GNSS data.',
   'perm.openLocationSettings': 'Open location settings',
-  'perm.permanentHint':
-      'This permission was permanently denied. Please enable it manually in system settings.',
+  'perm.permanentHint': 'This permission was permanently denied. Please enable it manually in system settings.',
 
   // signal quality
   'quality.excellent': 'Excellent',
@@ -96,12 +90,15 @@ const Map<String, String> stringsEn = {
 
   // cellular
   'cellular.noSim': 'No usable SIM card detected',
-  'cellular.noSimHint': 'Insert a SIM card, or check that this device has cellular hardware.',
+  'cellular.noSimHint':
+      'Insert a SIM card, or check that this device has cellular hardware.',
   'cellular.needPhonePerm': 'Phone permission is needed to read SIM info',
-  'cellular.needPhonePermHint': 'All SIM cards will be listed after you grant it.',
+  'cellular.needPhonePermHint':
+      'All SIM cards will be listed after you grant it.',
   'cellular.roaming': 'Roaming',
   'cellular.defaultData': 'Default data SIM',
-  'cellular.noReading': 'The system has not returned a signal strength value yet.',
+  'cellular.noReading':
+      'The system has not returned a signal strength value yet.',
   'cellular.simInfo': 'SIM & network',
   'cellular.slot': 'Slot',
   'cellular.carrier': 'Carrier',
@@ -134,11 +131,9 @@ const Map<String, String> stringsEn = {
   'cellular.nrFrequency': 'Reference frequency',
   'cellular.level': 'Signal level (0-4)',
   'cellular.neighbors': 'Neighbour cells',
-  'cellular.noNeighbors':
-      'The system returned no neighbour cells (depends on device and permissions).',
+  'cellular.noNeighbors': 'The system returned no neighbour cells (depends on device and permissions).',
   'cellular.notes': 'Data notes',
-  'cellular.nsaNoNr':
-      'The device is in 5G NSA mode but the system exposes no NR cell data. LTE data is never shown as NR.',
+  'cellular.nsaNoNr': 'The device is in 5G NSA mode but the system exposes no NR cell data. LTE data is never shown as NR.',
   'simstate.0': 'Unknown',
   'simstate.1': 'Absent',
   'simstate.2': 'PIN required',
@@ -158,19 +153,20 @@ const Map<String, String> stringsEn = {
   'servicestate.1': 'Out of service',
   'servicestate.2': 'Emergency only',
   'servicestate.3': 'Radio off',
-  'issue.no_location_permission':
-      'No location permission: the system will not return cell identity (PCI/TAC/CI ...), only signal measurements.',
-  'issue.no_phone_permission': 'No phone permission: signal listeners cannot be registered.',
-  'issue.cell_info_empty':
-      'The system returned no cell info (common on some devices, in airplane mode or right after boot).',
+  'issue.no_location_permission': 'No location permission: the system will not return cell identity (PCI/TAC/CI ...), only signal measurements.',
+  'issue.no_phone_permission':
+      'No phone permission: signal listeners cannot be registered.',
+  'issue.cell_info_empty': 'The system returned no cell info (common on some devices, in airplane mode or right after boot).',
   'issue.listener_failed': 'Some system listeners failed to register.',
-  'issue.callback_denied': 'Some system callbacks were denied (insufficient permission).',
-  'issue.telephony_unavailable': 'No telephony service is available on this device.',
+  'issue.callback_denied':
+      'Some system callbacks were denied (insufficient permission).',
+  'issue.telephony_unavailable':
+      'No telephony service is available on this device.',
   // wifi
-  'wifi.permWhy':
-      'Android requires the Location permission (and Nearby Wi-Fi devices on Android 13+) to return SSID, BSSID and nearby networks.',
+  'wifi.permWhy': 'Android requires the Location permission (and Nearby Wi-Fi devices on Android 13+) to return SSID, BSSID and nearby networks.',
   'wifi.disabled': 'Wi-Fi is off',
-  'wifi.disabledHint': 'Turn Wi-Fi on to see connection details and nearby networks.',
+  'wifi.disabledHint':
+      'Turn Wi-Fi on to see connection details and nearby networks.',
   'wifi.openWifiSettings': 'Open Wi-Fi settings',
   'wifi.notConnected': 'Not connected to Wi-Fi',
   'wifi.hiddenSsid': '(hidden or unavailable SSID)',
@@ -196,27 +192,23 @@ const Map<String, String> stringsEn = {
   'wifi.sort.signal': 'Signal',
   'wifi.sort.channel': 'Channel',
   'wifi.sort.name': 'Name',
-  'wifi.noAps':
-      'No networks to show. The system cache has no scan results yet; tap Scan to request a new scan.',
+  'wifi.noAps': 'No networks to show. The system cache has no scan results yet; tap Scan to request a new scan.',
   'wifi.channelGraph': 'Channel graph',
   'wifi.notice.requested': 'Scan requested from the system; results update automatically when they arrive.',
-  'wifi.notice.refused':
-      'The system refused this scan request (Android limits scan frequency); cached results are shown.',
-  'wifi.notice.budget':
-      'To respect Android limits (4 scans per 2 minutes in the foreground), try again in {0} s.',
+  'wifi.notice.refused': 'The system refused this scan request (Android limits scan frequency); cached results are shown.',
+  'wifi.notice.budget': 'To respect Android limits (4 scans per 2 minutes in the foreground), try again in {0} s.',
   'wifiissue.wifi_disabled': 'Wi-Fi is turned off.',
   'wifiissue.wifi_unsupported': 'This device has no Wi-Fi hardware.',
-  'wifiissue.no_location_permission':
-      'No location permission: the system hides SSID/BSSID and returns no scan results.',
-  'wifiissue.location_off':
-      'The system location switch is off: Android returns no SSID/BSSID or scan results.',
-  'wifiissue.ssid_hidden': 'The system did not provide an SSID (possibly a hidden network).',
-  'wifiissue.platform_unsupported': 'Wi-Fi collection is not supported on this platform.',
+  'wifiissue.no_location_permission': 'No location permission: the system hides SSID/BSSID and returns no scan results.',
+  'wifiissue.location_off': 'The system location switch is off: Android returns no SSID/BSSID or scan results.',
+  'wifiissue.ssid_hidden':
+      'The system did not provide an SSID (possibly a hidden network).',
+  'wifiissue.platform_unsupported':
+      'Wi-Fi collection is not supported on this platform.',
   'wifiissue.native_error': 'A native error occurred while reading Wi-Fi data.',
 
   // gnss
-  'gnss.permWhy':
-      'GNSS positioning needs the Location permission (precise location) and the system location switch must be on.',
+  'gnss.permWhy': 'GNSS positioning needs the Location permission (precise location) and the system location switch must be on.',
   'gnss.fix': 'Fix status',
   'gnss.state.unknown': 'Waiting for data',
   'gnss.state.unsupported': 'GNSS not supported',
@@ -224,15 +216,15 @@ const Map<String, String> stringsEn = {
   'gnss.state.searching': 'Searching',
   'gnss.state.fixed': 'Fixed',
   'gnss.state.stale': 'Fix is stale',
-  'gnss.hint.searching':
-      'Searching for satellites. Go outdoors with a clear view of the sky; a first fix can take seconds to minutes and usually fails indoors.',
+  'gnss.hint.searching': 'Searching for satellites. Go outdoors with a clear view of the sky; a first fix can take seconds to minutes and usually fails indoors.',
   'gnss.hint.stale': 'The last fix has not been updated for over 10 s; the position shown is old.',
   'gnss.hint.mock': 'This position comes from a mock location provider, not from real satellites.',
   'gnss.position': 'Position',
   'gnss.latitude': 'Latitude',
   'gnss.longitude': 'Longitude',
   'gnss.altitude': 'Altitude',
-  'gnss.altitudeNote': 'System reported: height above the WGS84 ellipsoid, not above sea level',
+  'gnss.altitudeNote':
+      'System reported: height above the WGS84 ellipsoid, not above sea level',
   'gnss.hAcc': 'Horizontal accuracy',
   'gnss.hAccNote': 'System reported: ~68% confidence radius',
   'gnss.vAcc': 'Vertical accuracy',
@@ -255,8 +247,7 @@ const Map<String, String> stringsEn = {
   'gnss.skyPlot': 'Sky plot',
   'gnss.skyNote': 'North is up, centre is zenith. Filled = used in fix, hollow = not used, faded = not tracked.',
   'gnss.cn0Chart': 'C/N0 per satellite (dB-Hz)',
-  'gnss.cn0Note':
-      'Solid bar with bright outline = used in fix, translucent = not used, "--" = not tracked. The dot under a bar is the constellation colour; the flag on top is the operating nation or organisation.',
+  'gnss.cn0Note': 'Solid bar with bright outline = used in fix, translucent = not used, "--" = not tracked. The dot under a bar is the constellation colour; the flag on top is the operating nation or organisation.',
   'gnss.cn0.tapHint': 'Tap a bar to see that satellite',
   'gnss.cn0.avg': 'Avg',
   'gnss.baseband': 'Baseband C/N0',
@@ -280,16 +271,17 @@ const Map<String, String> stringsEn = {
   'gnss.trendUsed': 'Satellites used in fix',
   'gnss.trendAcc': 'Horizontal accuracy',
   'gnssissue.gnss_unsupported': 'This device has no GNSS receiver.',
-  'gnssissue.no_location_permission': 'No location permission: the system provides no fix or satellite data.',
-  'gnssissue.location_off': 'The system location switch is off: no fix is possible.',
-  'gnssissue.gps_provider_disabled':
-      'The GPS provider is disabled by the system (e.g. battery saver or network-only location).',
-  'gnssissue.platform_unsupported': 'GNSS collection is not supported on this platform.',
+  'gnssissue.no_location_permission':
+      'No location permission: the system provides no fix or satellite data.',
+  'gnssissue.location_off':
+      'The system location switch is off: no fix is possible.',
+  'gnssissue.gps_provider_disabled': 'The GPS provider is disabled by the system (e.g. battery saver or network-only location).',
+  'gnssissue.platform_unsupported':
+      'GNSS collection is not supported on this platform.',
   'gnssissue.native_error': 'A native error occurred while reading GNSS data.',
 
   // overview
-  'overview.permWhy':
-      'SignalScope needs the Phone permission (SIM and cellular signal) and the Location permission (cell identity, Wi-Fi, GNSS). Each page also explains what it needs.',
+  'overview.permWhy': 'SignalScope needs the Phone permission (SIM and cellular signal) and the Location permission (cell identity, Wi-Fi, GNSS). Each page also explains what it needs.',
   'overview.cellular': 'Cellular',
   'overview.wifi': 'Wi-Fi',
   'overview.gnss': 'GNSS',
@@ -306,13 +298,12 @@ const Map<String, String> stringsEn = {
   'settings.clearHistory': 'Clear history',
   'settings.clearHistoryDone': 'History cleared',
   'settings.exportDemoNote': 'Demo mode is on: exported data is built-in sample data, not from this device.',
-  'settings.permissionsUnsupported': 'This platform has no runtime permissions to manage.',
-  'settings.permissionsHint':
-      'Status refreshes automatically when you return to the app. Permanently denied permissions can only be enabled in system settings.',
+  'settings.permissionsUnsupported':
+      'This platform has no runtime permissions to manage.',
+  'settings.permissionsHint': 'Status refreshes automatically when you return to the app. Permanently denied permissions can only be enabled in system settings.',
   'settings.demo': 'Demo mode',
   'settings.demoMode': 'Use built-in sample data',
-  'settings.demoModeHint':
-      'Only for previewing the UI: values are generated by fixed formulas (fictional operators, position 0°N 0°E) and are not your device\'s real signal. Lasts for this run only and is off after a restart.',
+  'settings.demoModeHint': 'Only for previewing the UI: values are generated by fixed formulas (fictional operators, position 0°N 0°E) and are not your device\'s real signal. Lasts for this run only and is off after a restart.',
   'demo.banner': 'DEMO MODE · data below is built-in samples, not real signals',
   'demo.turnOff': 'Turn off',
   'perm.status.granted': 'Granted',
@@ -320,23 +311,20 @@ const Map<String, String> stringsEn = {
   'perm.status.permanentlyDenied': 'Permanently denied',
   'perm.status.notApplicable': 'Not required',
   'perm.group.location': 'Location (precise)',
-  'perm.group.location.desc':
-      'Read cell identity (PCI/TAC/CI), Wi-Fi names and scan results, and GNSS position and satellites.',
+  'perm.group.location.desc': 'Read cell identity (PCI/TAC/CI), Wi-Fi names and scan results, and GNSS position and satellites.',
   'perm.group.phone': 'Phone',
-  'perm.group.phone.desc':
-      'Read SIM cards, carrier and cellular signal strength. The app never places calls or reads call logs.',
+  'perm.group.phone.desc': 'Read SIM cards, carrier and cellular signal strength. The app never places calls or reads call logs.',
   'perm.group.nearbyWifi': 'Nearby Wi-Fi devices',
-  'perm.group.nearbyWifi.desc':
-      'Used on Android 13+ to read nearby Wi-Fi scan results; not needed on older versions.',
+  'perm.group.nearbyWifi.desc': 'Used on Android 13+ to read nearby Wi-Fi scan results; not needed on older versions.',
   'perm.locationSwitch': 'System location switch',
   'perm.switch.on': 'On',
   'perm.switch.off': 'Off',
-  'perm.locationSwitch.desc':
-      'With the location switch off, Android returns no Wi-Fi names, scan results or position.',
+  'perm.locationSwitch.desc': 'With the location switch off, Android returns no Wi-Fi names, scan results or position.',
 
   // wifi channel chart
   'wifi.chart.empty': 'No access points found on this band',
-  'wifi.chart.tapHint': 'Tap a curve or a chip above to see access point details',
+  'wifi.chart.tapHint':
+      'Tap a curve or a chip above to see access point details',
   'wifi.chart.connected': 'Connected',
   'wifi.chart.span': 'Occupied spectrum',
 
@@ -350,7 +338,8 @@ const Map<String, String> stringsEn = {
   'addr.macReported': 'System reported',
   'addr.macHiddenShort': 'Hidden by Android',
   'addr.noDataNetwork': 'No data connection on this SIM',
-  'addr.noDataNetworkNote': 'Only the SIM currently used for data has a mobile IP',
+  'addr.noDataNetworkNote':
+      'Only the SIM currently used for data has a mobile IP',
   'addr.ipv6LinkNote': 'Valid on this link only, not routable',
   'addr.noIpv6': 'Not assigned by the network',
   'addr.copied': 'Copied: {0}',
@@ -362,10 +351,8 @@ const Map<String, String> stringsEn = {
   'latency.start': 'Start test',
   'latency.stop': 'Stop',
   'latency.progress': '{0} of {1} done',
-  'latency.intro':
-      'Measures network latency from this device to each site: the host name is resolved first, then four TCP connections to port 443 are timed. Tap a site to retest it alone.',
-  'latency.note':
-      'Regular apps cannot send ICMP ping, so this measures the TCP handshake time, which is close to ping but not the same. Results depend on the network in use (Wi-Fi or mobile data); sites behind a CDN are measured to the nearest node, which may not be in the named country; some sites may be unreachable in some regions and are then shown as timeouts. The app only goes online when you start a test and uploads nothing.',
+  'latency.intro': 'Measures network latency from this device to each site: the host name is resolved first, then four TCP connections to port 443 are timed. Tap a site to retest it alone.',
+  'latency.note': 'Regular apps cannot send ICMP ping, so this measures the TCP handshake time, which is close to ping but not the same. Results depend on the network in use (Wi-Fi or mobile data); sites behind a CDN are measured to the nearest node, which may not be in the named country; some sites may be unreachable in some regions and are then shown as timeouts. The app only goes online when you start a test and uploads nothing.',
   'latency.group.mainland': 'Mainland China',
   'latency.group.international': 'USA / International',
   'latency.group.custom': 'Custom addresses',
@@ -382,7 +369,8 @@ const Map<String, String> stringsEn = {
   'latency.custom.invalid': 'Invalid address',
   'latency.custom.duplicate': 'Already in the list',
   'latency.custom.limit': 'At most {0} addresses',
-  'latency.custom.empty': 'No custom addresses yet. Add your own server or a favourite site.',
+  'latency.custom.empty':
+      'No custom addresses yet. Add your own server or a favourite site.',
   'latency.custom.remove': 'Remove',
   // <<END>>
 };

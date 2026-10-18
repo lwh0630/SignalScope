@@ -50,7 +50,12 @@ class GnssState {
     final s = snapshot;
     if (s == null) return FixState.unknown;
     if (s.gnssSupported == false) return FixState.unsupported;
-    if (s.issues.any((i) => i == 'no_location_permission' || i == 'location_off' || i == 'gps_provider_disabled')) {
+    if (s.issues.any(
+      (i) =>
+          i == 'no_location_permission' ||
+          i == 'location_off' ||
+          i == 'gps_provider_disabled',
+    )) {
       return FixState.blocked;
     }
     final loc = s.location;
@@ -70,11 +75,17 @@ class GnssState {
     return age < 0 ? 0 : age;
   }
 
-  GnssState copyWith({Object? snapshot = _keep, MonitorStatus? status, bool? streaming}) => GnssState(
-        snapshot: identical(snapshot, _keep) ? this.snapshot : snapshot as GnssSnapshot?,
-        status: status ?? this.status,
-        streaming: streaming ?? this.streaming,
-      );
+  GnssState copyWith({
+    Object? snapshot = _keep,
+    MonitorStatus? status,
+    bool? streaming,
+  }) => GnssState(
+    snapshot: identical(snapshot, _keep)
+        ? this.snapshot
+        : snapshot as GnssSnapshot?,
+    status: status ?? this.status,
+    streaming: streaming ?? this.streaming,
+  );
 }
 
 const Object _keep = Object();
@@ -96,7 +107,8 @@ class GnssController extends Notifier<GnssState> {
     // Switching platform (demo mode on/off) rebuilds this controller from scratch.
     ref.watch(signalPlatformProvider);
     _throttle = KeyedThrottle<int, GnssSnapshot>(
-      interval: () => Duration(milliseconds: ref.read(settingsProvider).updateIntervalMs),
+      interval: () =>
+          Duration(milliseconds: ref.read(settingsProvider).updateIntervalMs),
       onValue: (_, snap) => _apply(snap),
     );
     ref.onDispose(() {
@@ -105,9 +117,14 @@ class GnssController extends Notifier<GnssState> {
       _sub = null;
       _throttle.dispose();
     });
-    ref.listen<bool>(sensorVisibleProvider(Sensor.gnss), (_, _) => _reconcile());
+    ref.listen<bool>(
+      sensorVisibleProvider(Sensor.gnss),
+      (_, _) => _reconcile(),
+    );
     ref.listen(
-      permissionProvider.select((p) => (p.location, p.locationServicesEnabled, p.loaded)),
+      permissionProvider.select(
+        (p) => (p.location, p.locationServicesEnabled, p.loaded),
+      ),
       (prev, next) {
         // `$3` is `loaded`: the very first load is not a user-visible change.
         if (prev != null && prev.$3 && prev != next && _sub != null) {
@@ -140,7 +157,8 @@ class GnssController extends Notifier<GnssState> {
   void _reconcile() {
     if (!_alive) return;
     final platform = ref.read(signalPlatformProvider);
-    final should = platform.isAndroid &&
+    final should =
+        platform.isAndroid &&
         ref.read(sensorVisibleProvider(Sensor.gnss)) &&
         state.status == MonitorStatus.listening;
     if (should && _sub == null) {
@@ -180,4 +198,6 @@ class GnssController extends Notifier<GnssState> {
   }
 }
 
-final gnssControllerProvider = NotifierProvider<GnssController, GnssState>(GnssController.new);
+final gnssControllerProvider = NotifierProvider<GnssController, GnssState>(
+  GnssController.new,
+);

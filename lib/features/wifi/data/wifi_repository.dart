@@ -9,9 +9,11 @@ class WifiRepository {
 
   final SignalPlatform _platform;
 
-  Future<WifiConnectionInfo?> connectionSnapshot() => _platform.getWifiConnection();
+  Future<WifiConnectionInfo?> connectionSnapshot() =>
+      _platform.getWifiConnection();
 
-  Stream<WifiConnectionInfo> connectionStream() => _platform.wifiConnectionStream();
+  Stream<WifiConnectionInfo> connectionStream() =>
+      _platform.wifiConnectionStream();
 
   /// Fires whenever the OS publishes new scan results (cache read only).
   Stream<WifiScanResult> scanStream() => _platform.wifiScanStream();

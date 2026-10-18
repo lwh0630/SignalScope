@@ -23,17 +23,18 @@ class AppTheme {
   static const Color seed = Color(0xFF00B8D4);
 
   static ThemeData dark() {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: seed,
-      brightness: Brightness.dark,
-    ).copyWith(
-      surface: const Color(0xFF0B1220),
-      surfaceContainerLowest: const Color(0xFF080D18),
-      surfaceContainerLow: const Color(0xFF0F1727),
-      surfaceContainer: const Color(0xFF131C30),
-      surfaceContainerHigh: const Color(0xFF18233B),
-      surfaceContainerHighest: const Color(0xFF1E2A46),
-    );
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: seed,
+          brightness: Brightness.dark,
+        ).copyWith(
+          surface: const Color(0xFF0B1220),
+          surfaceContainerLowest: const Color(0xFF080D18),
+          surfaceContainerLow: const Color(0xFF0F1727),
+          surfaceContainer: const Color(0xFF131C30),
+          surfaceContainerHigh: const Color(0xFF18233B),
+          surfaceContainerHighest: const Color(0xFF1E2A46),
+        );
     return _build(scheme);
   }
 
@@ -69,7 +70,9 @@ class AppTheme {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.35)),
+          side: BorderSide(
+            color: scheme.outlineVariant.withValues(alpha: 0.35),
+          ),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
@@ -78,7 +81,9 @@ class AppTheme {
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => TextStyle(
             fontSize: 12,
-            fontWeight: states.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w500,
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w700
+                : FontWeight.w500,
           ),
         ),
       ),

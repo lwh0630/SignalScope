@@ -35,9 +35,10 @@ class MonitorBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final (label, color) = switch (status) {
-      MonitorStatus.listening => streaming
-          ? (context.tr('common.listening'), SignalColors.excellent)
-          : (context.tr('common.idle'), SignalColors.none),
+      MonitorStatus.listening =>
+        streaming
+            ? (context.tr('common.listening'), SignalColors.excellent)
+            : (context.tr('common.idle'), SignalColors.none),
       MonitorStatus.paused => (context.tr('common.paused'), SignalColors.fair),
       MonitorStatus.stopped => (context.tr('common.stopped'), SignalColors.bad),
     };
@@ -47,8 +48,12 @@ class MonitorBar extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: Text(
-            updatedAtMs == null ? '' : context.tr('common.updatedAt', [fmtClock(updatedAtMs)]),
-            style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            updatedAtMs == null
+                ? ''
+                : context.tr('common.updatedAt', [fmtClock(updatedAtMs)]),
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ),
         ?extra,
@@ -60,7 +65,9 @@ class MonitorBar extends StatelessWidget {
           )
         else
           IconButton(
-            tooltip: context.tr(status == MonitorStatus.paused ? 'common.resume' : 'common.start'),
+            tooltip: context.tr(
+              status == MonitorStatus.paused ? 'common.resume' : 'common.start',
+            ),
             onPressed: onStart,
             icon: const Icon(Icons.play_circle_outline_rounded),
           ),

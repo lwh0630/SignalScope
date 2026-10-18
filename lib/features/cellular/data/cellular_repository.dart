@@ -29,17 +29,11 @@ class CellularRepository {
   static CellularInfo resolveBands(CellularInfo info) {
     final lte = [
       for (final c in info.lte)
-        if (c.bands.isEmpty && c.earfcn != null)
-          _withLteBand(c)
-        else
-          c,
+        if (c.bands.isEmpty && c.earfcn != null) _withLteBand(c) else c,
     ];
     final nr = [
       for (final c in info.nr)
-        if (c.bands.isEmpty && c.nrarfcn != null)
-          _withNrBand(c)
-        else
-          c,
+        if (c.bands.isEmpty && c.nrarfcn != null) _withNrBand(c) else c,
     ];
     return info.withCells(lte: lte, nr: nr);
   }

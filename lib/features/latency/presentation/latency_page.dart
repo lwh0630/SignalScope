@@ -10,11 +10,11 @@ import '../application/latency_controller.dart';
 import '../data/latency_targets.dart';
 
 Color latencyColor(double ms) => switch (LatencyGrade.of(ms)) {
-      LatencyGrade.excellent => SignalColors.excellent,
-      LatencyGrade.good => SignalColors.good,
-      LatencyGrade.fair => SignalColors.fair,
-      LatencyGrade.poor => SignalColors.poor,
-    };
+  LatencyGrade.excellent => SignalColors.excellent,
+  LatencyGrade.good => SignalColors.good,
+  LatencyGrade.fair => SignalColors.fair,
+  LatencyGrade.poor => SignalColors.poor,
+};
 
 /// Full-screen latency test, opened from the speed icon on the overview page.
 class LatencyPage extends ConsumerWidget {
@@ -63,11 +63,16 @@ class LatencyPage extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.tr('latency.intro'), style: theme.textTheme.bodyMedium),
+                    Text(
+                      context.tr('latency.intro'),
+                      style: theme.textTheme.bodyMedium,
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       context.tr('latency.note'),
-                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
@@ -108,7 +113,9 @@ class _Progress extends StatelessWidget {
       children: [
         Text(
           context.tr('latency.progress', [state.finished, state.total]),
-          style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary),
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: theme.colorScheme.primary,
+          ),
         ),
         const SizedBox(height: 6),
         MiniSignalBar(fraction: fraction, color: theme.colorScheme.primary),
@@ -118,7 +125,11 @@ class _Progress extends StatelessWidget {
 }
 
 class _GroupCard extends ConsumerWidget {
-  const _GroupCard({required this.titleKey, required this.targets, required this.state});
+  const _GroupCard({
+    required this.titleKey,
+    required this.targets,
+    required this.state,
+  });
 
   final String titleKey;
   final List<LatencyTarget> targets;
@@ -140,8 +151,15 @@ class _GroupCard extends ConsumerWidget {
       child: Column(
         children: [
           for (var i = 0; i < targets.length; i++) ...[
-            if (i > 0) Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
-            _TargetTile(target: targets[i], result: state.resultOf(targets[i].id)),
+            if (i > 0)
+              Divider(
+                height: 1,
+                color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+              ),
+            _TargetTile(
+              target: targets[i],
+              result: state.resultOf(targets[i].id),
+            ),
           ],
         ],
       ),
@@ -150,7 +168,11 @@ class _GroupCard extends ConsumerWidget {
 }
 
 class _TargetTile extends ConsumerWidget {
-  const _TargetTile({required this.target, required this.result, this.onDelete});
+  const _TargetTile({
+    required this.target,
+    required this.result,
+    this.onDelete,
+  });
 
   final LatencyTarget target;
   final TargetResult result;
@@ -168,10 +190,17 @@ class _TargetTile extends ConsumerWidget {
     switch (result.status) {
       case TargetStatus.idle:
         color = muted;
-        trailing = Text(context.tr('latency.idle'), style: theme.textTheme.labelMedium?.copyWith(color: muted));
+        trailing = Text(
+          context.tr('latency.idle'),
+          style: theme.textTheme.labelMedium?.copyWith(color: muted),
+        );
       case TargetStatus.testing:
         color = theme.colorScheme.primary;
-        trailing = const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2));
+        trailing = const SizedBox(
+          width: 18,
+          height: 18,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        );
       case TargetStatus.done:
         color = latencyColor(avg!);
         trailing = Row(
@@ -188,22 +217,36 @@ class _TargetTile extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 3),
-            Text('ms', style: theme.textTheme.labelMedium?.copyWith(color: muted)),
+            Text(
+              'ms',
+              style: theme.textTheme.labelMedium?.copyWith(color: muted),
+            ),
           ],
         );
       case TargetStatus.failed:
         color = SignalColors.bad;
         trailing = Text(
-          context.tr(result.failure == FailureKind.dns ? 'latency.failed.dns' : 'latency.failed.unreachable'),
-          style: theme.textTheme.labelMedium?.copyWith(color: color, fontWeight: FontWeight.w700),
+          context.tr(
+            result.failure == FailureKind.dns
+                ? 'latency.failed.dns'
+                : 'latency.failed.unreachable',
+          ),
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: color,
+            fontWeight: FontWeight.w700,
+          ),
         );
     }
 
     final details = <String>[
-      if (stats != null && stats.minMs != null) '${context.tr('latency.min')} ${stats.minMs!.round()}',
-      if (stats != null && stats.maxMs != null) '${context.tr('latency.max')} ${stats.maxMs!.round()}',
-      if (stats?.jitterMs != null) '${context.tr('latency.jitter')} ${stats!.jitterMs!.toStringAsFixed(1)}',
-      if (stats != null && stats.sent > 0) '${context.tr('latency.loss')} ${stats.lossPercent.round()}%',
+      if (stats != null && stats.minMs != null)
+        '${context.tr('latency.min')} ${stats.minMs!.round()}',
+      if (stats != null && stats.maxMs != null)
+        '${context.tr('latency.max')} ${stats.maxMs!.round()}',
+      if (stats?.jitterMs != null)
+        '${context.tr('latency.jitter')} ${stats!.jitterMs!.toStringAsFixed(1)}',
+      if (stats != null && stats.sent > 0)
+        '${context.tr('latency.loss')} ${stats.lossPercent.round()}%',
       if (stats?.dnsMs != null) 'DNS ${stats!.dnsMs!.round()} ms',
     ];
 
@@ -218,7 +261,14 @@ class _TargetTile extends ConsumerWidget {
           children: [
             Row(
               children: [
-                Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                  ),
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -227,12 +277,16 @@ class _TargetTile extends ConsumerWidget {
                       Text(
                         target.name,
                         overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       Text(
                         target.displayAddress,
                         overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.labelSmall?.copyWith(color: muted),
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: muted,
+                        ),
                       ),
                     ],
                   ),
@@ -262,7 +316,11 @@ class _TargetTile extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 20),
                 // Shorter bar = higher latency (0 ms full, 300 ms empty).
-                child: MiniSignalBar(fraction: (1 - avg / 300).clamp(0.04, 1.0), color: color, height: 5),
+                child: MiniSignalBar(
+                  fraction: (1 - avg / 300).clamp(0.04, 1.0),
+                  color: color,
+                  height: 5,
+                ),
               ),
             ],
           ],
@@ -294,7 +352,9 @@ class _CustomCardState extends ConsumerState<_CustomCard> {
   }
 
   void _add() {
-    final outcome = ref.read(latencyControllerProvider.notifier).addCustom(_controller.text);
+    final outcome = ref
+        .read(latencyControllerProvider.notifier)
+        .addCustom(_controller.text);
     setState(() {
       switch (outcome) {
         case AddTargetOutcome.added:
@@ -344,13 +404,18 @@ class _CustomCardState extends ConsumerState<_CustomCard> {
                   decoration: InputDecoration(
                     isDense: true,
                     hintText: context.tr('latency.custom.hint'),
-                    errorText: _errorKey == null ? null : context.tr(_errorKey!, _errorArgs),
+                    errorText: _errorKey == null
+                        ? null
+                        : context.tr(_errorKey!, _errorArgs),
                     border: const OutlineInputBorder(),
                   ),
                 ),
               ),
               const SizedBox(width: 8),
-              FilledButton.tonal(onPressed: _add, child: Text(context.tr('latency.custom.add'))),
+              FilledButton.tonal(
+                onPressed: _add,
+                child: Text(context.tr('latency.custom.add')),
+              ),
             ],
           ),
           const SizedBox(height: 8),
@@ -359,12 +424,20 @@ class _CustomCardState extends ConsumerState<_CustomCard> {
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Text(
                 context.tr('latency.custom.empty'),
-                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             )
           else
             for (var i = 0; i < widget.targets.length; i++) ...[
-              if (i > 0) Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
+              if (i > 0)
+                Divider(
+                  height: 1,
+                  color: theme.colorScheme.outlineVariant.withValues(
+                    alpha: 0.5,
+                  ),
+                ),
               _TargetTile(
                 target: widget.targets[i],
                 result: widget.state.resultOf(widget.targets[i].id),

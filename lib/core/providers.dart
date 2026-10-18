@@ -7,7 +7,9 @@ import '../features/settings/domain/app_settings.dart';
 import 'demo_mode.dart';
 
 /// The real host platform adapter. Overridden in `main()`.
-final realPlatformProvider = Provider<SignalPlatform>((ref) => createSignalPlatform());
+final realPlatformProvider = Provider<SignalPlatform>(
+  (ref) => createSignalPlatform(),
+);
 
 /// The adapter every feature reads from: the real platform, or the clearly
 /// labelled demo platform while demo mode is on. Overridden directly in tests.
@@ -17,7 +19,9 @@ final signalPlatformProvider = Provider<SignalPlatform>((ref) {
 });
 
 /// Settings loaded before `runApp`. Overridden in `main()` and tests.
-final initialSettingsProvider = Provider<AppSettings>((ref) => const AppSettings());
+final initialSettingsProvider = Provider<AppSettings>(
+  (ref) => const AppSettings(),
+);
 
 class SettingsNotifier extends Notifier<AppSettings> {
   @override
@@ -30,4 +34,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
   }
 }
 
-final settingsProvider = NotifierProvider<SettingsNotifier, AppSettings>(SettingsNotifier.new);
+final settingsProvider = NotifierProvider<SettingsNotifier, AppSettings>(
+  SettingsNotifier.new,
+);

@@ -28,7 +28,11 @@ void main() {
     });
 
     test('fromMap keeps nulls and never turns them into 0', () {
-      final lte = LteSignalInfo.fromMap({'rsrp': -95, 'rsrq': null, 'pci': 120});
+      final lte = LteSignalInfo.fromMap({
+        'rsrp': -95,
+        'rsrq': null,
+        'pci': 120,
+      });
       expect(lte.rsrp, -95);
       expect(lte.rsrq, isNull);
       expect(lte.rssnr, isNull);
@@ -55,9 +59,15 @@ void main() {
     });
 
     test('NR-ARFCN to frequency (global raster)', () {
-      expect(BandLookup.nrFrequencyMhz(632628), closeTo(3489.42, 0.01)); // n78 example
+      expect(
+        BandLookup.nrFrequencyMhz(632628),
+        closeTo(3489.42, 0.01),
+      ); // n78 example
       expect(BandLookup.nrFrequencyMhz(154810), closeTo(774.05, 0.01));
-      expect(BandLookup.nrFrequencyMhz(2054166), closeTo(24250.08 + 0.06 * (2054166 - 2016667), 0.01));
+      expect(
+        BandLookup.nrFrequencyMhz(2054166),
+        closeTo(24250.08 + 0.06 * (2054166 - 2016667), 0.01),
+      );
       expect(BandLookup.nrFrequencyMhz(null), isNull);
     });
 
@@ -83,11 +93,23 @@ void main() {
 
     test('NSA/SA only when public data is sufficient', () {
       expect(NetworkTypes.nrMode(dataNetworkType: 20), 'SA');
-      expect(NetworkTypes.nrMode(dataNetworkType: 13, overrideNetworkType: 3), 'NSA');
-      expect(NetworkTypes.nrMode(dataNetworkType: 13, overrideNetworkType: 5), 'NSA');
-      expect(NetworkTypes.nrMode(dataNetworkType: 13, overrideNetworkType: 0), isNull);
+      expect(
+        NetworkTypes.nrMode(dataNetworkType: 13, overrideNetworkType: 3),
+        'NSA',
+      );
+      expect(
+        NetworkTypes.nrMode(dataNetworkType: 13, overrideNetworkType: 5),
+        'NSA',
+      );
+      expect(
+        NetworkTypes.nrMode(dataNetworkType: 13, overrideNetworkType: 0),
+        isNull,
+      );
       expect(NetworkTypes.nrMode(dataNetworkType: 13), isNull);
-      expect(NetworkTypes.nrMode(dataNetworkType: 3, overrideNetworkType: 3), isNull);
+      expect(
+        NetworkTypes.nrMode(dataNetworkType: 3, overrideNetworkType: 3),
+        isNull,
+      );
     });
   });
 
@@ -131,7 +153,11 @@ void main() {
         lte: [
           LteSignalInfo(isRegistered: true, pci: 1),
           LteSignalInfo(isRegistered: false, pci: 2),
-          LteSignalInfo(isRegistered: null, source: CellDataSource.signalStrength, rsrp: -100),
+          LteSignalInfo(
+            isRegistered: null,
+            source: CellDataSource.signalStrength,
+            rsrp: -100,
+          ),
         ],
       );
       expect(info.neighborLte.map((c) => c.pci), [2]);
@@ -151,7 +177,11 @@ void main() {
         timestampMs: 0,
         lte: [
           LteSignalInfo(earfcn: 1300), // no bands -> derive B3
-          LteSignalInfo(earfcn: 1300, bands: [1], bandSource: BandSource.reported),
+          LteSignalInfo(
+            earfcn: 1300,
+            bands: [1],
+            bandSource: BandSource.reported,
+          ),
           LteSignalInfo(), // nothing to derive from
         ],
         nr: [
@@ -172,7 +202,9 @@ void main() {
   });
 
   group('KeyedThrottle', () {
-    testWidgets('delivers first value immediately and the newest per window', (tester) async {
+    testWidgets('delivers first value immediately and the newest per window', (
+      tester,
+    ) async {
       final got = <int>[];
       final t = KeyedThrottle<int, int>(
         interval: () => const Duration(milliseconds: 500),
@@ -195,56 +227,84 @@ void main() {
   });
 
   group('CellularController', () {
-    const sim1 = SimInfo(subscriptionId: 11, slotIndex: 0, carrierName: 'A', isDefaultData: false);
-    const sim2 = SimInfo(subscriptionId: 22, slotIndex: 1, carrierName: 'B', isDefaultData: true);
+    const sim1 = SimInfo(
+      subscriptionId: 11,
+      slotIndex: 0,
+      carrierName: 'A',
+      isDefaultData: false,
+    );
+    const sim2 = SimInfo(
+      subscriptionId: 22,
+      slotIndex: 1,
+      carrierName: 'B',
+      isDefaultData: true,
+    );
 
     ProviderContainer makeContainer(FakeAndroidPlatform p) {
-      final c = ProviderContainer(overrides: [
-        signalPlatformProvider.overrideWithValue(p),
-        initialSettingsProvider.overrideWithValue(const AppSettings(updateIntervalMs: 500)),
-      ]);
+      final c = ProviderContainer(
+        overrides: [
+          signalPlatformProvider.overrideWithValue(p),
+          initialSettingsProvider.overrideWithValue(
+            const AppSettings(updateIntervalMs: 500),
+          ),
+        ],
+      );
       addTearDown(c.dispose);
       return c;
     }
 
-    test('keeps independent state per SIM and selects the default data SIM', () async {
-      final platform = FakeAndroidPlatform()..sims = [sim1, sim2];
-      final c = makeContainer(platform);
-      c.listen(cellularControllerProvider, (_, _) {});
-      await Future<void>.delayed(const Duration(milliseconds: 50));
+    test(
+      'keeps independent state per SIM and selects the default data SIM',
+      () async {
+        final platform = FakeAndroidPlatform()..sims = [sim1, sim2];
+        final c = makeContainer(platform);
+        c.listen(cellularControllerProvider, (_, _) {});
+        await Future<void>.delayed(const Duration(milliseconds: 50));
 
-      var s = c.read(cellularControllerProvider);
-      expect(s.sims.length, 2);
-      expect(s.selectedSubId, 22);
-      expect(platform.lastSubscriptionIds, [11, 22]);
+        var s = c.read(cellularControllerProvider);
+        expect(s.sims.length, 2);
+        expect(s.selectedSubId, 22);
+        expect(platform.lastSubscriptionIds, [11, 22]);
 
-      platform.cellularController.add(const CellularSnapshotEvent(CellularInfo(
-        subscriptionId: 11,
-        timestampMs: 1000,
-        dataNetworkType: 13,
-        lte: [LteSignalInfo(isRegistered: true, rsrp: -100)],
-      )));
-      platform.cellularController.add(const CellularSnapshotEvent(CellularInfo(
-        subscriptionId: 22,
-        timestampMs: 1000,
-        dataNetworkType: 13,
-        lte: [LteSignalInfo(isRegistered: true, rsrp: -80)],
-      )));
-      await Future<void>.delayed(const Duration(milliseconds: 50));
+        platform.cellularController.add(
+          const CellularSnapshotEvent(
+            CellularInfo(
+              subscriptionId: 11,
+              timestampMs: 1000,
+              dataNetworkType: 13,
+              lte: [LteSignalInfo(isRegistered: true, rsrp: -100)],
+            ),
+          ),
+        );
+        platform.cellularController.add(
+          const CellularSnapshotEvent(
+            CellularInfo(
+              subscriptionId: 22,
+              timestampMs: 1000,
+              dataNetworkType: 13,
+              lte: [LteSignalInfo(isRegistered: true, rsrp: -80)],
+            ),
+          ),
+        );
+        await Future<void>.delayed(const Duration(milliseconds: 50));
 
-      s = c.read(cellularControllerProvider);
-      expect(s.latest[11]!.servingLte!.rsrp, -100);
-      expect(s.latest[22]!.servingLte!.rsrp, -80);
-      expect(s.selectedInfo!.servingLte!.rsrp, -80);
+        s = c.read(cellularControllerProvider);
+        expect(s.latest[11]!.servingLte!.rsrp, -100);
+        expect(s.latest[22]!.servingLte!.rsrp, -80);
+        expect(s.selectedInfo!.servingLte!.rsrp, -80);
 
-      c.read(cellularControllerProvider.notifier).selectSim(11);
-      expect(c.read(cellularControllerProvider).selectedInfo!.servingLte!.rsrp, -100);
+        c.read(cellularControllerProvider.notifier).selectSim(11);
+        expect(
+          c.read(cellularControllerProvider).selectedInfo!.servingLte!.rsrp,
+          -100,
+        );
 
-      // history was recorded per subscription
-      final h = c.read(historyProvider);
-      expect(h.series['cell.11.primary']!.single.value, -100);
-      expect(h.series['cell.22.primary']!.single.value, -80);
-    });
+        // history was recorded per subscription
+        final h = c.read(historyProvider);
+        expect(h.series['cell.11.primary']!.single.value, -100);
+        expect(h.series['cell.22.primary']!.single.value, -80);
+      },
+    );
 
     test('pause unregisters native listeners, resume registers again, stop clears data', () async {
       final platform = FakeAndroidPlatform()..sims = [sim1];
@@ -254,12 +314,16 @@ void main() {
       final ctrl = c.read(cellularControllerProvider.notifier);
       expect(c.read(cellularControllerProvider).streaming, isTrue);
 
-      platform.cellularController.add(const CellularSnapshotEvent(CellularInfo(
-        subscriptionId: 11,
-        timestampMs: 1,
-        lte: [LteSignalInfo(isRegistered: true, rsrp: -90)],
-        dataNetworkType: 13,
-      )));
+      platform.cellularController.add(
+        const CellularSnapshotEvent(
+          CellularInfo(
+            subscriptionId: 11,
+            timestampMs: 1,
+            lte: [LteSignalInfo(isRegistered: true, rsrp: -90)],
+            dataNetworkType: 13,
+          ),
+        ),
+      );
       await Future<void>.delayed(const Duration(milliseconds: 20));
 
       ctrl.pause();
@@ -279,7 +343,10 @@ void main() {
       expect(s.status, MonitorStatus.stopped);
       expect(s.streaming, isFalse);
       expect(s.latest, isEmpty);
-      expect(c.read(historyProvider).series.keys.where((k) => k.startsWith('cell.')), isEmpty);
+      expect(
+        c.read(historyProvider).series.keys.where((k) => k.startsWith('cell.')),
+        isEmpty,
+      );
     });
 
     test('no SIM leaves state empty without starting a stream', () async {

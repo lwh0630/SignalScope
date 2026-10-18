@@ -22,7 +22,9 @@ class PermissionManagerCard extends ConsumerWidget {
         title: context.tr('settings.permissions'),
         child: Text(
           context.tr('settings.permissionsUnsupported'),
-          style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
         ),
       );
     }
@@ -40,14 +42,23 @@ class PermissionManagerCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (final g in PermGroup.values) ...[
-            _PermissionRow(group: g, status: snap.of(g), controller: controller),
+            _PermissionRow(
+              group: g,
+              status: snap.of(g),
+              controller: controller,
+            ),
             const Divider(height: 1),
           ],
-          _LocationSwitchRow(enabled: snap.locationServicesEnabled, controller: controller),
+          _LocationSwitchRow(
+            enabled: snap.locationServicesEnabled,
+            controller: controller,
+          ),
           const SizedBox(height: 8),
           Text(
             context.tr('settings.permissionsHint'),
-            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
@@ -56,14 +67,21 @@ class PermissionManagerCard extends ConsumerWidget {
 }
 
 (Color, String) _statusStyle(PermStatus s) => switch (s) {
-      PermStatus.granted => (SignalColors.excellent, 'perm.status.granted'),
-      PermStatus.denied => (SignalColors.fair, 'perm.status.denied'),
-      PermStatus.permanentlyDenied => (SignalColors.bad, 'perm.status.permanentlyDenied'),
-      PermStatus.notApplicable => (SignalColors.none, 'perm.status.notApplicable'),
-    };
+  PermStatus.granted => (SignalColors.excellent, 'perm.status.granted'),
+  PermStatus.denied => (SignalColors.fair, 'perm.status.denied'),
+  PermStatus.permanentlyDenied => (
+    SignalColors.bad,
+    'perm.status.permanentlyDenied',
+  ),
+  PermStatus.notApplicable => (SignalColors.none, 'perm.status.notApplicable'),
+};
 
 class _PermissionRow extends StatelessWidget {
-  const _PermissionRow({required this.group, required this.status, required this.controller});
+  const _PermissionRow({
+    required this.group,
+    required this.status,
+    required this.controller,
+  });
 
   final PermGroup group;
   final PermStatus status;
@@ -83,7 +101,9 @@ class _PermissionRow extends StatelessWidget {
               Expanded(
                 child: Text(
                   context.tr('perm.group.${group.name}'),
-                  style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               StatusPill(text: context.tr(key), color: color),
@@ -92,9 +112,12 @@ class _PermissionRow extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             context.tr('perm.group.${group.name}.desc'),
-            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
-          if (status == PermStatus.denied || status == PermStatus.permanentlyDenied) ...[
+          if (status == PermStatus.denied ||
+              status == PermStatus.permanentlyDenied) ...[
             const SizedBox(height: 8),
             Align(
               alignment: Alignment.centerLeft,
@@ -139,7 +162,9 @@ class _LocationSwitchRow extends StatelessWidget {
               Expanded(
                 child: Text(
                   context.tr('perm.locationSwitch'),
-                  style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               StatusPill(text: label, color: color),
@@ -148,7 +173,9 @@ class _LocationSwitchRow extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             context.tr('perm.locationSwitch.desc'),
-            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
           if (enabled == false) ...[
             const SizedBox(height: 8),

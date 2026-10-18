@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 
 /// Four-bar signal strength icon. [bars] is 0..4.
 class SignalBars extends StatelessWidget {
-  const SignalBars({super.key, required this.bars, required this.color, this.size = 22});
+  const SignalBars({
+    super.key,
+    required this.bars,
+    required this.color,
+    this.size = 22,
+  });
 
   final int bars;
   final Color color;

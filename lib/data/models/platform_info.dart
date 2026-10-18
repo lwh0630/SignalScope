@@ -62,7 +62,8 @@ class PermissionSnapshot {
     }
   }
 
-  factory PermissionSnapshot.fromMap(Map<Object?, Object?> m) => PermissionSnapshot(
+  factory PermissionSnapshot.fromMap(Map<Object?, Object?> m) =>
+      PermissionSnapshot(
         location: PermStatus.parse(m['location']),
         phone: PermStatus.parse(m['phone']),
         nearbyWifi: PermStatus.parse(m['nearbyWifi']),
@@ -84,7 +85,8 @@ class PlatformCapabilities {
     this.simCount,
   });
 
-  const PlatformCapabilities.unsupported(String platform) : this(platform: platform);
+  const PlatformCapabilities.unsupported(String platform)
+    : this(platform: platform);
 
   final String platform;
   final int? sdkInt;
@@ -98,7 +100,8 @@ class PlatformCapabilities {
   /// Number of active subscriptions (null if READ_PHONE_STATE missing).
   final int? simCount;
 
-  factory PlatformCapabilities.fromMap(Map<Object?, Object?> m) => PlatformCapabilities(
+  factory PlatformCapabilities.fromMap(Map<Object?, Object?> m) =>
+      PlatformCapabilities(
         platform: asString(m['platform']) ?? 'android',
         sdkInt: asInt(m['sdkInt']),
         manufacturer: asString(m['manufacturer']),

@@ -20,15 +20,39 @@ class ConstellationFlag {
     return String.fromCharCodes(up.codeUnits.map((c) => 0x1F1E6 + (c - 0x41)));
   }
 
-  static final ConstellationFlag gps = ConstellationFlag(fromIso('US'), 'gnss.country.us');
-  static final ConstellationFlag glonass = ConstellationFlag(fromIso('RU'), 'gnss.country.ru');
-  static final ConstellationFlag beidou = ConstellationFlag(fromIso('CN'), 'gnss.country.cn');
+  static final ConstellationFlag gps = ConstellationFlag(
+    fromIso('US'),
+    'gnss.country.us',
+  );
+  static final ConstellationFlag glonass = ConstellationFlag(
+    fromIso('RU'),
+    'gnss.country.ru',
+  );
+  static final ConstellationFlag beidou = ConstellationFlag(
+    fromIso('CN'),
+    'gnss.country.cn',
+  );
   // The European Union flag has its own regional code.
-  static final ConstellationFlag galileo = ConstellationFlag(fromIso('EU'), 'gnss.country.eu');
-  static final ConstellationFlag qzss = ConstellationFlag(fromIso('JP'), 'gnss.country.jp');
-  static final ConstellationFlag irnss = ConstellationFlag(fromIso('IN'), 'gnss.country.in');
-  static const ConstellationFlag sbas = ConstellationFlag('\u{1F310}', 'gnss.country.multi');
-  static const ConstellationFlag unknown = ConstellationFlag('\u{1F6F0}', 'gnss.country.unknown');
+  static final ConstellationFlag galileo = ConstellationFlag(
+    fromIso('EU'),
+    'gnss.country.eu',
+  );
+  static final ConstellationFlag qzss = ConstellationFlag(
+    fromIso('JP'),
+    'gnss.country.jp',
+  );
+  static final ConstellationFlag irnss = ConstellationFlag(
+    fromIso('IN'),
+    'gnss.country.in',
+  );
+  static const ConstellationFlag sbas = ConstellationFlag(
+    '\u{1F310}',
+    'gnss.country.multi',
+  );
+  static const ConstellationFlag unknown = ConstellationFlag(
+    '\u{1F6F0}',
+    'gnss.country.unknown',
+  );
 
   static ConstellationFlag of(Constellation c) {
     switch (c) {

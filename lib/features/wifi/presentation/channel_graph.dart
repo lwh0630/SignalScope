@@ -23,7 +23,8 @@ const List<Color> kChannelPalette = [
 ];
 
 Color channelColorOf(String bssid) =>
-    kChannelPalette[(bssid.toLowerCase().hashCode & 0x7fffffff) % kChannelPalette.length];
+    kChannelPalette[(bssid.toLowerCase().hashCode & 0x7fffffff) %
+        kChannelPalette.length];
 
 /// Channel occupancy graph.
 ///
@@ -55,7 +56,8 @@ class _ChannelGraphState extends State<ChannelGraph> {
     if (old.band != widget.band) _selected = null;
   }
 
-  void _toggle(String? bssid) => setState(() => _selected = bssid == _selected ? null : bssid);
+  void _toggle(String? bssid) =>
+      setState(() => _selected = bssid == _selected ? null : bssid);
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +80,12 @@ class _ChannelGraphState extends State<ChannelGraph> {
               return GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTapUp: (d) => setState(() {
-                  final hit = ChannelPainter.apAt(d.localPosition, size, inBand, widget.band);
+                  final hit = ChannelPainter.apAt(
+                    d.localPosition,
+                    size,
+                    inBand,
+                    widget.band,
+                  );
                   _selected = hit == _selected ? null : hit;
                 }),
                 child: Stack(
@@ -99,7 +106,8 @@ class _ChannelGraphState extends State<ChannelGraph> {
                             grow: grow,
                             gridColor: theme.colorScheme.outlineVariant,
                             textColor: theme.colorScheme.onSurfaceVariant,
-                            surfaceColor: theme.colorScheme.surfaceContainerHigh,
+                            surfaceColor:
+                                theme.colorScheme.surfaceContainerHigh,
                           ),
                         ),
                       ),
@@ -108,7 +116,9 @@ class _ChannelGraphState extends State<ChannelGraph> {
                       Center(
                         child: Text(
                           context.tr('wifi.chart.empty'),
-                          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ),
                   ],
@@ -127,13 +137,20 @@ class _ChannelGraphState extends State<ChannelGraph> {
                 _LegendChip(
                   ap: ap,
                   selected: ap.bssid == selected?.bssid,
-                  connected: connected != null && ap.bssid.toLowerCase() == connected,
+                  connected:
+                      connected != null && ap.bssid.toLowerCase() == connected,
                   onTap: () => _toggle(ap.bssid),
                 ),
               if (inBand.length > 12)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-                  child: Text('+${inBand.length - 12}', style: theme.textTheme.labelMedium),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 6,
+                  ),
+                  child: Text(
+                    '+${inBand.length - 12}',
+                    style: theme.textTheme.labelMedium,
+                  ),
                 ),
             ],
           ),
@@ -144,11 +161,15 @@ class _ChannelGraphState extends State<ChannelGraph> {
             child: selected == null
                 ? Text(
                     context.tr('wifi.chart.tapHint'),
-                    style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   )
                 : _DetailCard(
                     ap: selected,
-                    connected: connected != null && selected.bssid.toLowerCase() == connected,
+                    connected:
+                        connected != null &&
+                        selected.bssid.toLowerCase() == connected,
                   ),
           ),
         ],
@@ -158,7 +179,12 @@ class _ChannelGraphState extends State<ChannelGraph> {
 }
 
 class _LegendChip extends StatelessWidget {
-  const _LegendChip({required this.ap, required this.selected, required this.connected, required this.onTap});
+  const _LegendChip({
+    required this.ap,
+    required this.selected,
+    required this.connected,
+    required this.onTap,
+  });
 
   final WifiScanInfo ap;
   final bool selected;
@@ -178,25 +204,36 @@ class _LegendChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: color.withValues(alpha: selected ? 0.28 : 0.12),
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: color.withValues(alpha: selected ? 1 : 0.45), width: selected ? 1.6 : 1),
+          border: Border.all(
+            color: color.withValues(alpha: selected ? 1 : 0.45),
+            width: selected ? 1.6 : 1,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
             const SizedBox(width: 6),
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 120),
               child: Text(
                 name,
                 overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
+                style: theme.textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
             const SizedBox(width: 6),
             Text(
               'CH${ap.channel ?? '--'} · ${fmtNum(ap.rssi)}',
-              style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
             if (connected) ...[
               const SizedBox(width: 4),
@@ -224,8 +261,15 @@ class _DetailCard extends StatelessWidget {
       ('BSSID', ap.bssid),
       (context.tr('wifi.channel'), fmtNum(ap.channel)),
       (context.tr('wifi.frequency'), fmtNum(ap.frequencyMhz, unit: 'MHz')),
-      (context.tr('wifi.bandwidth'), ap.channelWidthMhz == null ? kUnavailable : '${ap.channelWidthMhz} MHz'),
-      if (span != null) (context.tr('wifi.chart.span'), '${span.$1.round()}–${span.$2.round()} MHz'),
+      (
+        context.tr('wifi.bandwidth'),
+        ap.channelWidthMhz == null ? kUnavailable : '${ap.channelWidthMhz} MHz',
+      ),
+      if (span != null)
+        (
+          context.tr('wifi.chart.span'),
+          '${span.$1.round()}–${span.$2.round()} MHz',
+        ),
       ('RSSI', fmtNum(ap.rssi, unit: 'dBm')),
       (context.tr('wifi.security'), fmtText(ap.securityLabel)),
       (context.tr('wifi.standard'), fmtText(ap.standardLabel)),
@@ -243,19 +287,28 @@ class _DetailCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+              Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   ap.ssid ?? context.tr('wifi.hiddenSsid'),
                   overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
               if (connected)
                 Text(
                   context.tr('wifi.chart.connected'),
-                  style: theme.textTheme.labelMedium?.copyWith(color: color, fontWeight: FontWeight.w700),
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
             ],
           ),
@@ -268,10 +321,17 @@ class _DetailCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       l.$1,
-                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
-                  Text(l.$2, style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
+                  Text(
+                    l.$2,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -316,15 +376,22 @@ class ChannelPainter extends CustomPainter {
       Rect.fromLTRB(_left, _top, size.width - _right, size.height - _bottom);
 
   /// The access point drawn under [pos], or `null`.
-  static String? apAt(Offset pos, Size size, List<WifiScanInfo> aps, WifiBand band) {
+  static String? apAt(
+    Offset pos,
+    Size size,
+    List<WifiScanInfo> aps,
+    WifiBand band,
+  ) {
     final plot = plotRect(size);
     String? best;
     var bestDist = double.infinity;
     for (final ap in aps) {
       final span = ChannelGeometry.span(ap);
       if (span == null) continue;
-      final l = plot.left + ChannelGeometry.xFraction(band, span.$1) * plot.width;
-      final r = plot.left + ChannelGeometry.xFraction(band, span.$2) * plot.width;
+      final l =
+          plot.left + ChannelGeometry.xFraction(band, span.$1) * plot.width;
+      final r =
+          plot.left + ChannelGeometry.xFraction(band, span.$2) * plot.width;
       if (pos.dx < l || pos.dx > r || pos.dy > plot.bottom + 4) continue;
       final t = (pos.dx - l) / (r - l) * 2 - 1;
       final h = ChannelGeometry.yFraction(ap.rssi!) * plot.height;
@@ -342,8 +409,10 @@ class ChannelPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final plot = plotRect(size);
-    double fx(double mhz) => plot.left + ChannelGeometry.xFraction(band, mhz) * plot.width;
-    double fy(double rssi) => plot.bottom - ChannelGeometry.yFraction(rssi) * plot.height;
+    double fx(double mhz) =>
+        plot.left + ChannelGeometry.xFraction(band, mhz) * plot.width;
+    double fy(double rssi) =>
+        plot.bottom - ChannelGeometry.yFraction(rssi) * plot.height;
 
     _drawGrid(canvas, plot, fx, fy);
 
@@ -352,7 +421,9 @@ class ChannelPainter extends CustomPainter {
     order.sort((a, b) {
       int rank(WifiScanInfo x) {
         if (x.bssid == selectedBssid) return 2;
-        if (connectedBssid != null && x.bssid.toLowerCase() == connectedBssid) return 1;
+        if (connectedBssid != null && x.bssid.toLowerCase() == connectedBssid) {
+          return 1;
+        }
         return 0;
       }
 
@@ -371,7 +442,8 @@ class ChannelPainter extends CustomPainter {
       final h = ChannelGeometry.yFraction(ap.rssi!) * plot.height * grow;
       final color = channelColorOf(ap.bssid);
       final isSelected = ap.bssid == selectedBssid;
-      final isConnected = connectedBssid != null && ap.bssid.toLowerCase() == connectedBssid;
+      final isConnected =
+          connectedBssid != null && ap.bssid.toLowerCase() == connectedBssid;
       final dim = selectedBssid != null && !isSelected;
       final k = dim ? 0.3 : 1.0;
 
@@ -399,7 +471,9 @@ class ChannelPainter extends CustomPainter {
             Offset(0, top),
             Offset(0, plot.bottom),
             [
-              color.withValues(alpha: (isConnected || isSelected ? 0.62 : 0.42) * k),
+              color.withValues(
+                alpha: (isConnected || isSelected ? 0.62 : 0.42) * k,
+              ),
               color.withValues(alpha: 0.02 * k),
             ],
           ),
@@ -423,7 +497,9 @@ class ChannelPainter extends CustomPainter {
           ..strokeWidth = isConnected || isSelected ? 2.8 : 1.6
           ..strokeJoin = StrokeJoin.round
           ..strokeCap = StrokeCap.round
-          ..color = color.withValues(alpha: (isConnected || isSelected ? 1 : 0.9) * k),
+          ..color = color.withValues(
+            alpha: (isConnected || isSelected ? 1 : 0.9) * k,
+          ),
       );
 
       if (grow > 0.85 && labelOrder.contains(ap.bssid) && !dim) {
@@ -434,12 +510,18 @@ class ChannelPainter extends CustomPainter {
     // Labels: strongest first so they win collisions.
     pendingLabels.sort((a, b) => b.$1.rssi!.compareTo(a.$1.rssi!));
     for (final (ap, anchor) in pendingLabels) {
-      final name = ap.ssid ?? ap.bssid.substring(ap.bssid.length >= 8 ? ap.bssid.length - 8 : 0);
+      final name =
+          ap.ssid ??
+          ap.bssid.substring(ap.bssid.length >= 8 ? ap.bssid.length - 8 : 0);
       final color = channelColorOf(ap.bssid);
       final tp = TextPainter(
         text: TextSpan(
           text: name,
-          style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w700),
+          style: TextStyle(
+            color: color,
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         textDirection: TextDirection.ltr,
         maxLines: 1,
@@ -456,7 +538,10 @@ class ChannelPainter extends CustomPainter {
         if (labelRects.any((o) => o.inflate(2).overlaps(rect))) continue;
         labelRects.add(rect);
         final rr = RRect.fromRectAndRadius(rect, const Radius.circular(8));
-        canvas.drawRRect(rr, Paint()..color = surfaceColor.withValues(alpha: 0.85));
+        canvas.drawRRect(
+          rr,
+          Paint()..color = surfaceColor.withValues(alpha: 0.85),
+        );
         canvas.drawRRect(
           rr,
           Paint()
@@ -470,21 +555,44 @@ class ChannelPainter extends CustomPainter {
     }
   }
 
-  void _drawGrid(Canvas canvas, Rect plot, double Function(double) fx, double Function(double) fy) {
+  void _drawGrid(
+    Canvas canvas,
+    Rect plot,
+    double Function(double) fx,
+    double Function(double) fy,
+  ) {
     final grid = Paint()
       ..color = gridColor.withValues(alpha: 0.45)
       ..strokeWidth = 1;
     for (final r in const [-90.0, -70.0, -50.0, -30.0]) {
       final y = fy(r);
       _dashed(canvas, Offset(plot.left, y), Offset(plot.right, y), grid);
-      _label(canvas, '${r.round()}', Offset(plot.left - 5, y), textColor, 10, alignRight: true);
+      _label(
+        canvas,
+        '${r.round()}',
+        Offset(plot.left - 5, y),
+        textColor,
+        10,
+        alignRight: true,
+      );
     }
-    _label(canvas, 'dBm', Offset(plot.left - 5, plot.top - 9), textColor.withValues(alpha: 0.7), 9, alignRight: true);
+    _label(
+      canvas,
+      'dBm',
+      Offset(plot.left - 5, plot.top - 9),
+      textColor.withValues(alpha: 0.7),
+      9,
+      alignRight: true,
+    );
 
     final axis = Paint()
       ..color = gridColor
       ..strokeWidth = 1.2;
-    canvas.drawLine(Offset(plot.left, plot.bottom), Offset(plot.right, plot.bottom), axis);
+    canvas.drawLine(
+      Offset(plot.left, plot.bottom),
+      Offset(plot.right, plot.bottom),
+      axis,
+    );
 
     final faint = Paint()
       ..color = gridColor.withValues(alpha: 0.18)
@@ -511,9 +619,19 @@ class ChannelPainter extends CustomPainter {
     }
   }
 
-  void _label(Canvas canvas, String s, Offset at, Color color, double size, {bool alignRight = false}) {
+  void _label(
+    Canvas canvas,
+    String s,
+    Offset at,
+    Color color,
+    double size, {
+    bool alignRight = false,
+  }) {
     final tp = TextPainter(
-      text: TextSpan(text: s, style: TextStyle(color: color, fontSize: size)),
+      text: TextSpan(
+        text: s,
+        style: TextStyle(color: color, fontSize: size),
+      ),
       textDirection: TextDirection.ltr,
     )..layout();
     final dx = alignRight ? at.dx - tp.width : at.dx - tp.width / 2;

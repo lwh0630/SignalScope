@@ -14,4 +14,6 @@ class DemoModeNotifier extends Notifier<bool> {
   void set(bool enabled) => state = enabled;
 }
 
-final demoModeProvider = NotifierProvider<DemoModeNotifier, bool>(DemoModeNotifier.new);
+final demoModeProvider = NotifierProvider<DemoModeNotifier, bool>(
+  DemoModeNotifier.new,
+);

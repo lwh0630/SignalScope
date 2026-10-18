@@ -54,26 +54,26 @@ class SatelliteInfo {
   String get key => '${constellation.code}-$svid';
 
   factory SatelliteInfo.fromMap(Map<Object?, Object?> m) => SatelliteInfo(
-        svid: asInt(m['svid']) ?? -1,
-        constellation: Constellation.fromCode(asInt(m['constellation'])),
-        azimuthDeg: asDouble(m['azimuthDeg']),
-        elevationDeg: asDouble(m['elevationDeg']),
-        cn0DbHz: asDouble(m['cn0DbHz']),
-        usedInFix: asBool(m['usedInFix']),
-        carrierFrequencyHz: asDouble(m['carrierFrequencyHz']),
-        basebandCn0DbHz: asDouble(m['basebandCn0DbHz']),
-      );
+    svid: asInt(m['svid']) ?? -1,
+    constellation: Constellation.fromCode(asInt(m['constellation'])),
+    azimuthDeg: asDouble(m['azimuthDeg']),
+    elevationDeg: asDouble(m['elevationDeg']),
+    cn0DbHz: asDouble(m['cn0DbHz']),
+    usedInFix: asBool(m['usedInFix']),
+    carrierFrequencyHz: asDouble(m['carrierFrequencyHz']),
+    basebandCn0DbHz: asDouble(m['basebandCn0DbHz']),
+  );
 
   Map<String, Object?> toMap() => {
-        'svid': svid,
-        'constellation': constellation.label,
-        'azimuth_deg': azimuthDeg,
-        'elevation_deg': elevationDeg,
-        'cn0_dBHz': cn0DbHz,
-        'usedInFix': usedInFix,
-        'carrierFrequency_Hz': carrierFrequencyHz,
-        'basebandCn0_dBHz': basebandCn0DbHz,
-      };
+    'svid': svid,
+    'constellation': constellation.label,
+    'azimuth_deg': azimuthDeg,
+    'elevation_deg': elevationDeg,
+    'cn0_dBHz': cn0DbHz,
+    'usedInFix': usedInFix,
+    'carrierFrequency_Hz': carrierFrequencyHz,
+    'basebandCn0_dBHz': basebandCn0DbHz,
+  };
 }
 
 class GnssLocationInfo {
@@ -108,30 +108,30 @@ class GnssLocationInfo {
   bool get hasFix => latitude != null && longitude != null;
 
   factory GnssLocationInfo.fromMap(Map<Object?, Object?> m) => GnssLocationInfo(
-        latitude: asDouble(m['latitude']),
-        longitude: asDouble(m['longitude']),
-        altitudeM: asDouble(m['altitudeM']),
-        horizontalAccuracyM: asDouble(m['horizontalAccuracyM']),
-        verticalAccuracyM: asDouble(m['verticalAccuracyM']),
-        speedMps: asDouble(m['speedMps']),
-        bearingDeg: asDouble(m['bearingDeg']),
-        timeMs: asInt(m['timeMs']),
-        provider: asString(m['provider']),
-        isMock: asBool(m['isMock']),
-      );
+    latitude: asDouble(m['latitude']),
+    longitude: asDouble(m['longitude']),
+    altitudeM: asDouble(m['altitudeM']),
+    horizontalAccuracyM: asDouble(m['horizontalAccuracyM']),
+    verticalAccuracyM: asDouble(m['verticalAccuracyM']),
+    speedMps: asDouble(m['speedMps']),
+    bearingDeg: asDouble(m['bearingDeg']),
+    timeMs: asInt(m['timeMs']),
+    provider: asString(m['provider']),
+    isMock: asBool(m['isMock']),
+  );
 
   Map<String, Object?> toMap() => {
-        'latitude_deg': latitude,
-        'longitude_deg': longitude,
-        'altitude_m': altitudeM,
-        'horizontalAccuracy_m': horizontalAccuracyM,
-        'verticalAccuracy_m': verticalAccuracyM,
-        'speed_mps': speedMps,
-        'bearing_deg': bearingDeg,
-        'timeMs': timeMs,
-        'provider': provider,
-        'isMock': isMock,
-      };
+    'latitude_deg': latitude,
+    'longitude_deg': longitude,
+    'altitude_m': altitudeM,
+    'horizontalAccuracy_m': horizontalAccuracyM,
+    'verticalAccuracy_m': verticalAccuracyM,
+    'speed_mps': speedMps,
+    'bearing_deg': bearingDeg,
+    'timeMs': timeMs,
+    'provider': provider,
+    'isMock': isMock,
+  };
 }
 
 /// Combined GNSS state pushed by the native `GnssService`.
@@ -166,8 +166,12 @@ class GnssSnapshot {
   factory GnssSnapshot.fromMap(Map<Object?, Object?> m) {
     final loc = m['location'];
     return GnssSnapshot(
-      location: loc is Map ? GnssLocationInfo.fromMap(loc.cast<Object?, Object?>()) : null,
-      satellites: asMapList(m['satellites']).map(SatelliteInfo.fromMap).toList(growable: false),
+      location: loc is Map
+          ? GnssLocationInfo.fromMap(loc.cast<Object?, Object?>())
+          : null,
+      satellites: asMapList(m['satellites'])
+          .map(SatelliteInfo.fromMap)
+          .toList(growable: false),
       ttffMs: asInt(m['ttffMs']),
       gnssSupported: asBool(m['gnssSupported']),
       providerEnabled: asBool(m['providerEnabled']),
@@ -178,12 +182,12 @@ class GnssSnapshot {
   }
 
   Map<String, Object?> toMap() => {
-        'timestampMs': timestampMs,
-        'location': location?.toMap(),
-        'visibleSatellites': visibleCount,
-        'usedSatellites': usedCount,
-        'ttff_ms': ttffMs,
-        'satellites': satellites.map((e) => e.toMap()).toList(),
-        'issues': issues,
-      };
+    'timestampMs': timestampMs,
+    'location': location?.toMap(),
+    'visibleSatellites': visibleCount,
+    'usedSatellites': usedCount,
+    'ttff_ms': ttffMs,
+    'satellites': satellites.map((e) => e.toMap()).toList(),
+    'issues': issues,
+  };
 }

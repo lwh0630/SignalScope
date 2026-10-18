@@ -26,7 +26,15 @@ class HistoryNotifier extends Notifier<HistoryState> {
     if (!ref.read(settingsProvider).recordHistory) return;
     final ts = timestampMs ?? DateTime.now().millisecondsSinceEpoch;
     final old = state.series[series] ?? const <SignalHistoryPoint>[];
-    final next = <SignalHistoryPoint>[...old, SignalHistoryPoint(timestampMs: ts, series: series, value: value, unit: unit)];
+    final next = <SignalHistoryPoint>[
+      ...old,
+      SignalHistoryPoint(
+        timestampMs: ts,
+        series: series,
+        value: value,
+        unit: unit,
+      ),
+    ];
     final cutoff = ts - retentionMs;
     var start = 0;
     while (start < next.length - 1 && next[start].timestampMs < cutoff) {
@@ -49,16 +57,22 @@ class HistoryNotifier extends Notifier<HistoryState> {
 
   void clearAll() => state = const HistoryState({});
 
-  List<SignalHistoryPoint> all() => [
-        for (final list in state.series.values) ...list,
-      ]..sort((a, b) => a.timestampMs.compareTo(b.timestampMs));
+  List<SignalHistoryPoint> all() =>
+      [for (final list in state.series.values) ...list]
+        ..sort((a, b) => a.timestampMs.compareTo(b.timestampMs));
 }
 
-final historyProvider = NotifierProvider<HistoryNotifier, HistoryState>(HistoryNotifier.new);
+final historyProvider = NotifierProvider<HistoryNotifier, HistoryState>(
+  HistoryNotifier.new,
+);
 
 const List<SignalHistoryPoint> _emptySeries = [];
 
 /// Samples of one series; rebuilds only when that series changes.
-final historySeriesProvider = Provider.family<List<SignalHistoryPoint>, String>((ref, key) {
-  return ref.watch(historyProvider.select((s) => s.series[key] ?? _emptySeries));
-});
+final historySeriesProvider = Provider.family<List<SignalHistoryPoint>, String>(
+  (ref, key) {
+    return ref.watch(
+      historyProvider.select((s) => s.series[key] ?? _emptySeries),
+    );
+  },
+);

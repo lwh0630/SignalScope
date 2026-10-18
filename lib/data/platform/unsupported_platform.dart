@@ -46,7 +46,8 @@ class UnsupportedPlatform implements SignalPlatform {
   Future<List<SimInfo>> getSimList() async => const [];
 
   @override
-  Stream<CellularEvent> cellularStream(List<int> subscriptionIds) => const Stream.empty();
+  Stream<CellularEvent> cellularStream(List<int> subscriptionIds) =>
+      const Stream.empty();
 
   @override
   Future<WifiConnectionInfo?> getWifiConnection() async => null;
@@ -69,11 +70,14 @@ class UnsupportedPlatform implements SignalPlatform {
   Stream<GnssSnapshot> gnssStream() => const Stream.empty();
 
   File? _settingsFile() {
-    final base = Platform.environment['APPDATA'] ??
+    final base =
+        Platform.environment['APPDATA'] ??
         Platform.environment['HOME'] ??
         Platform.environment['USERPROFILE'];
     if (base == null) return null;
-    return File('$base${Platform.pathSeparator}SignalScope${Platform.pathSeparator}settings.json');
+    return File(
+      '$base${Platform.pathSeparator}SignalScope${Platform.pathSeparator}settings.json',
+    );
   }
 
   @override
@@ -100,9 +104,14 @@ class UnsupportedPlatform implements SignalPlatform {
   }
 
   @override
-  Future<String?> saveExport(String fileName, String mimeType, String content) async {
+  Future<String?> saveExport(
+    String fileName,
+    String mimeType,
+    String content,
+  ) async {
     try {
-      final home = Platform.environment['USERPROFILE'] ?? Platform.environment['HOME'];
+      final home =
+          Platform.environment['USERPROFILE'] ?? Platform.environment['HOME'];
       if (home == null) return null;
       final dir = Directory('$home${Platform.pathSeparator}Downloads');
       await dir.create(recursive: true);

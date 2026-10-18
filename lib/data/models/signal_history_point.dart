@@ -16,10 +16,10 @@ class SignalHistoryPoint {
   final String unit;
 
   Map<String, Object?> toMap() => {
-        'timestampMs': timestampMs,
-        'time': DateTime.fromMillisecondsSinceEpoch(timestampMs).toIso8601String(),
-        'series': series,
-        'value': value,
-        'unit': unit,
-      };
+    'timestampMs': timestampMs,
+    'time': DateTime.fromMillisecondsSinceEpoch(timestampMs).toIso8601String(),
+    'series': series,
+    'value': value,
+    'unit': unit,
+  };
 }

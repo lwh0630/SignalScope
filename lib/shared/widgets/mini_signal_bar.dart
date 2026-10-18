@@ -3,7 +3,12 @@ import 'package:flutter/material.dart';
 /// Thin horizontal bar that animates to [fraction] (0..1). `null` shows an
 /// empty track: there is no value, which is different from a weak value.
 class MiniSignalBar extends StatelessWidget {
-  const MiniSignalBar({super.key, required this.fraction, required this.color, this.height = 8});
+  const MiniSignalBar({
+    super.key,
+    required this.fraction,
+    required this.color,
+    this.height = 8,
+  });
 
   final double? fraction;
   final Color color;

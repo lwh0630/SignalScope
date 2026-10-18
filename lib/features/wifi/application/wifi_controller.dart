@@ -41,10 +41,10 @@ class WifiState {
   final WifiSort sort;
 
   List<WifiScanInfo> get visibleAps => WifiRepository.filterAndSort(
-        scan?.results ?? const [],
-        band: bandFilter,
-        sort: sort,
-      );
+    scan?.results ?? const [],
+    band: bandFilter,
+    sort: sort,
+  );
 
   WifiState copyWith({
     Object? connection = _keep,
@@ -56,19 +56,23 @@ class WifiState {
     Object? retryAfterSeconds = _keep,
     Object? bandFilter = _keep,
     WifiSort? sort,
-  }) =>
-      WifiState(
-        connection: identical(connection, _keep) ? this.connection : connection as WifiConnectionInfo?,
-        scan: identical(scan, _keep) ? this.scan : scan as WifiScanResult?,
-        status: status ?? this.status,
-        streaming: streaming ?? this.streaming,
-        scanning: scanning ?? this.scanning,
-        notice: notice ?? this.notice,
-        retryAfterSeconds:
-            identical(retryAfterSeconds, _keep) ? this.retryAfterSeconds : retryAfterSeconds as int?,
-        bandFilter: identical(bandFilter, _keep) ? this.bandFilter : bandFilter as WifiBand?,
-        sort: sort ?? this.sort,
-      );
+  }) => WifiState(
+    connection: identical(connection, _keep)
+        ? this.connection
+        : connection as WifiConnectionInfo?,
+    scan: identical(scan, _keep) ? this.scan : scan as WifiScanResult?,
+    status: status ?? this.status,
+    streaming: streaming ?? this.streaming,
+    scanning: scanning ?? this.scanning,
+    notice: notice ?? this.notice,
+    retryAfterSeconds: identical(retryAfterSeconds, _keep)
+        ? this.retryAfterSeconds
+        : retryAfterSeconds as int?,
+    bandFilter: identical(bandFilter, _keep)
+        ? this.bandFilter
+        : bandFilter as WifiBand?,
+    sort: sort ?? this.sort,
+  );
 }
 
 const Object _keep = Object();
@@ -91,7 +95,8 @@ class WifiController extends Notifier<WifiState> {
     // Switching platform (demo mode on/off) rebuilds this controller from scratch.
     ref.watch(signalPlatformProvider);
     _throttle = KeyedThrottle<int, WifiConnectionInfo>(
-      interval: () => Duration(milliseconds: ref.read(settingsProvider).updateIntervalMs),
+      interval: () =>
+          Duration(milliseconds: ref.read(settingsProvider).updateIntervalMs),
       onValue: (_, info) => _applyConnection(info),
     );
     ref.onDispose(() {
@@ -102,9 +107,14 @@ class WifiController extends Notifier<WifiState> {
       _scanSub = null;
       _throttle.dispose();
     });
-    ref.listen<bool>(sensorVisibleProvider(Sensor.wifi), (_, _) => _reconcile());
+    ref.listen<bool>(
+      sensorVisibleProvider(Sensor.wifi),
+      (_, _) => _reconcile(),
+    );
     ref.listen(
-      permissionProvider.select((p) => (p.location, p.nearbyWifi, p.locationServicesEnabled, p.loaded)),
+      permissionProvider.select(
+        (p) => (p.location, p.nearbyWifi, p.locationServicesEnabled, p.loaded),
+      ),
       (prev, next) {
         // `$4` is `loaded`: the very first load is not a user-visible change.
         if (prev != null && prev.$4 && prev != next && _connSub != null) {
@@ -131,13 +141,18 @@ class WifiController extends Notifier<WifiState> {
   }
 
   void stop() {
-    state = state.copyWith(status: MonitorStatus.stopped, connection: null, scan: null);
+    state = state.copyWith(
+      status: MonitorStatus.stopped,
+      connection: null,
+      scan: null,
+    );
     _throttle.clear();
     ref.read(historyProvider.notifier).clearPrefix('wifi.');
     _reconcile();
   }
 
-  void setBandFilter(WifiBand? band) => state = state.copyWith(bandFilter: band);
+  void setBandFilter(WifiBand? band) =>
+      state = state.copyWith(bandFilter: band);
 
   void setSort(WifiSort sort) => state = state.copyWith(sort: sort);
 
@@ -161,7 +176,12 @@ class WifiController extends Notifier<WifiState> {
       scanning: false,
       notice: notice,
       retryAfterSeconds: retry,
-      scan: result.results.isEmpty && state.scan != null && result.issues.isNotEmpty ? state.scan : result,
+      scan:
+          result.results.isEmpty &&
+              state.scan != null &&
+              result.issues.isNotEmpty
+          ? state.scan
+          : result,
     );
   }
 
@@ -170,7 +190,8 @@ class WifiController extends Notifier<WifiState> {
   void _reconcile() {
     if (!_alive) return;
     final platform = ref.read(signalPlatformProvider);
-    final should = platform.isAndroid &&
+    final should =
+        platform.isAndroid &&
         ref.read(sensorVisibleProvider(Sensor.wifi)) &&
         state.status == MonitorStatus.listening;
     if (should && _connSub == null) {
@@ -185,12 +206,9 @@ class WifiController extends Notifier<WifiState> {
       (info) => _throttle.add(0, info),
       onError: (Object _) {},
     );
-    _scanSub = _repo.scanStream().listen(
-      (scan) {
-        if (_alive) state = state.copyWith(scan: scan);
-      },
-      onError: (Object _) {},
-    );
+    _scanSub = _repo.scanStream().listen((scan) {
+      if (_alive) state = state.copyWith(scan: scan);
+    }, onError: (Object _) {});
     state = state.copyWith(streaming: true);
   }
 
@@ -208,7 +226,9 @@ class WifiController extends Notifier<WifiState> {
     state = state.copyWith(connection: info);
     final rssi = info.rssi;
     if (info.connected && rssi != null) {
-      ref.read(historyProvider.notifier).add(
+      ref
+          .read(historyProvider.notifier)
+          .add(
             'wifi.rssi',
             rssi.toDouble(),
             'dBm',
@@ -218,4 +238,6 @@ class WifiController extends Notifier<WifiState> {
   }
 }
 
-final wifiControllerProvider = NotifierProvider<WifiController, WifiState>(WifiController.new);
+final wifiControllerProvider = NotifierProvider<WifiController, WifiState>(
+  WifiController.new,
+);

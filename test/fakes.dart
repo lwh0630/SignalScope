@@ -41,13 +41,20 @@ class FakeAndroidPlatform extends UnsupportedPlatform {
 
   @override
   Future<PlatformCapabilities> getCapabilities() async =>
-      const PlatformCapabilities(platform: 'android', sdkInt: 34, hasTelephony: true, hasWifi: true, hasGnss: true);
+      const PlatformCapabilities(
+        platform: 'android',
+        sdkInt: 34,
+        hasTelephony: true,
+        hasWifi: true,
+        hasGnss: true,
+      );
 
   @override
   Future<PermissionSnapshot> getPermissions() async => permissions;
 
   @override
-  Future<PermissionSnapshot> requestPermissions(Set<PermGroup> groups) async => permissions;
+  Future<PermissionSnapshot> requestPermissions(Set<PermGroup> groups) async =>
+      permissions;
 
   @override
   Future<List<SimInfo>> getSimList() async => sims;
@@ -120,7 +127,11 @@ class FakeAndroidPlatform extends UnsupportedPlatform {
   }
 
   @override
-  Future<String?> saveExport(String fileName, String mimeType, String content) async {
+  Future<String?> saveExport(
+    String fileName,
+    String mimeType,
+    String content,
+  ) async {
     exported = content;
     return 'Download/SignalScope/$fileName';
   }

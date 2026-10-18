@@ -17,11 +17,11 @@ class AndroidPlatform implements SignalPlatform {
     EventChannel? wifi,
     EventChannel? wifiScan,
     EventChannel? gnss,
-  })  : _method = method ?? const MethodChannel('signalscope/method'),
-        _cellular = cellular ?? const EventChannel('signalscope/cellular'),
-        _wifi = wifi ?? const EventChannel('signalscope/wifi'),
-        _wifiScan = wifiScan ?? const EventChannel('signalscope/wifi_scan'),
-        _gnss = gnss ?? const EventChannel('signalscope/gnss');
+  }) : _method = method ?? const MethodChannel('signalscope/method'),
+       _cellular = cellular ?? const EventChannel('signalscope/cellular'),
+       _wifi = wifi ?? const EventChannel('signalscope/wifi'),
+       _wifiScan = wifiScan ?? const EventChannel('signalscope/wifi_scan'),
+       _gnss = gnss ?? const EventChannel('signalscope/gnss');
 
   final MethodChannel _method;
   final EventChannel _cellular;
@@ -35,7 +35,10 @@ class AndroidPlatform implements SignalPlatform {
   @override
   bool get isAndroid => true;
 
-  Future<Map<Object?, Object?>?> _invokeMap(String method, [Object? args]) async {
+  Future<Map<Object?, Object?>?> _invokeMap(
+    String method, [
+    Object? args,
+  ]) async {
     try {
       final r = await _method.invokeMethod<Object?>(method, args);
       return r is Map ? r.cast<Object?, Object?>() : null;
@@ -67,7 +70,9 @@ class AndroidPlatform implements SignalPlatform {
   @override
   Future<PermissionSnapshot> getPermissions() async {
     final m = await _invokeMap('getPermissions');
-    return m == null ? const PermissionSnapshot() : PermissionSnapshot.fromMap(m);
+    return m == null
+        ? const PermissionSnapshot()
+        : PermissionSnapshot.fromMap(m);
   }
 
   @override
@@ -124,7 +129,10 @@ class AndroidPlatform implements SignalPlatform {
     return _wifi
         .receiveBroadcastStream()
         .where((e) => e is Map)
-        .map((e) => WifiConnectionInfo.fromMap((e as Map).cast<Object?, Object?>()));
+        .map(
+          (e) =>
+              WifiConnectionInfo.fromMap((e as Map).cast<Object?, Object?>()),
+        );
   }
 
   @override
@@ -148,7 +156,9 @@ class AndroidPlatform implements SignalPlatform {
     return _wifiScan
         .receiveBroadcastStream()
         .where((e) => e is Map)
-        .map((e) => WifiScanResult.fromMap((e as Map).cast<Object?, Object?>()));
+        .map(
+          (e) => WifiScanResult.fromMap((e as Map).cast<Object?, Object?>()),
+        );
   }
 
   @override
@@ -182,7 +192,11 @@ class AndroidPlatform implements SignalPlatform {
   }
 
   @override
-  Future<String?> saveExport(String fileName, String mimeType, String content) async {
+  Future<String?> saveExport(
+    String fileName,
+    String mimeType,
+    String content,
+  ) async {
     try {
       return await _method.invokeMethod<String>('saveExport', {
         'fileName': fileName,

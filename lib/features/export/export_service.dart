@@ -39,7 +39,10 @@ class ExportFormats {
 
   /// RFC 4180 style escaping: quote fields containing a comma, quote or line break.
   static String csvField(String v) {
-    if (v.contains(',') || v.contains('"') || v.contains('\n') || v.contains('\r')) {
+    if (v.contains(',') ||
+        v.contains('"') ||
+        v.contains('\n') ||
+        v.contains('\r')) {
       return '"${v.replaceAll('"', '""')}"';
     }
     return v;
@@ -48,7 +51,10 @@ class ExportFormats {
   static String toCsv(List<SignalHistoryPoint> points) {
     final b = StringBuffer(csvHeader)..write('\r\n');
     for (final p in points) {
-      final iso = DateTime.fromMillisecondsSinceEpoch(p.timestampMs, isUtc: true).toIso8601String();
+      final iso = DateTime.fromMillisecondsSinceEpoch(
+        p.timestampMs,
+        isUtc: true,
+      ).toIso8601String();
       b
         ..write(p.timestampMs)
         ..write(',')
@@ -77,7 +83,9 @@ class ExportFormats {
       'version': kAppVersion,
       'exportedAtUtc': exportedAt.toUtc().toIso8601String(),
       'platform': platform,
-      'dataSource': demo ? 'demo (built-in samples, NOT from this device)' : 'device',
+      'dataSource': demo
+          ? 'demo (built-in samples, NOT from this device)'
+          : 'device',
       'historyWindowSeconds': historySeconds,
       'note': 'Values are exactly as reported by the system. null means the system did not report the value.',
       'latest': latest,
@@ -86,7 +94,10 @@ class ExportFormats {
         for (final p in points)
           {
             'timestampMs': p.timestampMs,
-            'timeUtc': DateTime.fromMillisecondsSinceEpoch(p.timestampMs, isUtc: true).toIso8601String(),
+            'timeUtc': DateTime.fromMillisecondsSinceEpoch(
+              p.timestampMs,
+              isUtc: true,
+            ).toIso8601String(),
             'series': p.series,
             'value': p.value,
             'unit': p.unit,
@@ -96,9 +107,14 @@ class ExportFormats {
     return const JsonEncoder.withIndent('  ').convert(doc);
   }
 
-  static String fileName(ExportFormat format, DateTime now, {bool demo = false}) {
+  static String fileName(
+    ExportFormat format,
+    DateTime now, {
+    bool demo = false,
+  }) {
     String two(int n) => n.toString().padLeft(2, '0');
-    final stamp = '${now.year}${two(now.month)}${two(now.day)}_${two(now.hour)}${two(now.minute)}${two(now.second)}';
+    final stamp =
+        '${now.year}${two(now.month)}${two(now.day)}_${two(now.hour)}${two(now.minute)}${two(now.second)}';
     return 'signalscope_${demo ? 'demo_' : ''}$stamp.${format.extension}';
   }
 }
@@ -119,20 +135,22 @@ class ExportActions {
     final content = switch (format) {
       ExportFormat.csv => ExportFormats.toCsv(points),
       ExportFormat.json => ExportFormats.toJson(
-          points: points,
-          latest: _latestSnapshot(),
-          platform: platform.name,
-          demo: demo,
-          historySeconds: _ref.read(settingsProvider).historySeconds,
-          exportedAt: now,
-        ),
+        points: points,
+        latest: _latestSnapshot(),
+        platform: platform.name,
+        demo: demo,
+        historySeconds: _ref.read(settingsProvider).historySeconds,
+        exportedAt: now,
+      ),
     };
     final where = await platform.saveExport(
       ExportFormats.fileName(format, now, demo: demo),
       format.mimeType,
       content,
     );
-    return where == null ? const ExportOutcome(ExportStatus.failed) : ExportOutcome(ExportStatus.saved, where);
+    return where == null
+        ? const ExportOutcome(ExportStatus.failed)
+        : ExportOutcome(ExportStatus.saved, where);
   }
 
   Map<String, Object?> _latestSnapshot() {
@@ -143,7 +161,9 @@ class ExportActions {
       'sims': [for (final s in cell.sims) s.toMap()],
       'cellular': [for (final e in cell.latest.values) e.toMap()],
       'wifiConnection': wifi.connection?.toMap(),
-      'wifiScan': wifi.scan == null ? null : [for (final r in wifi.scan!.results) r.toMap()],
+      'wifiScan': wifi.scan == null
+          ? null
+          : [for (final r in wifi.scan!.results) r.toMap()],
       'gnss': gnss.snapshot?.toMap(),
     };
   }

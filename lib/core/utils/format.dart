@@ -36,7 +36,8 @@ String fmtClock(int? epochMs) {
 }
 
 /// First address of [v] and "(+n)" when there are more; `null` for an empty list.
-String? fmtFirstOfMany(List<String> v) =>
-    v.isEmpty ? null : (v.length == 1 ? v.first : '${v.first}  (+${v.length - 1})');
+String? fmtFirstOfMany(List<String> v) => v.isEmpty
+    ? null
+    : (v.length == 1 ? v.first : '${v.first}  (+${v.length - 1})');
 
 String fmtList(List<int> v) => v.isEmpty ? kUnavailable : v.join(', ');

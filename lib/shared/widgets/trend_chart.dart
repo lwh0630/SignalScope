@@ -54,7 +54,9 @@ class _TrendCardState extends ConsumerState<TrendCard> {
 
   @override
   Widget build(BuildContext context) {
-    final int window = _windowSeconds ?? ref.watch(settingsProvider.select((s) => s.historySeconds));
+    final int window =
+        _windowSeconds ??
+        ref.watch(settingsProvider.select((s) => s.historySeconds));
     final data = <List<SignalHistoryPoint>>[
       for (final s in widget.series) ref.watch(historySeriesProvider(s.key)),
     ];
@@ -164,7 +166,9 @@ class _TrendCardState extends ConsumerState<TrendCard> {
                         gridData: FlGridData(
                           drawVerticalLine: false,
                           getDrawingHorizontalLine: (_) => FlLine(
-                            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+                            color: theme.colorScheme.outlineVariant.withValues(
+                              alpha: 0.3,
+                            ),
                             strokeWidth: 1,
                           ),
                         ),
@@ -181,8 +185,9 @@ class _TrendCardState extends ConsumerState<TrendCard> {
                                 }
                                 return Text(
                                   value.round().toString(),
-                                  style: theme.textTheme.labelSmall
-                                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
                                 );
                               },
                             ),
@@ -198,8 +203,9 @@ class _TrendCardState extends ConsumerState<TrendCard> {
                                   padding: const EdgeInsets.only(top: 4),
                                   child: Text(
                                     s == 0 ? '0' : '${s}s',
-                                    style: theme.textTheme.labelSmall
-                                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
                                   ),
                                 );
                               },
@@ -213,8 +219,9 @@ class _TrendCardState extends ConsumerState<TrendCard> {
                 : Center(
                     child: Text(
                       context.tr('common.noData'),
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
           ),
@@ -225,7 +232,11 @@ class _TrendCardState extends ConsumerState<TrendCard> {
 }
 
 class _LegendItem extends StatelessWidget {
-  const _LegendItem({required this.color, required this.label, required this.value});
+  const _LegendItem({
+    required this.color,
+    required this.label,
+    required this.value,
+  });
 
   final Color color;
   final String label;
@@ -240,14 +251,19 @@ class _LegendItem extends StatelessWidget {
         Container(
           width: 10,
           height: 10,
-          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3)),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+          ),
         ),
         const SizedBox(width: 6),
         Text(label, style: theme.textTheme.labelMedium),
         const SizedBox(width: 6),
         Text(
           value,
-          style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
+          style: theme.textTheme.labelMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ],
     );

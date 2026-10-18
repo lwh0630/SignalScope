@@ -34,7 +34,8 @@ class PermissionBanner extends ConsumerWidget {
       final s = snap.of(g);
       return s == PermStatus.denied || s == PermStatus.permanentlyDenied;
     });
-    return missing || (needsLocationServices && snap.locationServicesEnabled == false);
+    return missing ||
+        (needsLocationServices && snap.locationServicesEnabled == false);
   }
 
   @override
@@ -47,9 +48,15 @@ class PermissionBanner extends ConsumerWidget {
     final theme = Theme.of(context);
 
     final missing = groups
-        .where((g) => snap.of(g) == PermStatus.denied || snap.of(g) == PermStatus.permanentlyDenied)
+        .where(
+          (g) =>
+              snap.of(g) == PermStatus.denied ||
+              snap.of(g) == PermStatus.permanentlyDenied,
+        )
         .toSet();
-    final permanent = missing.any((g) => snap.of(g) == PermStatus.permanentlyDenied);
+    final permanent = missing.any(
+      (g) => snap.of(g) == PermStatus.permanentlyDenied,
+    );
 
     final String message;
     final String actionLabel;
@@ -79,22 +86,32 @@ class PermissionBanner extends ConsumerWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.lock_outline_rounded, color: theme.colorScheme.error),
+                Icon(
+                  Icons.lock_outline_rounded,
+                  color: theme.colorScheme.error,
+                ),
                 const SizedBox(width: 12),
-                Expanded(child: Text(message, style: theme.textTheme.bodyMedium)),
+                Expanded(
+                  child: Text(message, style: theme.textTheme.bodyMedium),
+                ),
               ],
             ),
             if (missing.isNotEmpty && permanent) ...[
               const SizedBox(height: 6),
               Text(
                 context.tr('perm.permanentHint'),
-                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
             const SizedBox(height: 12),
             Align(
               alignment: Alignment.centerRight,
-              child: FilledButton.tonal(onPressed: action, child: Text(actionLabel)),
+              child: FilledButton.tonal(
+                onPressed: action,
+                child: Text(actionLabel),
+              ),
             ),
           ],
         ),

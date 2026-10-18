@@ -11,12 +11,18 @@ import '../../export/export_service.dart';
 class DataCard extends ConsumerWidget {
   const DataCard({super.key});
 
-  Future<void> _export(BuildContext context, WidgetRef ref, ExportFormat format) async {
+  Future<void> _export(
+    BuildContext context,
+    WidgetRef ref,
+    ExportFormat format,
+  ) async {
     final messenger = ScaffoldMessenger.of(context);
     final outcome = await ref.read(exportActionsProvider).export(format);
     if (!context.mounted) return;
     final text = switch (outcome.status) {
-      ExportStatus.saved => context.tr('settings.exportDone', [outcome.location ?? '']),
+      ExportStatus.saved => context.tr('settings.exportDone', [
+        outcome.location ?? '',
+      ]),
       ExportStatus.empty => context.tr('settings.exportEmpty'),
       ExportStatus.failed => context.tr('settings.exportFail'),
     };
@@ -28,7 +34,11 @@ class DataCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final count = ref.watch(historyProvider.select((s) => s.series.values.fold<int>(0, (a, l) => a + l.length)));
+    final count = ref.watch(
+      historyProvider.select(
+        (s) => s.series.values.fold<int>(0, (a, l) => a + l.length),
+      ),
+    );
     final demo = ref.watch(demoModeProvider);
     return SectionCard(
       title: context.tr('settings.data'),
@@ -43,7 +53,9 @@ class DataCard extends ConsumerWidget {
             const SizedBox(height: 4),
             Text(
               context.tr('settings.exportDemoNote'),
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.error),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.error,
+              ),
             ),
           ],
           const SizedBox(height: 12),
@@ -68,7 +80,13 @@ class DataCard extends ConsumerWidget {
                         ref.read(historyProvider.notifier).clearAll();
                         ScaffoldMessenger.of(context)
                           ..hideCurrentSnackBar()
-                          ..showSnackBar(SnackBar(content: Text(context.tr('settings.clearHistoryDone'))));
+                          ..showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                context.tr('settings.clearHistoryDone'),
+                              ),
+                            ),
+                          );
                       },
                 icon: const Icon(Icons.delete_outline_rounded),
                 label: Text(context.tr('settings.clearHistory')),

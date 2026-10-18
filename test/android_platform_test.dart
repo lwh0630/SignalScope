@@ -7,7 +7,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   const channel = MethodChannel('signalscope/method');
-  final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 
   tearDown(() => messenger.setMockMethodCallHandler(channel, null));
 
@@ -29,12 +30,15 @@ void main() {
   });
 
   test('permission snapshot parses statuses', () async {
-    messenger.setMockMethodCallHandler(channel, (call) async => {
-          'location': 'granted',
-          'phone': 'permanentlyDenied',
-          'nearbyWifi': 'notApplicable',
-          'locationServicesEnabled': false,
-        });
+    messenger.setMockMethodCallHandler(
+      channel,
+      (call) async => {
+        'location': 'granted',
+        'phone': 'permanentlyDenied',
+        'nearbyWifi': 'notApplicable',
+        'locationServicesEnabled': false,
+      },
+    );
     final p = await AndroidPlatform().getPermissions();
     expect(p.location, PermStatus.granted);
     expect(p.phone, PermStatus.permanentlyDenied);
@@ -48,7 +52,10 @@ void main() {
       sent = call.arguments;
       return {'location': 'denied', 'phone': 'granted'};
     });
-    final p = await AndroidPlatform().requestPermissions({PermGroup.location, PermGroup.phone});
+    final p = await AndroidPlatform().requestPermissions({
+      PermGroup.location,
+      PermGroup.phone,
+    });
     expect((sent as Map)['groups'], containsAll(['location', 'phone']));
     expect(p.phone, PermStatus.granted);
   });

@@ -11,8 +11,9 @@ enum CellDataSource {
   cellInfo,
   signalStrength;
 
-  static CellDataSource parse(Object? v) =>
-      v == 'signalStrength' ? CellDataSource.signalStrength : CellDataSource.cellInfo;
+  static CellDataSource parse(Object? v) => v == 'signalStrength'
+      ? CellDataSource.signalStrength
+      : CellDataSource.cellInfo;
 }
 
 /// Origin of a band number shown in the UI.
@@ -88,26 +89,26 @@ class LteSignalInfo {
       rsrp != null || rsrq != null || rssi != null || rssnr != null;
 
   factory LteSignalInfo.fromMap(Map<Object?, Object?> m) => LteSignalInfo(
-        isRegistered: asBool(m['isRegistered']),
-        source: CellDataSource.parse(m['source']),
-        rsrp: asInt(m['rsrp']),
-        rsrq: asInt(m['rsrq']),
-        rssi: asInt(m['rssi']),
-        rssnr: asInt(m['rssnr']),
-        cqi: asInt(m['cqi']),
-        timingAdvance: asInt(m['timingAdvance']),
-        level: asInt(m['level']),
-        dbm: asInt(m['dbm']),
-        pci: asInt(m['pci']),
-        tac: asInt(m['tac']),
-        ci: asInt(m['ci']),
-        earfcn: asInt(m['earfcn']),
-        bandwidthKhz: asInt(m['bandwidthKhz']),
-        bands: asIntList(m['bands']),
-        bandSource: asIntList(m['bands']).isEmpty ? null : BandSource.reported,
-        mcc: asString(m['mcc']),
-        mnc: asString(m['mnc']),
-      );
+    isRegistered: asBool(m['isRegistered']),
+    source: CellDataSource.parse(m['source']),
+    rsrp: asInt(m['rsrp']),
+    rsrq: asInt(m['rsrq']),
+    rssi: asInt(m['rssi']),
+    rssnr: asInt(m['rssnr']),
+    cqi: asInt(m['cqi']),
+    timingAdvance: asInt(m['timingAdvance']),
+    level: asInt(m['level']),
+    dbm: asInt(m['dbm']),
+    pci: asInt(m['pci']),
+    tac: asInt(m['tac']),
+    ci: asInt(m['ci']),
+    earfcn: asInt(m['earfcn']),
+    bandwidthKhz: asInt(m['bandwidthKhz']),
+    bands: asIntList(m['bands']),
+    bandSource: asIntList(m['bands']).isEmpty ? null : BandSource.reported,
+    mcc: asString(m['mcc']),
+    mnc: asString(m['mnc']),
+  );
 
   LteSignalInfo withBands(List<int> newBands, BandSource? newSource) =>
       LteSignalInfo(
@@ -133,27 +134,27 @@ class LteSignalInfo {
       );
 
   Map<String, Object?> toMap() => {
-        'isRegistered': isRegistered,
-        'source': source.name,
-        'rsrp_dBm': rsrp,
-        'rsrq_dB': rsrq,
-        'rssi_dBm': rssi,
-        'rssnr_dB': rssnr,
-        'cqi': cqi,
-        'timingAdvance': timingAdvance,
-        'level': level,
-        'dbm': dbm,
-        'pci': pci,
-        'tac': tac,
-        'eci': ci,
-        'enbId_derived': enbId,
-        'earfcn': earfcn,
-        'bandwidth_kHz': bandwidthKhz,
-        'bands': bands,
-        'bandSource': bandSource?.name,
-        'mcc': mcc,
-        'mnc': mnc,
-      };
+    'isRegistered': isRegistered,
+    'source': source.name,
+    'rsrp_dBm': rsrp,
+    'rsrq_dB': rsrq,
+    'rssi_dBm': rssi,
+    'rssnr_dB': rssnr,
+    'cqi': cqi,
+    'timingAdvance': timingAdvance,
+    'level': level,
+    'dbm': dbm,
+    'pci': pci,
+    'tac': tac,
+    'eci': ci,
+    'enbId_derived': enbId,
+    'earfcn': earfcn,
+    'bandwidth_kHz': bandwidthKhz,
+    'bands': bands,
+    'bandSource': bandSource?.name,
+    'mcc': mcc,
+    'mnc': mnc,
+  };
 }
 
 /// 5G NR serving or neighbour cell.
@@ -221,25 +222,25 @@ class NrSignalInfo {
       csiSinr != null;
 
   factory NrSignalInfo.fromMap(Map<Object?, Object?> m) => NrSignalInfo(
-        isRegistered: asBool(m['isRegistered']),
-        source: CellDataSource.parse(m['source']),
-        ssRsrp: asInt(m['ssRsrp']),
-        ssRsrq: asInt(m['ssRsrq']),
-        ssSinr: asInt(m['ssSinr']),
-        csiRsrp: asInt(m['csiRsrp']),
-        csiRsrq: asInt(m['csiRsrq']),
-        csiSinr: asInt(m['csiSinr']),
-        level: asInt(m['level']),
-        dbm: asInt(m['dbm']),
-        nrarfcn: asInt(m['nrarfcn']),
-        pci: asInt(m['pci']),
-        tac: asInt(m['tac']),
-        nci: asInt(m['nci']),
-        bands: asIntList(m['bands']),
-        bandSource: asIntList(m['bands']).isEmpty ? null : BandSource.reported,
-        mcc: asString(m['mcc']),
-        mnc: asString(m['mnc']),
-      );
+    isRegistered: asBool(m['isRegistered']),
+    source: CellDataSource.parse(m['source']),
+    ssRsrp: asInt(m['ssRsrp']),
+    ssRsrq: asInt(m['ssRsrq']),
+    ssSinr: asInt(m['ssSinr']),
+    csiRsrp: asInt(m['csiRsrp']),
+    csiRsrq: asInt(m['csiRsrq']),
+    csiSinr: asInt(m['csiSinr']),
+    level: asInt(m['level']),
+    dbm: asInt(m['dbm']),
+    nrarfcn: asInt(m['nrarfcn']),
+    pci: asInt(m['pci']),
+    tac: asInt(m['tac']),
+    nci: asInt(m['nci']),
+    bands: asIntList(m['bands']),
+    bandSource: asIntList(m['bands']).isEmpty ? null : BandSource.reported,
+    mcc: asString(m['mcc']),
+    mnc: asString(m['mnc']),
+  );
 
   NrSignalInfo withBands(List<int> newBands, BandSource? newSource) =>
       NrSignalInfo(
@@ -264,25 +265,25 @@ class NrSignalInfo {
       );
 
   Map<String, Object?> toMap() => {
-        'isRegistered': isRegistered,
-        'source': source.name,
-        'ssRsrp_dBm': ssRsrp,
-        'ssRsrq_dB': ssRsrq,
-        'ssSinr_dB': ssSinr,
-        'csiRsrp_dBm': csiRsrp,
-        'csiRsrq_dB': csiRsrq,
-        'csiSinr_dB': csiSinr,
-        'level': level,
-        'dbm': dbm,
-        'nrarfcn': nrarfcn,
-        'pci': pci,
-        'tac': tac,
-        'nci': nci,
-        'bands': bands,
-        'bandSource': bandSource?.name,
-        'mcc': mcc,
-        'mnc': mnc,
-      };
+    'isRegistered': isRegistered,
+    'source': source.name,
+    'ssRsrp_dBm': ssRsrp,
+    'ssRsrq_dB': ssRsrq,
+    'ssSinr_dB': ssSinr,
+    'csiRsrp_dBm': csiRsrp,
+    'csiRsrq_dB': csiRsrq,
+    'csiSinr_dB': csiSinr,
+    'level': level,
+    'dbm': dbm,
+    'nrarfcn': nrarfcn,
+    'pci': pci,
+    'tac': tac,
+    'nci': nci,
+    'bands': bands,
+    'bandSource': bandSource?.name,
+    'mcc': mcc,
+    'mnc': mnc,
+  };
 }
 
 /// 2G / 3G cell (GSM, WCDMA, TD-SCDMA) or CDMA cell.
@@ -323,32 +324,32 @@ class LegacyCellInfo {
   final String? mnc;
 
   factory LegacyCellInfo.fromMap(Map<Object?, Object?> m) => LegacyCellInfo(
-        rat: asString(m['rat']) ?? 'UNKNOWN',
-        isRegistered: asBool(m['isRegistered']),
-        source: CellDataSource.parse(m['source']),
-        dbm: asInt(m['dbm']),
-        level: asInt(m['level']),
-        cid: asInt(m['cid']),
-        lac: asInt(m['lac']),
-        channel: asInt(m['channel']),
-        psc: asInt(m['psc']),
-        bsic: asInt(m['bsic']),
-        mcc: asString(m['mcc']),
-        mnc: asString(m['mnc']),
-      );
+    rat: asString(m['rat']) ?? 'UNKNOWN',
+    isRegistered: asBool(m['isRegistered']),
+    source: CellDataSource.parse(m['source']),
+    dbm: asInt(m['dbm']),
+    level: asInt(m['level']),
+    cid: asInt(m['cid']),
+    lac: asInt(m['lac']),
+    channel: asInt(m['channel']),
+    psc: asInt(m['psc']),
+    bsic: asInt(m['bsic']),
+    mcc: asString(m['mcc']),
+    mnc: asString(m['mnc']),
+  );
 
   Map<String, Object?> toMap() => {
-        'rat': rat,
-        'isRegistered': isRegistered,
-        'source': source.name,
-        'dbm': dbm,
-        'level': level,
-        'cid': cid,
-        'lac': lac,
-        'channel': channel,
-        'psc': psc,
-        'bsic': bsic,
-        'mcc': mcc,
-        'mnc': mnc,
-      };
+    'rat': rat,
+    'isRegistered': isRegistered,
+    'source': source.name,
+    'dbm': dbm,
+    'level': level,
+    'cid': cid,
+    'lac': lac,
+    'channel': channel,
+    'psc': psc,
+    'bsic': bsic,
+    'mcc': mcc,
+    'mnc': mnc,
+  };
 }

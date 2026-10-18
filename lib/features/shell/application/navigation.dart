@@ -10,4 +10,6 @@ class CurrentTabNotifier extends Notifier<AppTab> {
   void select(AppTab tab) => state = tab;
 }
 
-final currentTabProvider = NotifierProvider<CurrentTabNotifier, AppTab>(CurrentTabNotifier.new);
+final currentTabProvider = NotifierProvider<CurrentTabNotifier, AppTab>(
+  CurrentTabNotifier.new,
+);

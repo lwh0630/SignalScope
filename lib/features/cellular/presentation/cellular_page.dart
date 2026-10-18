@@ -59,16 +59,19 @@ class CellularPage extends ConsumerWidget {
         if (info?.servingNr != null) _NrCard(cell: info!.servingNr!),
         if (info != null && info.nrMode == 'NSA' && info.servingNr == null)
           const _InfoNote(textKey: 'cellular.nsaNoNr'),
-        if (info?.servingLegacy != null) _LegacyCard(cell: info!.servingLegacy!),
+        if (info?.servingLegacy != null)
+          _LegacyCard(cell: info!.servingLegacy!),
         if (info != null) _NeighborCard(info: info),
-        if (info != null && info.issues.isNotEmpty) _IssuesCard(issues: info.issues),
+        if (info != null && info.issues.isNotEmpty)
+          _IssuesCard(issues: info.issues),
       ]);
     }
 
     return PageScaffold(
       title: context.tr('nav.cellular'),
       header: state.sims.isEmpty ? null : _SimSelector(state: state),
-      onRefresh: () => ref.read(cellularControllerProvider.notifier).refreshSims(),
+      onRefresh: () =>
+          ref.read(cellularControllerProvider.notifier).refreshSims(),
       children: children,
     );
   }
@@ -95,7 +98,9 @@ class _SimSelector extends ConsumerWidget {
               child: ChoiceChip(
                 selected: s.subscriptionId == state.selectedSubId,
                 avatar: Icon(
-                  s.isEmbedded == true ? Icons.sim_card_download_outlined : Icons.sim_card_outlined,
+                  s.isEmbedded == true
+                      ? Icons.sim_card_download_outlined
+                      : Icons.sim_card_outlined,
                   size: 18,
                 ),
                 label: Text(
@@ -123,18 +128,30 @@ class _NoSimCard extends ConsumerWidget {
     return SectionCard(
       child: Column(
         children: [
-          Icon(Icons.sim_card_alert_outlined, size: 48, color: theme.colorScheme.onSurfaceVariant),
+          Icon(
+            Icons.sim_card_alert_outlined,
+            size: 48,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
           const SizedBox(height: 12),
           Text(
-            context.tr(phoneGranted ? 'cellular.noSim' : 'cellular.needPhonePerm'),
+            context.tr(
+              phoneGranted ? 'cellular.noSim' : 'cellular.needPhonePerm',
+            ),
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 4),
           Text(
-            context.tr(phoneGranted ? 'cellular.noSimHint' : 'cellular.needPhonePermHint'),
+            context.tr(
+              phoneGranted
+                  ? 'cellular.noSimHint'
+                  : 'cellular.needPhonePermHint',
+            ),
             textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
@@ -170,21 +187,25 @@ class _GaugeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reading = info?.gaugeReading;
-    final isLteNr = reading != null && (reading.rat == 'LTE' || reading.rat == 'NR');
+    final isLteNr =
+        reading != null && (reading.rat == 'LTE' || reading.rat == 'NR');
     final grade = reading == null
         ? SignalGrade.none
-        : (isLteNr ? SignalQuality.rsrp(reading.dbm) : SignalQuality.legacyDbm(reading.dbm));
+        : (isLteNr
+              ? SignalQuality.rsrp(reading.dbm)
+              : SignalQuality.legacyDbm(reading.dbm));
     final fraction = reading == null
         ? null
         : (isLteNr
-            ? SignalQuality.fraction(reading.dbm, min: -140, max: -44)
-            : SignalQuality.fraction(reading.dbm, min: -113, max: -51));
+              ? SignalQuality.fraction(reading.dbm, min: -140, max: -44)
+              : SignalQuality.fraction(reading.dbm, min: -113, max: -51));
 
     final typeCode = info?.dataNetworkType ?? sim.dataNetworkType;
     final typeName = NetworkTypes.name(typeCode);
     final gen = NetworkTypes.generation(typeCode);
     final mode = info?.nrMode;
-    final operator = info?.operatorName ?? sim.networkOperatorName ?? sim.carrierName;
+    final operator =
+        info?.operatorName ?? sim.networkOperatorName ?? sim.carrierName;
     final roaming = info?.isRoaming ?? sim.isRoaming;
     final theme = Theme.of(context);
 
@@ -197,17 +218,23 @@ class _GaugeCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(fmtText(operator),
-                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                    Text(
+                      fmtText(operator),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                     Text(
                       sim.slotLabel,
-                      style: theme.textTheme.labelMedium
-                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
               ),
-              if (typeName != null) StatusPill(text: typeName, color: theme.colorScheme.primary),
+              if (typeName != null)
+                StatusPill(text: typeName, color: theme.colorScheme.primary),
             ],
           ),
           const SizedBox(height: 8),
@@ -233,7 +260,11 @@ class _GaugeCard extends StatelessWidget {
                   icon: Icons.network_cell_rounded,
                 ),
               if (mode != null)
-                StatusPill(text: '5G $mode', color: SignalColors.chartB, icon: Icons.bolt_rounded),
+                StatusPill(
+                  text: '5G $mode',
+                  color: SignalColors.chartB,
+                  icon: Icons.bolt_rounded,
+                ),
               if (roaming == true)
                 StatusPill(
                   text: context.tr('cellular.roaming'),
@@ -253,7 +284,9 @@ class _GaugeCard extends StatelessWidget {
             Text(
               context.tr('cellular.noReading'),
               textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ],
@@ -297,50 +330,100 @@ class _SimCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String yn(bool? v) => fmtBool(v, yes: context.tr('common.yes'), no: context.tr('common.no'));
-    final simState = sim.simState == null ? null : context.tr('simstate.${sim.simState}');
-    final dataState = sim.dataState == null ? null : context.tr('datastate.${sim.dataState}');
-    final service = info?.serviceState == null ? null : context.tr('servicestate.${info!.serviceState}');
+    String yn(bool? v) =>
+        fmtBool(v, yes: context.tr('common.yes'), no: context.tr('common.no'));
+    final simState = sim.simState == null
+        ? null
+        : context.tr('simstate.${sim.simState}');
+    final dataState = sim.dataState == null
+        ? null
+        : context.tr('datastate.${sim.dataState}');
+    final service = info?.serviceState == null
+        ? null
+        : context.tr('servicestate.${info!.serviceState}');
     final mcc = sim.mcc;
     final mnc = sim.mnc;
     final regNet = info?.networkOperator ?? sim.networkOperator;
-    final voiceType = NetworkTypes.name(info?.voiceNetworkType ?? sim.voiceNetworkType);
-    final dataType = NetworkTypes.name(info?.dataNetworkType ?? sim.dataNetworkType);
+    final voiceType = NetworkTypes.name(
+      info?.voiceNetworkType ?? sim.voiceNetworkType,
+    );
+    final dataType = NetworkTypes.name(
+      info?.dataNetworkType ?? sim.dataNetworkType,
+    );
 
     return SectionCard(
       title: context.tr('cellular.simInfo'),
       child: Column(
         children: [
           InfoRow(label: context.tr('cellular.slot'), value: sim.slotLabel),
-          InfoRow(label: context.tr('cellular.carrier'), value: sim.carrierName ?? sim.displayName),
+          InfoRow(
+            label: context.tr('cellular.carrier'),
+            value: sim.carrierName ?? sim.displayName,
+          ),
           InfoRow(label: context.tr('cellular.simState'), value: simState),
-          InfoRow(label: 'MCC', value: mcc, note: context.tr('cellular.mccNote')),
-          InfoRow(label: 'MNC', value: mnc, note: context.tr('cellular.mncNote')),
-          InfoRow(label: context.tr('cellular.countryIso'), value: sim.countryIso?.toUpperCase()),
-          InfoRow(label: context.tr('cellular.simOperator'), value: sim.simOperator),
+          InfoRow(
+            label: 'MCC',
+            value: mcc,
+            note: context.tr('cellular.mccNote'),
+          ),
+          InfoRow(
+            label: 'MNC',
+            value: mnc,
+            note: context.tr('cellular.mncNote'),
+          ),
+          InfoRow(
+            label: context.tr('cellular.countryIso'),
+            value: sim.countryIso?.toUpperCase(),
+          ),
+          InfoRow(
+            label: context.tr('cellular.simOperator'),
+            value: sim.simOperator,
+          ),
           InfoRow(
             label: context.tr('cellular.registeredNetwork'),
             value: regNet == null
                 ? null
-                : '${info?.operatorName ?? sim.networkOperatorName ?? ''} ($regNet)'.trim(),
+                : '${info?.operatorName ?? sim.networkOperatorName ?? ''} ($regNet)'
+                      .trim(),
           ),
           InfoRow(label: context.tr('cellular.serviceState'), value: service),
-          InfoRow(label: context.tr('cellular.dataNetworkType'), value: dataType),
-          InfoRow(label: context.tr('cellular.voiceNetworkType'), value: voiceType),
-          InfoRow(label: context.tr('cellular.roaming'), value: yn(info?.isRoaming ?? sim.isRoaming)),
-          InfoRow(label: context.tr('cellular.defaultData'), value: yn(sim.isDefaultData)),
-          InfoRow(label: context.tr('cellular.dataEnabled'), value: yn(sim.isDataEnabled)),
+          InfoRow(
+            label: context.tr('cellular.dataNetworkType'),
+            value: dataType,
+          ),
+          InfoRow(
+            label: context.tr('cellular.voiceNetworkType'),
+            value: voiceType,
+          ),
+          InfoRow(
+            label: context.tr('cellular.roaming'),
+            value: yn(info?.isRoaming ?? sim.isRoaming),
+          ),
+          InfoRow(
+            label: context.tr('cellular.defaultData'),
+            value: yn(sim.isDefaultData),
+          ),
+          InfoRow(
+            label: context.tr('cellular.dataEnabled'),
+            value: yn(sim.isDataEnabled),
+          ),
           InfoRow(label: context.tr('cellular.dataState'), value: dataState),
           InfoRow(
             label: context.tr('cellular.simType'),
             value: sim.isEmbedded == null
                 ? null
-                : context.tr(sim.isEmbedded! ? 'cellular.esim' : 'cellular.physicalSim'),
+                : context.tr(
+                    sim.isEmbedded! ? 'cellular.esim' : 'cellular.physicalSim',
+                  ),
           ),
           if (info?.hasDataNetwork != null) ...[
             const Divider(height: 20),
             if (info!.hasDataNetwork == true) ...[
-              CopyableInfoRow(label: context.tr('addr.ipv4'), value: info!.ipv4, note: context.tr('addr.copyHint')),
+              CopyableInfoRow(
+                label: context.tr('addr.ipv4'),
+                value: info!.ipv4,
+                note: context.tr('addr.copyHint'),
+              ),
               CopyableInfoRow(
                 label: context.tr('addr.ipv6'),
                 value: info!.ipv6.isEmpty ? null : info!.ipv6.join('\n'),
@@ -356,7 +439,8 @@ class _SimCard extends StatelessWidget {
               InfoRow(
                 label: context.tr('addr.ipv4'),
                 value: null,
-                note: '${context.tr('addr.noDataNetwork')} - ${context.tr('addr.noDataNetworkNote')}',
+                note:
+                    '${context.tr('addr.noDataNetwork')} - ${context.tr('addr.noDataNetworkNote')}',
               ),
           ],
         ],
@@ -365,7 +449,12 @@ class _SimCard extends StatelessWidget {
   }
 }
 
-String? _bandText(BuildContext context, List<int> bands, BandSource? source, String prefix) {
+String? _bandText(
+  BuildContext context,
+  List<int> bands,
+  BandSource? source,
+  String prefix,
+) {
   if (bands.isEmpty) return null;
   return bands.map((b) => '$prefix$b').join(' / ');
 }
@@ -385,11 +474,16 @@ class _LteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dlMhz = BandLookup.lteDlFrequencyMhz(cell.earfcn);
-    final plmn = (cell.mcc != null && cell.mnc != null) ? '${cell.mcc}-${cell.mnc}' : null;
+    final plmn = (cell.mcc != null && cell.mnc != null)
+        ? '${cell.mcc}-${cell.mnc}'
+        : null;
     return SectionCard(
       title: context.tr('cellular.lteTitle'),
       trailing: cell.source == CellDataSource.signalStrength
-          ? StatusPill(text: context.tr('cellular.measurementOnly'), color: SignalColors.fair)
+          ? StatusPill(
+              text: context.tr('cellular.measurementOnly'),
+              color: SignalColors.fair,
+            )
           : null,
       child: Column(
         children: [
@@ -399,9 +493,18 @@ class _LteCard extends StatelessWidget {
             valueColor: SignalQuality.rsrp(cell.rsrp).color,
             emphasize: true,
           ),
-          InfoRow(label: 'RSRQ', value: fmtNum(cell.rsrq, unit: 'dB')),
-          InfoRow(label: 'RSSI', value: fmtNum(cell.rssi, unit: 'dBm')),
-          InfoRow(label: 'SINR (RSSNR)', value: fmtNum(cell.rssnr, unit: 'dB')),
+          InfoRow(
+            label: 'RSRQ',
+            value: fmtNum(cell.rsrq, unit: 'dB'),
+          ),
+          InfoRow(
+            label: 'RSSI',
+            value: fmtNum(cell.rssi, unit: 'dBm'),
+          ),
+          InfoRow(
+            label: 'SINR (RSSNR)',
+            value: fmtNum(cell.rssnr, unit: 'dB'),
+          ),
           InfoRow(label: 'CQI', value: fmtNum(cell.cqi)),
           InfoRow(label: 'Timing Advance', value: fmtNum(cell.timingAdvance)),
           InfoRow(label: 'PCI', value: fmtNum(cell.pci)),
@@ -415,12 +518,16 @@ class _LteCard extends StatelessWidget {
           InfoRow(
             label: context.tr('cellular.localCellId'),
             value: fmtNum(cell.localCellId),
-            note: cell.localCellId == null ? null : context.tr('cellular.localCellNote'),
+            note: cell.localCellId == null
+                ? null
+                : context.tr('cellular.localCellNote'),
           ),
           InfoRow(label: 'EARFCN', value: fmtNum(cell.earfcn)),
           InfoRow(
             label: context.tr('cellular.dlFrequency'),
-            value: dlMhz == null ? null : fmtNum(dlMhz, unit: 'MHz', decimals: 1),
+            value: dlMhz == null
+                ? null
+                : fmtNum(dlMhz, unit: 'MHz', decimals: 1),
             note: dlMhz == null ? null : context.tr('cellular.freqDerived'),
           ),
           InfoRow(
@@ -430,7 +537,9 @@ class _LteCard extends StatelessWidget {
           ),
           InfoRow(
             label: context.tr('cellular.bandwidth'),
-            value: cell.bandwidthKhz == null ? null : fmtNum(cell.bandwidthKhz! / 1000, unit: 'MHz', decimals: 1),
+            value: cell.bandwidthKhz == null
+                ? null
+                : fmtNum(cell.bandwidthKhz! / 1000, unit: 'MHz', decimals: 1),
           ),
           InfoRow(label: 'PLMN', value: plmn),
         ],
@@ -447,11 +556,16 @@ class _NrCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final freq = BandLookup.nrFrequencyMhz(cell.nrarfcn);
-    final plmn = (cell.mcc != null && cell.mnc != null) ? '${cell.mcc}-${cell.mnc}' : null;
+    final plmn = (cell.mcc != null && cell.mnc != null)
+        ? '${cell.mcc}-${cell.mnc}'
+        : null;
     return SectionCard(
       title: context.tr('cellular.nrTitle'),
       trailing: cell.source == CellDataSource.signalStrength
-          ? StatusPill(text: context.tr('cellular.measurementOnly'), color: SignalColors.fair)
+          ? StatusPill(
+              text: context.tr('cellular.measurementOnly'),
+              color: SignalColors.fair,
+            )
           : null,
       child: Column(
         children: [
@@ -461,11 +575,26 @@ class _NrCard extends StatelessWidget {
             valueColor: SignalQuality.rsrp(cell.ssRsrp).color,
             emphasize: true,
           ),
-          InfoRow(label: 'SS-RSRQ', value: fmtNum(cell.ssRsrq, unit: 'dB')),
-          InfoRow(label: 'SS-SINR', value: fmtNum(cell.ssSinr, unit: 'dB')),
-          InfoRow(label: 'CSI-RSRP', value: fmtNum(cell.csiRsrp, unit: 'dBm')),
-          InfoRow(label: 'CSI-RSRQ', value: fmtNum(cell.csiRsrq, unit: 'dB')),
-          InfoRow(label: 'CSI-SINR', value: fmtNum(cell.csiSinr, unit: 'dB')),
+          InfoRow(
+            label: 'SS-RSRQ',
+            value: fmtNum(cell.ssRsrq, unit: 'dB'),
+          ),
+          InfoRow(
+            label: 'SS-SINR',
+            value: fmtNum(cell.ssSinr, unit: 'dB'),
+          ),
+          InfoRow(
+            label: 'CSI-RSRP',
+            value: fmtNum(cell.csiRsrp, unit: 'dBm'),
+          ),
+          InfoRow(
+            label: 'CSI-RSRQ',
+            value: fmtNum(cell.csiRsrq, unit: 'dB'),
+          ),
+          InfoRow(
+            label: 'CSI-SINR',
+            value: fmtNum(cell.csiSinr, unit: 'dB'),
+          ),
           InfoRow(label: 'NRARFCN', value: fmtNum(cell.nrarfcn)),
           InfoRow(
             label: context.tr('cellular.nrFrequency'),
@@ -505,11 +634,20 @@ class _LegacyCard extends StatelessWidget {
             valueColor: SignalQuality.legacyDbm(cell.dbm).color,
             emphasize: true,
           ),
-          InfoRow(label: context.tr('cellular.level'), value: fmtNum(cell.level)),
+          InfoRow(
+            label: context.tr('cellular.level'),
+            value: fmtNum(cell.level),
+          ),
           InfoRow(label: 'CID', value: fmtNum(cell.cid)),
           InfoRow(label: 'LAC', value: fmtNum(cell.lac)),
-          InfoRow(label: isGsm ? 'ARFCN' : 'UARFCN', value: fmtNum(cell.channel)),
-          if (isGsm) InfoRow(label: 'BSIC', value: fmtNum(cell.bsic)) else InfoRow(label: 'PSC', value: fmtNum(cell.psc)),
+          InfoRow(
+            label: isGsm ? 'ARFCN' : 'UARFCN',
+            value: fmtNum(cell.channel),
+          ),
+          if (isGsm)
+            InfoRow(label: 'BSIC', value: fmtNum(cell.bsic))
+          else
+            InfoRow(label: 'PSC', value: fmtNum(cell.psc)),
         ],
       ),
     );
@@ -530,31 +668,35 @@ class _NeighborCard extends StatelessWidget {
     final empty = lte.isEmpty && nr.isEmpty && legacy.isEmpty;
 
     Widget line(String title, String detail, Color color) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-              ),
-              const SizedBox(width: 10),
-              Expanded(child: Text(title, style: theme.textTheme.bodyMedium)),
-              Text(detail,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  )),
-            ],
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
-        );
+          const SizedBox(width: 10),
+          Expanded(child: Text(title, style: theme.textTheme.bodyMedium)),
+          Text(
+            detail,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
+      ),
+    );
 
     return SectionCard(
       title: context.tr('cellular.neighbors'),
       child: empty
           ? Text(
               context.tr('cellular.noNeighbors'),
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             )
           : Column(
               children: [
@@ -594,9 +736,15 @@ class _InfoNote extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline_rounded, size: 20, color: theme.colorScheme.primary),
+          Icon(
+            Icons.info_outline_rounded,
+            size: 20,
+            color: theme.colorScheme.primary,
+          ),
           const SizedBox(width: 12),
-          Expanded(child: Text(context.tr(textKey), style: theme.textTheme.bodySmall)),
+          Expanded(
+            child: Text(context.tr(textKey), style: theme.textTheme.bodySmall),
+          ),
         ],
       ),
     );
@@ -622,9 +770,18 @@ class _IssuesCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.info_outline_rounded, size: 16, color: theme.colorScheme.onSurfaceVariant),
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 16,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(context.tr('issue.$i'), style: theme.textTheme.bodySmall)),
+                  Expanded(
+                    child: Text(
+                      context.tr('issue.$i'),
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ),
                 ],
               ),
             ),

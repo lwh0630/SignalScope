@@ -45,7 +45,8 @@ class CellularState {
     return null;
   }
 
-  CellularInfo? get selectedInfo => selectedSubId == null ? null : latest[selectedSubId];
+  CellularInfo? get selectedInfo =>
+      selectedSubId == null ? null : latest[selectedSubId];
 
   CellularState copyWith({
     List<SimInfo>? sims,
@@ -55,16 +56,19 @@ class CellularState {
     bool? streaming,
     Map<int, CellularInfo>? latest,
     Object? errorCode = _keep,
-  }) =>
-      CellularState(
-        sims: sims ?? this.sims,
-        simsLoaded: simsLoaded ?? this.simsLoaded,
-        selectedSubId: identical(selectedSubId, _keep) ? this.selectedSubId : selectedSubId as int?,
-        status: status ?? this.status,
-        streaming: streaming ?? this.streaming,
-        latest: latest ?? this.latest,
-        errorCode: identical(errorCode, _keep) ? this.errorCode : errorCode as String?,
-      );
+  }) => CellularState(
+    sims: sims ?? this.sims,
+    simsLoaded: simsLoaded ?? this.simsLoaded,
+    selectedSubId: identical(selectedSubId, _keep)
+        ? this.selectedSubId
+        : selectedSubId as int?,
+    status: status ?? this.status,
+    streaming: streaming ?? this.streaming,
+    latest: latest ?? this.latest,
+    errorCode: identical(errorCode, _keep)
+        ? this.errorCode
+        : errorCode as String?,
+  );
 }
 
 const Object _keep = Object();
@@ -86,7 +90,8 @@ class CellularController extends Notifier<CellularState> {
     // Switching platform (demo mode on/off) rebuilds this controller from scratch.
     ref.watch(signalPlatformProvider);
     _throttle = KeyedThrottle<int, CellularInfo>(
-      interval: () => Duration(milliseconds: ref.read(settingsProvider).updateIntervalMs),
+      interval: () =>
+          Duration(milliseconds: ref.read(settingsProvider).updateIntervalMs),
       onValue: (_, info) => _apply(info),
     );
     ref.onDispose(() {
@@ -95,7 +100,10 @@ class CellularController extends Notifier<CellularState> {
       _sub = null;
       _throttle.dispose();
     });
-    ref.listen<bool>(sensorVisibleProvider(Sensor.cellular), (_, _) => _reconcile());
+    ref.listen<bool>(
+      sensorVisibleProvider(Sensor.cellular),
+      (_, _) => _reconcile(),
+    );
     ref.listen(
       permissionProvider.select((p) => (p.phone, p.location, p.loaded)),
       (prev, next) {
@@ -167,7 +175,8 @@ class CellularController extends Notifier<CellularState> {
   void _reconcile() {
     if (!_alive) return;
     final platform = ref.read(signalPlatformProvider);
-    final shouldStream = platform.isAndroid &&
+    final shouldStream =
+        platform.isAndroid &&
         ref.read(sensorVisibleProvider(Sensor.cellular)) &&
         state.status == MonitorStatus.listening &&
         state.sims.isNotEmpty;
@@ -180,12 +189,14 @@ class CellularController extends Notifier<CellularState> {
 
   void _startStream() {
     final ids = state.sims.map((s) => s.subscriptionId).toList();
-    _sub = _repo.watch(ids).listen(
-      _onEvent,
-      onError: (Object e) {
-        if (_alive) state = state.copyWith(errorCode: 'stream_error');
-      },
-    );
+    _sub = _repo
+        .watch(ids)
+        .listen(
+          _onEvent,
+          onError: (Object e) {
+            if (_alive) state = state.copyWith(errorCode: 'stream_error');
+          },
+        );
     state = state.copyWith(streaming: true, errorCode: null);
   }
 
@@ -207,7 +218,9 @@ class CellularController extends Notifier<CellularState> {
   void _apply(CellularInfo info) {
     if (!_alive) return;
     if (!state.sims.any((s) => s.subscriptionId == info.subscriptionId)) return;
-    state = state.copyWith(latest: {...state.latest, info.subscriptionId: info});
+    state = state.copyWith(
+      latest: {...state.latest, info.subscriptionId: info},
+    );
     _record(info);
   }
 

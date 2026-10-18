@@ -33,7 +33,11 @@ import '../../wifi/application/wifi_controller.dart';
 class OverviewPage extends ConsumerWidget {
   const OverviewPage({super.key});
 
-  static const Set<PermGroup> _groups = {PermGroup.phone, PermGroup.location, PermGroup.nearbyWifi};
+  static const Set<PermGroup> _groups = {
+    PermGroup.phone,
+    PermGroup.location,
+    PermGroup.nearbyWifi,
+  };
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,9 +47,8 @@ class OverviewPage extends ConsumerWidget {
       IconButton(
         tooltip: context.tr('latency.open'),
         icon: const Icon(Icons.speed_rounded),
-        onPressed: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(builder: (_) => const LatencyPage()),
-        ),
+        onPressed: () => Navigator.of(context)
+            .push(MaterialPageRoute<void>(builder: (_) => const LatencyPage())),
       ),
     ];
     if (!platform.isAndroid) {
@@ -63,16 +66,24 @@ class OverviewPage extends ConsumerWidget {
     return PageScaffold(
       title: context.tr('nav.overview'),
       actions: actions,
-      onRefresh: () => ref.read(cellularControllerProvider.notifier).refreshSims(),
+      onRefresh: () =>
+          ref.read(cellularControllerProvider.notifier).refreshSims(),
       children: [
         if (PermissionBanner.isNeeded(perms, _groups))
-          const PermissionBanner(groups: _groups, messageKey: 'overview.permWhy'),
+          const PermissionBanner(
+            groups: _groups,
+            messageKey: 'overview.permWhy',
+          ),
         if (cell.simsLoaded && cell.sims.isEmpty)
           _SummaryCard(
             icon: Icons.sim_card_alert_outlined,
             title: context.tr('overview.cellular'),
-            onTap: () => ref.read(currentTabProvider.notifier).select(AppTab.cellular),
-            child: Text(context.tr('overview.noSim'), style: Theme.of(context).textTheme.bodyMedium),
+            onTap: () =>
+                ref.read(currentTabProvider.notifier).select(AppTab.cellular),
+            child: Text(
+              context.tr('overview.noSim'),
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           ),
         for (final sim in cell.sims)
           _SimSummary(
@@ -80,7 +91,9 @@ class OverviewPage extends ConsumerWidget {
             info: cell.latest[sim.subscriptionId],
             paused: cell.status != MonitorStatus.listening,
             onTap: () {
-              ref.read(cellularControllerProvider.notifier).selectSim(sim.subscriptionId);
+              ref
+                  .read(cellularControllerProvider.notifier)
+                  .selectSim(sim.subscriptionId);
               ref.read(currentTabProvider.notifier).select(AppTab.cellular);
             },
           ),
@@ -137,7 +150,11 @@ class _SummaryCard extends StatelessWidget {
                   ),
                   ?trailing,
                   const SizedBox(width: 4),
-                  Icon(Icons.chevron_right_rounded, size: 20, color: theme.colorScheme.onSurfaceVariant),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 20,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -179,7 +196,8 @@ class _ValueBlock extends StatelessWidget {
           children: [
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 250),
-              transitionBuilder: (child, anim) => FadeTransition(opacity: anim, child: child),
+              transitionBuilder: (child, anim) =>
+                  FadeTransition(opacity: anim, child: child),
               child: Text(
                 valueText,
                 key: ValueKey(valueText),
@@ -191,7 +209,12 @@ class _ValueBlock extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 6),
-            Text(unit, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+            Text(
+              unit,
+              style: theme.textTheme.titleSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
         ),
         if (caption != null)
@@ -199,7 +222,9 @@ class _ValueBlock extends StatelessWidget {
             padding: const EdgeInsets.only(top: 2),
             child: Text(
               caption!,
-              style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
         const SizedBox(height: 8),
@@ -210,7 +235,12 @@ class _ValueBlock extends StatelessWidget {
 }
 
 class _SimSummary extends StatelessWidget {
-  const _SimSummary({required this.sim, required this.info, required this.paused, required this.onTap});
+  const _SimSummary({
+    required this.sim,
+    required this.info,
+    required this.paused,
+    required this.onTap,
+  });
 
   final SimInfo sim;
   final CellularInfo? info;
@@ -221,19 +251,23 @@ class _SimSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final reading = info?.gaugeReading;
-    final lteNr = reading != null && (reading.rat == 'LTE' || reading.rat == 'NR');
+    final lteNr =
+        reading != null && (reading.rat == 'LTE' || reading.rat == 'NR');
     final grade = reading == null
         ? SignalGrade.none
-        : (lteNr ? SignalQuality.rsrp(reading.dbm) : SignalQuality.legacyDbm(reading.dbm));
+        : (lteNr
+              ? SignalQuality.rsrp(reading.dbm)
+              : SignalQuality.legacyDbm(reading.dbm));
     final fraction = reading == null
         ? null
         : (lteNr
-            ? SignalQuality.fraction(reading.dbm, min: -140, max: -44)
-            : SignalQuality.fraction(reading.dbm, min: -113, max: -51));
+              ? SignalQuality.fraction(reading.dbm, min: -140, max: -44)
+              : SignalQuality.fraction(reading.dbm, min: -113, max: -51));
     final typeCode = info?.dataNetworkType ?? sim.dataNetworkType;
     final typeName = NetworkTypes.name(typeCode);
     final mode = info?.nrMode;
-    final operator = info?.operatorName ?? sim.networkOperatorName ?? sim.carrierName;
+    final operator =
+        info?.operatorName ?? sim.networkOperatorName ?? sim.carrierName;
 
     return _SummaryCard(
       icon: Icons.signal_cellular_alt_rounded,
@@ -242,8 +276,10 @@ class _SimSummary extends StatelessWidget {
       trailing: Wrap(
         spacing: 6,
         children: [
-          if (typeName != null) StatusPill(text: typeName, color: theme.colorScheme.primary),
-          if (mode != null) StatusPill(text: '5G $mode', color: SignalColors.chartB),
+          if (typeName != null)
+            StatusPill(text: typeName, color: theme.colorScheme.primary),
+          if (mode != null)
+            StatusPill(text: '5G $mode', color: SignalColors.chartB),
         ],
       ),
       child: Column(
@@ -261,19 +297,31 @@ class _SimSummary extends StatelessWidget {
           if (info != null && info!.hasDataNetwork != null) ...[
             const SizedBox(height: 10),
             if (info!.hasDataNetwork == true)
-              AddressLines(entries: [
-                AddressEntry(context.tr('addr.ipv4'), info!.ipv4),
-                AddressEntry(context.tr('addr.ipv6'), fmtFirstOfMany(info!.ipv6), hint: context.tr('addr.noIpv6')),
-              ])
+              AddressLines(
+                entries: [
+                  AddressEntry(context.tr('addr.ipv4'), info!.ipv4),
+                  AddressEntry(
+                    context.tr('addr.ipv6'),
+                    fmtFirstOfMany(info!.ipv6),
+                    hint: context.tr('addr.noIpv6'),
+                  ),
+                ],
+              )
             else
               Row(
                 children: [
-                  Icon(Icons.link_off_rounded, size: 14, color: theme.colorScheme.onSurfaceVariant),
+                  Icon(
+                    Icons.link_off_rounded,
+                    size: 14,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       context.tr('addr.noDataNetwork'),
-                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],
@@ -303,11 +351,16 @@ class _WifiSummary extends ConsumerWidget {
     if (off) {
       caption = context.tr('wifi.disabled');
     } else if (conn == null) {
-      caption = context.tr(state.status == MonitorStatus.listening ? 'overview.waiting' : 'overview.paused');
+      caption = context.tr(
+        state.status == MonitorStatus.listening
+            ? 'overview.waiting'
+            : 'overview.paused',
+      );
     } else if (!connected) {
       caption = context.tr('wifi.notConnected');
     } else {
-      caption = '${conn.ssid ?? context.tr('wifi.hiddenSsid')}'
+      caption =
+          '${conn.ssid ?? context.tr('wifi.hiddenSsid')}'
           '${conn.linkSpeedMbps != null ? ' · ${conn.linkSpeedMbps} Mbps' : ''}';
     }
 
@@ -325,17 +378,29 @@ class _WifiSummary extends ConsumerWidget {
             valueText: rssi == null ? kUnavailable : '$rssi',
             unit: rssi == null ? '' : 'dBm',
             color: grade.color,
-            fraction: rssi == null ? null : SignalQuality.fraction(rssi, min: -100, max: -30),
+            fraction: rssi == null
+                ? null
+                : SignalQuality.fraction(rssi, min: -100, max: -30),
             caption: caption,
           ),
           if (connected) ...[
             const SizedBox(height: 10),
-            AddressLines(entries: [
-              AddressEntry(context.tr('addr.ipv4'), conn!.ipAddress),
-              AddressEntry(context.tr('addr.ipv6'), fmtFirstOfMany(conn.ipv6), hint: context.tr('addr.noIpv6')),
-              AddressEntry(context.tr('addr.mac'), conn.macAddress, hint: context.tr('addr.macHiddenShort')),
-              AddressEntry(context.tr('addr.routerMac'), conn.bssid),
-            ]),
+            AddressLines(
+              entries: [
+                AddressEntry(context.tr('addr.ipv4'), conn!.ipAddress),
+                AddressEntry(
+                  context.tr('addr.ipv6'),
+                  fmtFirstOfMany(conn.ipv6),
+                  hint: context.tr('addr.noIpv6'),
+                ),
+                AddressEntry(
+                  context.tr('addr.mac'),
+                  conn.macAddress,
+                  hint: context.tr('addr.macHiddenShort'),
+                ),
+                AddressEntry(context.tr('addr.routerMac'), conn.bssid),
+              ],
+            ),
           ],
         ],
       ),
@@ -355,8 +420,11 @@ class _GnssSummary extends ConsumerWidget {
     final (color, key) = fixStateStyle(fix);
     final snap = state.snapshot;
     final loc = snap?.location;
-    final showCounts = fix != FixState.unsupported && fix != FixState.unknown && snap != null;
-    final avg = snap == null ? null : GnssRepository.averageCn0(snap.satellites);
+    final showCounts =
+        fix != FixState.unsupported && fix != FixState.unknown && snap != null;
+    final avg = snap == null
+        ? null
+        : GnssRepository.averageCn0(snap.satellites);
 
     return _SummaryCard(
       icon: Icons.satellite_alt_rounded,
@@ -368,19 +436,30 @@ class _GnssSummary extends ConsumerWidget {
         children: [
           if (showCounts)
             Text(
-              context.tr('overview.satellites', [snap.usedCount, snap.visibleCount]),
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              context.tr('overview.satellites', [
+                snap.usedCount,
+                snap.visibleCount,
+              ]),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             )
           else
             Text(
-              context.tr(fix == FixState.unsupported ? 'gnss.state.unsupported' : 'overview.waiting'),
+              context.tr(
+                fix == FixState.unsupported
+                    ? 'gnss.state.unsupported'
+                    : 'overview.waiting',
+              ),
               style: theme.textTheme.bodyMedium,
             ),
           if (loc != null && loc.hasFix) ...[
             const SizedBox(height: 4),
             Text(
               '${fmtCoord(loc.latitude, isLat: true)}   ${fmtCoord(loc.longitude, isLat: false)}',
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
           if (loc?.horizontalAccuracyM != null || avg != null) ...[
@@ -389,9 +468,12 @@ class _GnssSummary extends ConsumerWidget {
               [
                 if (loc?.horizontalAccuracyM != null)
                   '${context.tr('gnss.hAcc')} ${fmtNum(loc!.horizontalAccuracyM, unit: 'm', decimals: 1)}',
-                if (avg != null) 'C/N0 ${fmtNum(avg, unit: 'dB-Hz', decimals: 1)}',
+                if (avg != null)
+                  'C/N0 ${fmtNum(avg, unit: 'dB-Hz', decimals: 1)}',
               ].join(' · '),
-              style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ],
@@ -405,7 +487,11 @@ class _CellularTrend extends StatelessWidget {
 
   final List<SimInfo> sims;
 
-  static const _colors = [SignalColors.chartA, SignalColors.chartB, SignalColors.chartC];
+  static const _colors = [
+    SignalColors.chartA,
+    SignalColors.chartB,
+    SignalColors.chartC,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -434,7 +520,12 @@ class _WifiTrend extends StatelessWidget {
     return TrendCard(
       title: context.tr('overview.wifiTrend'),
       series: const [
-        TrendSeries(key: 'wifi.rssi', label: 'RSSI', unit: 'dBm', color: SignalColors.chartD),
+        TrendSeries(
+          key: 'wifi.rssi',
+          label: 'RSSI',
+          unit: 'dBm',
+          color: SignalColors.chartD,
+        ),
       ],
       minY: -100,
       maxY: -30,

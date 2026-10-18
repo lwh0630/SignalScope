@@ -7,7 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   final placeholder = RegExp(r'\{(\d+)\}');
 
-  Set<String> placeholders(String s) => placeholder.allMatches(s).map((m) => m.group(1)!).toSet();
+  Set<String> placeholders(String s) =>
+      placeholder.allMatches(s).map((m) => m.group(1)!).toSet();
 
   test('Chinese and English tables have exactly the same keys', () {
     final onlyEn = stringsEn.keys.toSet().difference(stringsZh.keys.toSet());
@@ -20,14 +21,20 @@ void main() {
     for (final k in stringsEn.keys) {
       expect(stringsEn[k], isNotEmpty, reason: 'en $k');
       expect(stringsZh[k], isNotEmpty, reason: 'zh $k');
-      expect(placeholders(stringsZh[k]!), placeholders(stringsEn[k]!), reason: 'placeholders of $k');
+      expect(
+        placeholders(stringsZh[k]!),
+        placeholders(stringsEn[k]!),
+        reason: 'placeholders of $k',
+      );
     }
   });
 
   test('every literal key used with context.tr(...) exists', () {
     final used = RegExp(r"""\btr\(\s*'([A-Za-z0-9_.]+)'""");
     final missing = <String>{};
-    for (final f in Directory('lib').listSync(recursive: true).whereType<File>()) {
+    for (final f in Directory(
+      'lib',
+    ).listSync(recursive: true).whereType<File>()) {
       if (!f.path.endsWith('.dart') || f.path.contains('i18n')) continue;
       for (final m in used.allMatches(f.readAsStringSync())) {
         final key = m.group(1)!;
@@ -68,8 +75,16 @@ void main() {
     };
     for (final e in codes.entries) {
       for (final c in e.value) {
-        expect(stringsEn.containsKey('${e.key}.$c'), isTrue, reason: '${e.key}.$c');
-        expect(stringsZh.containsKey('${e.key}.$c'), isTrue, reason: 'zh ${e.key}.$c');
+        expect(
+          stringsEn.containsKey('${e.key}.$c'),
+          isTrue,
+          reason: '${e.key}.$c',
+        );
+        expect(
+          stringsZh.containsKey('${e.key}.$c'),
+          isTrue,
+          reason: 'zh ${e.key}.$c',
+        );
       }
     }
   });

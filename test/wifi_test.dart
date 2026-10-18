@@ -35,13 +35,29 @@ void main() {
       expect(WifiUtils.percentFromRssi(-55), 100);
       expect(WifiUtils.percentFromRssi(-30), 100);
       expect(WifiUtils.percentFromRssi(-70), 67);
-      expect(WifiUtils.percentFromRssi(-60) > WifiUtils.percentFromRssi(-80), isTrue);
+      expect(
+        WifiUtils.percentFromRssi(-60) > WifiUtils.percentFromRssi(-80),
+        isTrue,
+      );
     });
 
     test('security parsing from capability strings', () {
-      expect(WifiUtils.securityFromCapabilities('[WPA2-PSK-CCMP][RSN-PSK-CCMP][ESS]'), 'WPA2');
-      expect(WifiUtils.securityFromCapabilities('[RSN-SAE-CCMP][ESS][MFPR]'), 'WPA3');
-      expect(WifiUtils.securityFromCapabilities('[RSN-PSK-CCMP+SAE][WPA2-PSK-CCMP][ESS]'), 'WPA3/WPA2');
+      expect(
+        WifiUtils.securityFromCapabilities(
+          '[WPA2-PSK-CCMP][RSN-PSK-CCMP][ESS]',
+        ),
+        'WPA2',
+      );
+      expect(
+        WifiUtils.securityFromCapabilities('[RSN-SAE-CCMP][ESS][MFPR]'),
+        'WPA3',
+      );
+      expect(
+        WifiUtils.securityFromCapabilities(
+          '[RSN-PSK-CCMP+SAE][WPA2-PSK-CCMP][ESS]',
+        ),
+        'WPA3/WPA2',
+      );
       expect(WifiUtils.securityFromCapabilities('[WEP][ESS]'), 'WEP');
       expect(WifiUtils.securityFromCapabilities('[ESS]'), 'Open');
       expect(WifiUtils.securityFromCapabilities(null), isNull);
@@ -59,10 +75,30 @@ void main() {
   });
 
   group('WifiRepository.filterAndSort', () {
-    const a = WifiScanInfo(bssid: 'a', ssid: 'Alpha', rssi: -70, frequencyMhz: 2412);
-    const b = WifiScanInfo(bssid: 'b', ssid: 'beta', rssi: -50, frequencyMhz: 5180);
-    const c = WifiScanInfo(bssid: 'c', ssid: null, rssi: -60, frequencyMhz: 5955);
-    const d = WifiScanInfo(bssid: 'd', ssid: 'Delta', rssi: null, frequencyMhz: 2437);
+    const a = WifiScanInfo(
+      bssid: 'a',
+      ssid: 'Alpha',
+      rssi: -70,
+      frequencyMhz: 2412,
+    );
+    const b = WifiScanInfo(
+      bssid: 'b',
+      ssid: 'beta',
+      rssi: -50,
+      frequencyMhz: 5180,
+    );
+    const c = WifiScanInfo(
+      bssid: 'c',
+      ssid: null,
+      rssi: -60,
+      frequencyMhz: 5955,
+    );
+    const d = WifiScanInfo(
+      bssid: 'd',
+      ssid: 'Delta',
+      rssi: null,
+      frequencyMhz: 2437,
+    );
     final all = [a, b, c, d];
 
     test('sorts by signal, strongest first, unknown RSSI last', () {
@@ -71,16 +107,44 @@ void main() {
     });
 
     test('filters by band', () {
-      expect(WifiRepository.filterAndSort(all, band: WifiBand.ghz24).map((e) => e.bssid), ['a', 'd']);
-      expect(WifiRepository.filterAndSort(all, band: WifiBand.ghz5).map((e) => e.bssid), ['b']);
-      expect(WifiRepository.filterAndSort(all, band: WifiBand.ghz6).map((e) => e.bssid), ['c']);
+      expect(
+        WifiRepository.filterAndSort(
+          all,
+          band: WifiBand.ghz24,
+        ).map((e) => e.bssid),
+        ['a', 'd'],
+      );
+      expect(
+        WifiRepository.filterAndSort(
+          all,
+          band: WifiBand.ghz5,
+        ).map((e) => e.bssid),
+        ['b'],
+      );
+      expect(
+        WifiRepository.filterAndSort(
+          all,
+          band: WifiBand.ghz6,
+        ).map((e) => e.bssid),
+        ['c'],
+      );
     });
 
     test('sorts by channel and name', () {
-      expect(WifiRepository.filterAndSort(all, sort: WifiSort.channel).map((e) => e.bssid),
-          ['a', 'd', 'b', 'c']);
-      expect(WifiRepository.filterAndSort(all, sort: WifiSort.name).map((e) => e.bssid),
-          ['a', 'b', 'd', 'c']);
+      expect(
+        WifiRepository.filterAndSort(
+          all,
+          sort: WifiSort.channel,
+        ).map((e) => e.bssid),
+        ['a', 'd', 'b', 'c'],
+      );
+      expect(
+        WifiRepository.filterAndSort(
+          all,
+          sort: WifiSort.name,
+        ).map((e) => e.bssid),
+        ['a', 'b', 'd', 'c'],
+      );
     });
   });
 
@@ -116,52 +180,72 @@ void main() {
 
   group('WifiController', () {
     ProviderContainer makeContainer(FakeAndroidPlatform p) {
-      final c = ProviderContainer(overrides: [
-        signalPlatformProvider.overrideWithValue(p),
-        initialSettingsProvider.overrideWithValue(const AppSettings(updateIntervalMs: 500)),
-      ]);
+      final c = ProviderContainer(
+        overrides: [
+          signalPlatformProvider.overrideWithValue(p),
+          initialSettingsProvider.overrideWithValue(
+            const AppSettings(updateIntervalMs: 500),
+          ),
+        ],
+      );
       addTearDown(c.dispose);
       return c;
     }
 
-    test('streams connection + scans, records RSSI history, pause unregisters', () async {
-      final p = FakeAndroidPlatform();
-      final c = makeContainer(p);
-      c.listen(wifiControllerProvider, (_, _) {});
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-      expect(p.wifiListens, 1);
-      expect(c.read(wifiControllerProvider).streaming, isTrue);
+    test(
+      'streams connection + scans, records RSSI history, pause unregisters',
+      () async {
+        final p = FakeAndroidPlatform();
+        final c = makeContainer(p);
+        c.listen(wifiControllerProvider, (_, _) {});
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        expect(p.wifiListens, 1);
+        expect(c.read(wifiControllerProvider).streaming, isTrue);
 
-      p.wifiController.add(const WifiConnectionInfo(
-        timestampMs: 5000,
-        connected: true,
-        ssid: 'Home',
-        rssi: -61,
-        frequencyMhz: 5180,
-      ));
-      p.wifiScanController.add(const WifiScanResult(results: [
-        WifiScanInfo(bssid: 'x', rssi: -40, frequencyMhz: 2412),
-        WifiScanInfo(bssid: 'y', rssi: -80, frequencyMhz: 5180),
-      ]));
-      await Future<void>.delayed(const Duration(milliseconds: 50));
+        p.wifiController.add(
+          const WifiConnectionInfo(
+            timestampMs: 5000,
+            connected: true,
+            ssid: 'Home',
+            rssi: -61,
+            frequencyMhz: 5180,
+          ),
+        );
+        p.wifiScanController.add(
+          const WifiScanResult(
+            results: [
+              WifiScanInfo(bssid: 'x', rssi: -40, frequencyMhz: 2412),
+              WifiScanInfo(bssid: 'y', rssi: -80, frequencyMhz: 5180),
+            ],
+          ),
+        );
+        await Future<void>.delayed(const Duration(milliseconds: 50));
 
-      final s = c.read(wifiControllerProvider);
-      expect(s.connection!.rssi, -61);
-      expect(s.visibleAps.map((e) => e.bssid), ['x', 'y']);
-      expect(c.read(historyProvider).series['wifi.rssi']!.single.value, -61);
+        final s = c.read(wifiControllerProvider);
+        expect(s.connection!.rssi, -61);
+        expect(s.visibleAps.map((e) => e.bssid), ['x', 'y']);
+        expect(c.read(historyProvider).series['wifi.rssi']!.single.value, -61);
 
-      c.read(wifiControllerProvider.notifier).setBandFilter(WifiBand.ghz5);
-      expect(c.read(wifiControllerProvider).visibleAps.map((e) => e.bssid), ['y']);
+        c.read(wifiControllerProvider.notifier).setBandFilter(WifiBand.ghz5);
+        expect(c.read(wifiControllerProvider).visibleAps.map((e) => e.bssid), [
+          'y',
+        ]);
 
-      c.read(wifiControllerProvider.notifier).pause();
-      await Future<void>.delayed(const Duration(milliseconds: 20));
-      expect(p.wifiCancels, 1);
-      expect(c.read(wifiControllerProvider).streaming, isFalse);
-    });
+        c.read(wifiControllerProvider.notifier).pause();
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        expect(p.wifiCancels, 1);
+        expect(c.read(wifiControllerProvider).streaming, isFalse);
+      },
+    );
 
     test('scan request outcome is reported', () async {
       final p = FakeAndroidPlatform()
-        ..scanResult = const WifiScanResult(results: [], scanStarted: false, throttled: true, retryAfterMs: 30500);
+        ..scanResult = const WifiScanResult(
+          results: [],
+          scanStarted: false,
+          throttled: true,
+          retryAfterMs: 30500,
+        );
       final c = makeContainer(p);
       c.listen(wifiControllerProvider, (_, _) {});
       await Future<void>.delayed(const Duration(milliseconds: 20));

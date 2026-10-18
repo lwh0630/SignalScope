@@ -89,15 +89,42 @@ class SkyPlotPainter extends CustomPainter {
     for (final f in const [1.0, 2 / 3, 1 / 3]) {
       canvas.drawCircle(center, radius * f, grid);
     }
-    canvas.drawLine(center.translate(-radius, 0), center.translate(radius, 0), grid);
-    canvas.drawLine(center.translate(0, -radius), center.translate(0, radius), grid);
+    canvas.drawLine(
+      center.translate(-radius, 0),
+      center.translate(radius, 0),
+      grid,
+    );
+    canvas.drawLine(
+      center.translate(0, -radius),
+      center.translate(0, radius),
+      grid,
+    );
 
-    _text(canvas, 'N', center.translate(0, -radius - 11), textColor, 12, bold: true);
+    _text(
+      canvas,
+      'N',
+      center.translate(0, -radius - 11),
+      textColor,
+      12,
+      bold: true,
+    );
     _text(canvas, 'E', center.translate(radius + 11, 0), textColor, 12);
     _text(canvas, 'S', center.translate(0, radius + 11), textColor, 12);
     _text(canvas, 'W', center.translate(-radius - 11, 0), textColor, 12);
-    _text(canvas, '30°', center.translate(0, -radius * 2 / 3 + 8), textColor.withValues(alpha: 0.6), 9);
-    _text(canvas, '60°', center.translate(0, -radius / 3 + 8), textColor.withValues(alpha: 0.6), 9);
+    _text(
+      canvas,
+      '30°',
+      center.translate(0, -radius * 2 / 3 + 8),
+      textColor.withValues(alpha: 0.6),
+      9,
+    );
+    _text(
+      canvas,
+      '60°',
+      center.translate(0, -radius / 3 + 8),
+      textColor.withValues(alpha: 0.6),
+      9,
+    );
 
     for (final s in satellites) {
       final u = unitPosition(s);
@@ -109,7 +136,11 @@ class SkyPlotPainter extends CustomPainter {
       final alpha = tracked ? 1.0 : 0.35;
       const dot = 9.0;
       if (used) {
-        canvas.drawCircle(p, dot, Paint()..color = color.withValues(alpha: alpha));
+        canvas.drawCircle(
+          p,
+          dot,
+          Paint()..color = color.withValues(alpha: alpha),
+        );
         _text(canvas, '${s.svid}', p, const Color(0xFF06101C), 9, bold: true);
       } else {
         canvas.drawCircle(
@@ -125,11 +156,22 @@ class SkyPlotPainter extends CustomPainter {
     }
   }
 
-  void _text(Canvas canvas, String text, Offset center, Color color, double size, {bool bold = false}) {
+  void _text(
+    Canvas canvas,
+    String text,
+    Offset center,
+    Color color,
+    double size, {
+    bool bold = false,
+  }) {
     final tp = TextPainter(
       text: TextSpan(
         text: text,
-        style: TextStyle(color: color, fontSize: size, fontWeight: bold ? FontWeight.w700 : FontWeight.w500),
+        style: TextStyle(
+          color: color,
+          fontSize: size,
+          fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+        ),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -138,5 +180,7 @@ class SkyPlotPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(SkyPlotPainter old) =>
-      old.satellites != satellites || old.gridColor != gridColor || old.textColor != textColor;
+      old.satellites != satellites ||
+      old.gridColor != gridColor ||
+      old.textColor != textColor;
 }

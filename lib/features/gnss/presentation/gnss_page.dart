@@ -22,13 +22,13 @@ import 'sky_plot.dart';
 
 /// Colour and i18n key for a [FixState].
 (Color, String) fixStateStyle(FixState s) => switch (s) {
-      FixState.unknown => (SignalColors.none, 'gnss.state.unknown'),
-      FixState.unsupported => (SignalColors.bad, 'gnss.state.unsupported'),
-      FixState.blocked => (SignalColors.poor, 'gnss.state.blocked'),
-      FixState.searching => (SignalColors.fair, 'gnss.state.searching'),
-      FixState.fixed => (SignalColors.excellent, 'gnss.state.fixed'),
-      FixState.stale => (SignalColors.poor, 'gnss.state.stale'),
-    };
+  FixState.unknown => (SignalColors.none, 'gnss.state.unknown'),
+  FixState.unsupported => (SignalColors.bad, 'gnss.state.unsupported'),
+  FixState.blocked => (SignalColors.poor, 'gnss.state.blocked'),
+  FixState.searching => (SignalColors.fair, 'gnss.state.searching'),
+  FixState.fixed => (SignalColors.excellent, 'gnss.state.fixed'),
+  FixState.stale => (SignalColors.poor, 'gnss.state.stale'),
+};
 
 class GnssPage extends ConsumerWidget {
   const GnssPage({super.key});
@@ -53,7 +53,12 @@ class GnssPage extends ConsumerWidget {
     return PageScaffold(
       title: context.tr('nav.gnss'),
       children: [
-        if (!unsupported && PermissionBanner.isNeeded(perms, _groups, needsLocationServices: true))
+        if (!unsupported &&
+            PermissionBanner.isNeeded(
+              perms,
+              _groups,
+              needsLocationServices: true,
+            ))
           const PermissionBanner(
             groups: _groups,
             messageKey: 'gnss.permWhy',
@@ -76,9 +81,11 @@ class GnssPage extends ConsumerWidget {
             _Cn0Card(sats: snap.satellites),
           ],
           const _GnssTrends(),
-          if (snap != null && snap.satellites.isNotEmpty) _SatelliteList(sats: snap.satellites),
+          if (snap != null && snap.satellites.isNotEmpty)
+            _SatelliteList(sats: snap.satellites),
         ],
-        if (snap != null && snap.issues.isNotEmpty) _IssueList(issues: snap.issues),
+        if (snap != null && snap.issues.isNotEmpty)
+          _IssueList(issues: snap.issues),
       ],
     );
   }
@@ -102,12 +109,17 @@ class _FixCard extends ConsumerWidget {
       FixState.stale => context.tr('gnss.hint.stale'),
       _ => null,
     };
-    final showLocationSettings = snap?.issues.contains('location_off') == true ||
+    final showLocationSettings =
+        snap?.issues.contains('location_off') == true ||
         snap?.issues.contains('gps_provider_disabled') == true;
 
     return SectionCard(
       title: context.tr('gnss.fix'),
-      trailing: StatusPill(text: context.tr(key), color: color, icon: Icons.satellite_alt_rounded),
+      trailing: StatusPill(
+        text: context.tr(key),
+        color: color,
+        icon: Icons.satellite_alt_rounded,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -126,18 +138,31 @@ class _FixCard extends ConsumerWidget {
           ),
           if (hint != null) ...[
             const SizedBox(height: 8),
-            Text(hint, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+            Text(
+              hint,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ],
           if (mock) ...[
             const SizedBox(height: 8),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.warning_amber_rounded, size: 16, color: SignalColors.fair),
+                const Icon(
+                  Icons.warning_amber_rounded,
+                  size: 16,
+                  color: SignalColors.fair,
+                ),
                 const SizedBox(width: 6),
                 Expanded(
-                  child: Text(context.tr('gnss.hint.mock'),
-                      style: theme.textTheme.bodySmall?.copyWith(color: SignalColors.fair)),
+                  child: Text(
+                    context.tr('gnss.hint.mock'),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: SignalColors.fair,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -145,7 +170,8 @@ class _FixCard extends ConsumerWidget {
           if (showLocationSettings) ...[
             const SizedBox(height: 12),
             FilledButton.tonal(
-              onPressed: () => ref.read(signalPlatformProvider).openLocationSettings(),
+              onPressed: () =>
+                  ref.read(signalPlatformProvider).openLocationSettings(),
               child: Text(context.tr('perm.openLocationSettings')),
             ),
           ],
@@ -168,21 +194,39 @@ class _PositionCard extends StatelessWidget {
       title: context.tr('gnss.position'),
       child: Column(
         children: [
-          InfoRow(label: context.tr('gnss.latitude'), value: fmtCoord(loc.latitude, isLat: true), emphasize: true),
-          InfoRow(label: context.tr('gnss.longitude'), value: fmtCoord(loc.longitude, isLat: false), emphasize: true),
+          InfoRow(
+            label: context.tr('gnss.latitude'),
+            value: fmtCoord(loc.latitude, isLat: true),
+            emphasize: true,
+          ),
+          InfoRow(
+            label: context.tr('gnss.longitude'),
+            value: fmtCoord(loc.longitude, isLat: false),
+            emphasize: true,
+          ),
           InfoRow(
             label: context.tr('gnss.altitude'),
-            value: loc.altitudeM == null ? null : fmtNum(loc.altitudeM, unit: 'm', decimals: 1),
-            note: loc.altitudeM == null ? null : context.tr('gnss.altitudeNote'),
+            value: loc.altitudeM == null
+                ? null
+                : fmtNum(loc.altitudeM, unit: 'm', decimals: 1),
+            note: loc.altitudeM == null
+                ? null
+                : context.tr('gnss.altitudeNote'),
           ),
           InfoRow(
             label: context.tr('gnss.hAcc'),
-            value: loc.horizontalAccuracyM == null ? null : fmtNum(loc.horizontalAccuracyM, unit: 'm', decimals: 1),
-            note: loc.horizontalAccuracyM == null ? null : context.tr('gnss.hAccNote'),
+            value: loc.horizontalAccuracyM == null
+                ? null
+                : fmtNum(loc.horizontalAccuracyM, unit: 'm', decimals: 1),
+            note: loc.horizontalAccuracyM == null
+                ? null
+                : context.tr('gnss.hAccNote'),
           ),
           InfoRow(
             label: context.tr('gnss.vAcc'),
-            value: loc.verticalAccuracyM == null ? null : fmtNum(loc.verticalAccuracyM, unit: 'm', decimals: 1),
+            value: loc.verticalAccuracyM == null
+                ? null
+                : fmtNum(loc.verticalAccuracyM, unit: 'm', decimals: 1),
           ),
           InfoRow(
             label: context.tr('gnss.speed'),
@@ -192,10 +236,18 @@ class _PositionCard extends StatelessWidget {
           ),
           InfoRow(
             label: context.tr('gnss.bearing'),
-            value: loc.bearingDeg == null ? null : fmtNum(loc.bearingDeg, unit: '°', decimals: 0),
+            value: loc.bearingDeg == null
+                ? null
+                : fmtNum(loc.bearingDeg, unit: '°', decimals: 0),
           ),
-          InfoRow(label: context.tr('gnss.fixTime'), value: loc.timeMs == null ? null : fmtClock(loc.timeMs)),
-          InfoRow(label: context.tr('gnss.fixAge'), value: age == null ? null : fmtDuration(age)),
+          InfoRow(
+            label: context.tr('gnss.fixTime'),
+            value: loc.timeMs == null ? null : fmtClock(loc.timeMs),
+          ),
+          InfoRow(
+            label: context.tr('gnss.fixAge'),
+            value: age == null ? null : fmtDuration(age),
+          ),
           InfoRow(label: context.tr('gnss.provider'), value: loc.provider),
         ],
       ),
@@ -212,11 +264,13 @@ class _SatelliteSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final sats = snap?.satellites ?? const <SatelliteInfo>[];
-    final hasData = snap != null && snap!.engineStarted != null || sats.isNotEmpty;
+    final hasData =
+        snap != null && snap!.engineStarted != null || sats.isNotEmpty;
     final avg = GnssRepository.averageCn0(sats);
     final byConstellation = <Constellation, int>{};
     for (final s in sats) {
-      byConstellation[s.constellation] = (byConstellation[s.constellation] ?? 0) + 1;
+      byConstellation[s.constellation] =
+          (byConstellation[s.constellation] ?? 0) + 1;
     }
     return SectionCard(
       title: context.tr('gnss.satellites'),
@@ -225,11 +279,19 @@ class _SatelliteSummary extends StatelessWidget {
         children: [
           Row(
             children: [
-              _Stat(label: context.tr('gnss.visible'), value: hasData ? '${sats.length}' : kUnavailable),
-              _Stat(label: context.tr('gnss.used'), value: hasData ? '${snap!.usedCount}' : kUnavailable),
+              _Stat(
+                label: context.tr('gnss.visible'),
+                value: hasData ? '${sats.length}' : kUnavailable,
+              ),
+              _Stat(
+                label: context.tr('gnss.used'),
+                value: hasData ? '${snap!.usedCount}' : kUnavailable,
+              ),
               _Stat(
                 label: context.tr('gnss.tracked'),
-                value: hasData ? '${GnssRepository.trackedCount(sats)}' : kUnavailable,
+                value: hasData
+                    ? '${GnssRepository.trackedCount(sats)}'
+                    : kUnavailable,
               ),
             ],
           ),
@@ -246,9 +308,12 @@ class _SatelliteSummary extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                for (final e in (byConstellation.entries.toList()..sort((a, b) => a.key.code.compareTo(b.key.code))))
+                for (final e
+                    in (byConstellation.entries.toList()
+                      ..sort((a, b) => a.key.code.compareTo(b.key.code))))
                   StatusPill(
-                    text: '${ConstellationFlag.of(e.key).emoji} ${e.key.label} ${e.value}',
+                    text:
+                        '${ConstellationFlag.of(e.key).emoji} ${e.key.label} ${e.value}',
                     color: constellationColor(e.key),
                   ),
               ],
@@ -256,7 +321,9 @@ class _SatelliteSummary extends StatelessWidget {
           ] else if (hasData)
             Text(
               context.tr('gnss.noSats'),
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
         ],
       ),
@@ -286,7 +353,9 @@ class _Stat extends StatelessWidget {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
@@ -317,14 +386,19 @@ class _SkyCard extends StatelessWidget {
             spacing: 8,
             runSpacing: 6,
             children: [
-              for (final c in (sats.map((s) => s.constellation).toSet().toList()..sort((a, b) => a.code.compareTo(b.code))))
+              for (final c
+                  in (sats.map((s) => s.constellation).toSet().toList()
+                    ..sort((a, b) => a.code.compareTo(b.code))))
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
                       width: 9,
                       height: 9,
-                      decoration: BoxDecoration(color: constellationColor(c), shape: BoxShape.circle),
+                      decoration: BoxDecoration(
+                        color: constellationColor(c),
+                        shape: BoxShape.circle,
+                      ),
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -338,7 +412,9 @@ class _SkyCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             context.tr('gnss.skyNote'),
-            style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
@@ -363,7 +439,9 @@ class _Cn0Card extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             context.tr('gnss.cn0Note'),
-            style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
@@ -379,17 +457,29 @@ class _GnssTrends extends StatelessWidget {
     return Column(
       children: [
         TrendCard(
-          title: '${context.tr('common.trend')} · ${context.tr('gnss.trendCn0')}',
+          title:
+              '${context.tr('common.trend')} · ${context.tr('gnss.trendCn0')}',
           series: [
-            TrendSeries(key: 'gnss.cn0avg', label: 'C/N0', unit: 'dB-Hz', color: SignalColors.chartA),
+            TrendSeries(
+              key: 'gnss.cn0avg',
+              label: 'C/N0',
+              unit: 'dB-Hz',
+              color: SignalColors.chartA,
+            ),
           ],
           minY: 0,
           maxY: 50,
         ),
         TrendCard(
-          title: '${context.tr('common.trend')} · ${context.tr('gnss.trendUsed')}',
+          title:
+              '${context.tr('common.trend')} · ${context.tr('gnss.trendUsed')}',
           series: [
-            TrendSeries(key: 'gnss.used', label: context.tr('gnss.used'), unit: '', color: SignalColors.chartD),
+            TrendSeries(
+              key: 'gnss.used',
+              label: context.tr('gnss.used'),
+              unit: '',
+              color: SignalColors.chartD,
+            ),
           ],
           minY: 0,
           maxY: 20,
@@ -407,19 +497,53 @@ class _SatelliteList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final sorted = [...sats]..sort((a, b) => (b.cn0DbHz ?? -1).compareTo(a.cn0DbHz ?? -1));
-    final head = theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant);
+    final sorted = [...sats]
+      ..sort((a, b) => (b.cn0DbHz ?? -1).compareTo(a.cn0DbHz ?? -1));
+    final head = theme.textTheme.labelSmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
     return SectionCard(
       title: '${context.tr('gnss.list')} (${sats.length})',
       child: Column(
         children: [
           Row(
             children: [
-              Expanded(flex: 4, child: Text(context.tr('gnss.col.sat'), style: head)),
-              Expanded(flex: 2, child: Text(context.tr('gnss.col.az'), style: head, textAlign: TextAlign.end)),
-              Expanded(flex: 2, child: Text(context.tr('gnss.col.el'), style: head, textAlign: TextAlign.end)),
-              Expanded(flex: 2, child: Text(context.tr('gnss.col.cn0'), style: head, textAlign: TextAlign.end)),
-              Expanded(flex: 1, child: Text(context.tr('gnss.col.used'), style: head, textAlign: TextAlign.end)),
+              Expanded(
+                flex: 4,
+                child: Text(context.tr('gnss.col.sat'), style: head),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  context.tr('gnss.col.az'),
+                  style: head,
+                  textAlign: TextAlign.end,
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  context.tr('gnss.col.el'),
+                  style: head,
+                  textAlign: TextAlign.end,
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  context.tr('gnss.col.cn0'),
+                  style: head,
+                  textAlign: TextAlign.end,
+                ),
+              ),
+              Expanded(
+                flex: 1,
+                child: Text(
+                  context.tr('gnss.col.used'),
+                  style: head,
+                  textAlign: TextAlign.end,
+                ),
+              ),
             ],
           ),
           const Divider(),
@@ -439,7 +563,9 @@ class _SatRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final tracked = (sat.cn0DbHz ?? 0) > 0;
-    final style = theme.textTheme.bodySmall?.copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
+    final style = theme.textTheme.bodySmall?.copyWith(
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
     final carrier = sat.carrierFrequencyHz;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -453,7 +579,10 @@ class _SatRow extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(ConstellationFlag.of(sat.constellation).emoji, style: const TextStyle(fontSize: 15)),
+                    Text(
+                      ConstellationFlag.of(sat.constellation).emoji,
+                      style: const TextStyle(fontSize: 15),
+                    ),
                     const SizedBox(width: 6),
                     Flexible(
                       child: Text(
@@ -467,18 +596,36 @@ class _SatRow extends StatelessWidget {
                 if (carrier != null)
                   Text(
                     '${context.tr('gnss.carrier')} ${(carrier / 1e6).toStringAsFixed(2)} MHz',
-                    style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
               ],
             ),
           ),
-          Expanded(flex: 2, child: Text(fmtNum(sat.azimuthDeg, unit: '°'), style: style, textAlign: TextAlign.end)),
-          Expanded(flex: 2, child: Text(fmtNum(sat.elevationDeg, unit: '°'), style: style, textAlign: TextAlign.end)),
+          Expanded(
+            flex: 2,
+            child: Text(
+              fmtNum(sat.azimuthDeg, unit: '°'),
+              style: style,
+              textAlign: TextAlign.end,
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              fmtNum(sat.elevationDeg, unit: '°'),
+              style: style,
+              textAlign: TextAlign.end,
+            ),
+          ),
           Expanded(
             flex: 2,
             child: Text(
               tracked ? fmtNum(sat.cn0DbHz, decimals: 1) : kUnavailable,
-              style: style?.copyWith(color: tracked ? SignalQuality.cn0(sat.cn0DbHz).color : null),
+              style: style?.copyWith(
+                color: tracked ? SignalQuality.cn0(sat.cn0DbHz).color : null,
+              ),
               textAlign: TextAlign.end,
             ),
           ),
@@ -487,7 +634,11 @@ class _SatRow extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerRight,
               child: sat.usedInFix == true
-                  ? const Icon(Icons.check_circle_rounded, size: 16, color: SignalColors.excellent)
+                  ? const Icon(
+                      Icons.check_circle_rounded,
+                      size: 16,
+                      color: SignalColors.excellent,
+                    )
                   : Text(kUnavailable, style: style),
             ),
           ),
@@ -515,9 +666,18 @@ class _IssueList extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.info_outline_rounded, size: 16, color: theme.colorScheme.onSurfaceVariant),
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 16,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(context.tr('gnssissue.$i'), style: theme.textTheme.bodySmall)),
+                  Expanded(
+                    child: Text(
+                      context.tr('gnssissue.$i'),
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ),
                 ],
               ),
             ),

@@ -20,8 +20,18 @@ void main() {
 
   group('export formats', () {
     const points = [
-      SignalHistoryPoint(timestampMs: 1000, series: 'wifi.rssi', value: -60, unit: 'dBm'),
-      SignalHistoryPoint(timestampMs: 2000, series: 'a,"b"', value: 1.5, unit: 'dB'),
+      SignalHistoryPoint(
+        timestampMs: 1000,
+        series: 'wifi.rssi',
+        value: -60,
+        unit: 'dBm',
+      ),
+      SignalHistoryPoint(
+        timestampMs: 2000,
+        series: 'a,"b"',
+        value: 1.5,
+        unit: 'dB',
+      ),
     ];
 
     test('CSV has a header, CRLF rows and escapes special characters', () {
@@ -47,7 +57,10 @@ void main() {
       expect(doc['dataSource'], 'device');
       expect(doc['exportedAtUtc'], '2026-01-02T03:04:05.000Z');
       expect(doc['sampleCount'], 2);
-      expect((doc['samples']! as List).first, containsPair('series', 'wifi.rssi'));
+      expect(
+        (doc['samples']! as List).first,
+        containsPair('series', 'wifi.rssi'),
+      );
       expect((doc['latest']! as Map).containsKey('wifiConnection'), isTrue);
     });
 
@@ -62,17 +75,25 @@ void main() {
       );
       expect((jsonDecode(text) as Map)['dataSource'], contains('demo'));
       final now = DateTime(2026, 3, 4, 5, 6, 7);
-      expect(ExportFormats.fileName(ExportFormat.csv, now), 'signalscope_20260304_050607.csv');
-      expect(ExportFormats.fileName(ExportFormat.json, now, demo: true), 'signalscope_demo_20260304_050607.json');
+      expect(
+        ExportFormats.fileName(ExportFormat.csv, now),
+        'signalscope_20260304_050607.csv',
+      );
+      expect(
+        ExportFormats.fileName(ExportFormat.json, now, demo: true),
+        'signalscope_demo_20260304_050607.json',
+      );
     });
   });
 
   group('ExportActions', () {
     ProviderContainer makeContainer(FakeAndroidPlatform p) {
-      final c = ProviderContainer(overrides: [
-        signalPlatformProvider.overrideWithValue(p),
-        initialSettingsProvider.overrideWithValue(const AppSettings()),
-      ]);
+      final c = ProviderContainer(
+        overrides: [
+          signalPlatformProvider.overrideWithValue(p),
+          initialSettingsProvider.overrideWithValue(const AppSettings()),
+        ],
+      );
       addTearDown(c.dispose);
       return c;
     }
@@ -88,7 +109,9 @@ void main() {
     test('exports recorded samples via the platform', () async {
       final p = FakeAndroidPlatform();
       final c = makeContainer(p);
-      c.read(historyProvider.notifier).add('wifi.rssi', -61, 'dBm', timestampMs: 5000);
+      c
+          .read(historyProvider.notifier)
+          .add('wifi.rssi', -61, 'dBm', timestampMs: 5000);
       final r = await c.read(exportActionsProvider).export(ExportFormat.csv);
       expect(r.status, ExportStatus.saved);
       expect(r.location, contains('signalscope_'));
@@ -103,9 +126,14 @@ void main() {
         final b = DemoData.cellular(1, tick)!;
         expect(a.primaryDbm, b.primaryDbm);
         expect(a.servingLte!.rsrp, b.servingLte!.rsrp);
-        expect(DemoData.wifiConnection(tick).rssi, DemoData.wifiConnection(tick).rssi);
-        expect(DemoData.gnss(tick).satellites.map((s) => s.cn0DbHz),
-            DemoData.gnss(tick).satellites.map((s) => s.cn0DbHz));
+        expect(
+          DemoData.wifiConnection(tick).rssi,
+          DemoData.wifiConnection(tick).rssi,
+        );
+        expect(
+          DemoData.gnss(tick).satellites.map((s) => s.cn0DbHz),
+          DemoData.gnss(tick).satellites.map((s) => s.cn0DbHz),
+        );
       }
     });
 
@@ -135,38 +163,49 @@ void main() {
   });
 
   group('demo mode switch', () {
-    testWidgets('platform without collectors gets sample data only while demo is on', (tester) async {
-      late ProviderContainer container;
-      await tester.pumpWidget(ProviderScope(
-        overrides: [
-          realPlatformProvider.overrideWithValue(UnsupportedPlatform('windows')),
-          initialSettingsProvider.overrideWithValue(const AppSettings(languageCode: 'en')),
-        ],
-        child: Consumer(builder: (context, ref, _) {
-          container = ProviderScope.containerOf(context);
-          return const SignalScopeApp();
-        }),
-      ));
-      await tester.pump(const Duration(milliseconds: 100));
-      expect(find.text('Not supported on this platform'), findsOneWidget);
-      expect(find.textContaining('DEMO MODE'), findsNothing);
-      expect(container.read(demoModeProvider), isFalse);
+    testWidgets(
+      'platform without collectors gets sample data only while demo is on',
+      (tester) async {
+        late ProviderContainer container;
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              realPlatformProvider.overrideWithValue(
+                UnsupportedPlatform('windows'),
+              ),
+              initialSettingsProvider.overrideWithValue(
+                const AppSettings(languageCode: 'en'),
+              ),
+            ],
+            child: Consumer(
+              builder: (context, ref, _) {
+                container = ProviderScope.containerOf(context);
+                return const SignalScopeApp();
+              },
+            ),
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(find.text('Not supported on this platform'), findsOneWidget);
+        expect(find.textContaining('DEMO MODE'), findsNothing);
+        expect(container.read(demoModeProvider), isFalse);
 
-      container.read(demoModeProvider.notifier).set(true);
-      await tester.pump(const Duration(milliseconds: 100));
-      await tester.pump(const Duration(milliseconds: 600));
-      expect(find.textContaining('DEMO MODE'), findsOneWidget);
-      expect(find.text('Not supported on this platform'), findsNothing);
-      expect(find.text('SIM1 · Demo Carrier A'), findsOneWidget);
-      expect(find.text('SIM2 · Demo Carrier B'), findsOneWidget);
+        container.read(demoModeProvider.notifier).set(true);
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 600));
+        expect(find.textContaining('DEMO MODE'), findsOneWidget);
+        expect(find.text('Not supported on this platform'), findsNothing);
+        expect(find.text('SIM1 · Demo Carrier A'), findsOneWidget);
+        expect(find.text('SIM2 · Demo Carrier B'), findsOneWidget);
 
-      container.read(demoModeProvider.notifier).set(false);
-      await tester.pump(const Duration(milliseconds: 100));
-      expect(find.textContaining('DEMO MODE'), findsNothing);
-      expect(find.text('Not supported on this platform'), findsOneWidget);
+        container.read(demoModeProvider.notifier).set(false);
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(find.textContaining('DEMO MODE'), findsNothing);
+        expect(find.text('Not supported on this platform'), findsOneWidget);
 
-      await tester.pumpWidget(const SizedBox());
-      await tester.pump(const Duration(seconds: 1));
-    });
+        await tester.pumpWidget(const SizedBox());
+        await tester.pump(const Duration(seconds: 1));
+      },
+    );
   });
 }

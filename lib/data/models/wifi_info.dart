@@ -78,8 +78,10 @@ class WifiConnectionInfo {
       WifiUtils.securityFromCapabilities(capabilities);
   String? get standardLabel => WifiUtils.standardName(wifiStandard);
 
-  factory WifiConnectionInfo.fromMap(Map<Object?, Object?> m) => WifiConnectionInfo(
-        timestampMs: asInt(m['timestampMs']) ?? DateTime.now().millisecondsSinceEpoch,
+  factory WifiConnectionInfo.fromMap(Map<Object?, Object?> m) =>
+      WifiConnectionInfo(
+        timestampMs:
+            asInt(m['timestampMs']) ?? DateTime.now().millisecondsSinceEpoch,
         wifiEnabled: asBool(m['wifiEnabled']),
         connected: asBool(m['connected']) ?? false,
         ssid: asString(m['ssid']),
@@ -103,31 +105,31 @@ class WifiConnectionInfo {
       );
 
   Map<String, Object?> toMap() => {
-        'timestampMs': timestampMs,
-        'wifiEnabled': wifiEnabled,
-        'connected': connected,
-        'ssid': ssid,
-        'bssid': bssid,
-        'rssi_dBm': rssi,
-        'frequency_MHz': frequencyMhz,
-        'channel_derived': channel,
-        'band_derived': band.label,
-        'signalPercent_derived': percent,
-        'linkSpeed_Mbps': linkSpeedMbps,
-        'txLinkSpeed_Mbps': txLinkSpeedMbps,
-        'rxLinkSpeed_Mbps': rxLinkSpeedMbps,
-        'ipv4': ipAddress,
-        'ipv6': ipv6,
-        'ipv6LinkLocal': ipv6LinkLocal,
-        'deviceMac': macAddress,
-        'routerBssid': bssid,
-        'gateway': gateway,
-        'dns': dns,
-        'security': securityLabel,
-        'wifiStandard': standardLabel,
-        'channelWidth_MHz': channelWidthMhz,
-        'issues': issues,
-      };
+    'timestampMs': timestampMs,
+    'wifiEnabled': wifiEnabled,
+    'connected': connected,
+    'ssid': ssid,
+    'bssid': bssid,
+    'rssi_dBm': rssi,
+    'frequency_MHz': frequencyMhz,
+    'channel_derived': channel,
+    'band_derived': band.label,
+    'signalPercent_derived': percent,
+    'linkSpeed_Mbps': linkSpeedMbps,
+    'txLinkSpeed_Mbps': txLinkSpeedMbps,
+    'rxLinkSpeed_Mbps': rxLinkSpeedMbps,
+    'ipv4': ipAddress,
+    'ipv6': ipv6,
+    'ipv6LinkLocal': ipv6LinkLocal,
+    'deviceMac': macAddress,
+    'routerBssid': bssid,
+    'gateway': gateway,
+    'dns': dns,
+    'security': securityLabel,
+    'wifiStandard': standardLabel,
+    'channelWidth_MHz': channelWidthMhz,
+    'issues': issues,
+  };
 }
 
 /// One access point from the system scan cache.
@@ -168,30 +170,30 @@ class WifiScanInfo {
   int get bars => WifiUtils.barsFromRssi(rssi);
 
   factory WifiScanInfo.fromMap(Map<Object?, Object?> m) => WifiScanInfo(
-        bssid: asString(m['bssid']) ?? '--',
-        ssid: asString(m['ssid']),
-        rssi: asInt(m['rssi']),
-        frequencyMhz: asInt(m['frequencyMhz']),
-        centerFreq0Mhz: asInt(m['centerFreq0Mhz']),
-        centerFreq1Mhz: asInt(m['centerFreq1Mhz']),
-        channelWidthCode: asInt(m['channelWidthCode']),
-        capabilities: asString(m['capabilities']),
-        wifiStandard: asInt(m['wifiStandard']),
-        timestampUs: asInt(m['timestampUs']),
-      );
+    bssid: asString(m['bssid']) ?? '--',
+    ssid: asString(m['ssid']),
+    rssi: asInt(m['rssi']),
+    frequencyMhz: asInt(m['frequencyMhz']),
+    centerFreq0Mhz: asInt(m['centerFreq0Mhz']),
+    centerFreq1Mhz: asInt(m['centerFreq1Mhz']),
+    channelWidthCode: asInt(m['channelWidthCode']),
+    capabilities: asString(m['capabilities']),
+    wifiStandard: asInt(m['wifiStandard']),
+    timestampUs: asInt(m['timestampUs']),
+  );
 
   Map<String, Object?> toMap() => {
-        'ssid': ssid,
-        'bssid': bssid,
-        'rssi_dBm': rssi,
-        'frequency_MHz': frequencyMhz,
-        'channel_derived': channel,
-        'band_derived': band.label,
-        'channelWidth_MHz': channelWidthMhz,
-        'security_derived': securityLabel,
-        'capabilities': capabilities,
-        'wifiStandard': standardLabel,
-      };
+    'ssid': ssid,
+    'bssid': bssid,
+    'rssi_dBm': rssi,
+    'frequency_MHz': frequencyMhz,
+    'channel_derived': channel,
+    'band_derived': band.label,
+    'channelWidth_MHz': channelWidthMhz,
+    'security_derived': securityLabel,
+    'capabilities': capabilities,
+    'wifiStandard': standardLabel,
+  };
 }
 
 /// Result of reading the cached scan list.
@@ -219,11 +221,13 @@ class WifiScanResult {
   final int? retryAfterMs;
 
   factory WifiScanResult.fromMap(Map<Object?, Object?> m) => WifiScanResult(
-        results: asMapList(m['results']).map(WifiScanInfo.fromMap).toList(growable: false),
-        scanStarted: asBool(m['scanStarted']),
-        throttled: asBool(m['throttled']) ?? false,
-        issues: asStringList(m['issues']),
-        timestampMs: asInt(m['timestampMs']),
-        retryAfterMs: asInt(m['retryAfterMs']),
-      );
+    results: asMapList(m['results'])
+        .map(WifiScanInfo.fromMap)
+        .toList(growable: false),
+    scanStarted: asBool(m['scanStarted']),
+    throttled: asBool(m['throttled']) ?? false,
+    issues: asStringList(m['issues']),
+    timestampMs: asInt(m['timestampMs']),
+    retryAfterMs: asInt(m['retryAfterMs']),
+  );
 }

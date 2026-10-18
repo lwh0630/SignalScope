@@ -82,9 +82,9 @@ class CellularInfo {
 
   /// Derived from public data only; `null` when it cannot be decided.
   String? get nrMode => NetworkTypes.nrMode(
-        dataNetworkType: dataNetworkType,
-        overrideNetworkType: overrideNetworkType,
-      );
+    dataNetworkType: dataNetworkType,
+    overrideNetworkType: overrideNetworkType,
+  );
 
   LteSignalInfo? get servingLte {
     for (final c in lte) {
@@ -121,18 +121,21 @@ class CellularInfo {
   }
 
   List<LteSignalInfo> get neighborLte => lte
-      .where((c) =>
-          c.source == CellDataSource.cellInfo && c.isRegistered != true)
+      .where(
+        (c) => c.source == CellDataSource.cellInfo && c.isRegistered != true,
+      )
       .toList(growable: false);
 
   List<NrSignalInfo> get neighborNr => nr
-      .where((c) =>
-          c.source == CellDataSource.cellInfo && c.isRegistered != true)
+      .where(
+        (c) => c.source == CellDataSource.cellInfo && c.isRegistered != true,
+      )
       .toList(growable: false);
 
   List<LegacyCellInfo> get neighborLegacy => legacy
-      .where((c) =>
-          c.source == CellDataSource.cellInfo && c.isRegistered != true)
+      .where(
+        (c) => c.source == CellDataSource.cellInfo && c.isRegistered != true,
+      )
       .toList(growable: false);
 
   /// The signal quantity (dBm) and RAT label used by the main gauge.
@@ -144,8 +147,12 @@ class CellularInfo {
     final type = dataNetworkType;
     if (type == NetworkTypes.nr) {
       final nr = servingNr;
-      if (nr?.ssRsrp != null) return (rat: 'NR', metric: 'SS-RSRP', dbm: nr!.ssRsrp!);
-      if (nr?.csiRsrp != null) return (rat: 'NR', metric: 'CSI-RSRP', dbm: nr!.csiRsrp!);
+      if (nr?.ssRsrp != null) {
+        return (rat: 'NR', metric: 'SS-RSRP', dbm: nr!.ssRsrp!);
+      }
+      if (nr?.csiRsrp != null) {
+        return (rat: 'NR', metric: 'CSI-RSRP', dbm: nr!.csiRsrp!);
+      }
     }
     if (type == NetworkTypes.lte || type == NetworkTypes.lteCa) {
       final v = servingLte?.rsrp;
@@ -153,7 +160,8 @@ class CellularInfo {
     }
     final legacyDbm = servingLegacy?.dbm;
     final gen = generation;
-    if (legacyDbm != null && (gen == NetworkGeneration.g2 || gen == NetworkGeneration.g3)) {
+    if (legacyDbm != null &&
+        (gen == NetworkGeneration.g2 || gen == NetworkGeneration.g3)) {
       return (rat: servingLegacy!.rat, metric: 'RSSI', dbm: legacyDbm);
     }
     if (primaryRat != null && primaryDbm != null) {
@@ -170,78 +178,80 @@ class CellularInfo {
   CellularInfo withCells({
     required List<LteSignalInfo> lte,
     required List<NrSignalInfo> nr,
-  }) =>
-      CellularInfo(
-        subscriptionId: subscriptionId,
-        timestampMs: timestampMs,
-        signalLevel: signalLevel,
-        serviceState: serviceState,
-        operatorName: operatorName,
-        networkOperator: networkOperator,
-        isRoaming: isRoaming,
-        dataNetworkType: dataNetworkType,
-        voiceNetworkType: voiceNetworkType,
-        hasDataNetwork: hasDataNetwork,
-        ipv4: ipv4,
-        ipv6: ipv6,
-        ipv6LinkLocal: ipv6LinkLocal,
-        overrideNetworkType: overrideNetworkType,
-        primaryRat: primaryRat,
-        primaryDbm: primaryDbm,
-        lte: lte,
-        nr: nr,
-        legacy: legacy,
-        cellInfoAvailable: cellInfoAvailable,
-        issues: issues,
-      );
+  }) => CellularInfo(
+    subscriptionId: subscriptionId,
+    timestampMs: timestampMs,
+    signalLevel: signalLevel,
+    serviceState: serviceState,
+    operatorName: operatorName,
+    networkOperator: networkOperator,
+    isRoaming: isRoaming,
+    dataNetworkType: dataNetworkType,
+    voiceNetworkType: voiceNetworkType,
+    hasDataNetwork: hasDataNetwork,
+    ipv4: ipv4,
+    ipv6: ipv6,
+    ipv6LinkLocal: ipv6LinkLocal,
+    overrideNetworkType: overrideNetworkType,
+    primaryRat: primaryRat,
+    primaryDbm: primaryDbm,
+    lte: lte,
+    nr: nr,
+    legacy: legacy,
+    cellInfoAvailable: cellInfoAvailable,
+    issues: issues,
+  );
 
   factory CellularInfo.fromMap(Map<Object?, Object?> m) => CellularInfo(
-        subscriptionId: asInt(m['subscriptionId']) ?? -1,
-        timestampMs: asInt(m['timestampMs']) ?? DateTime.now().millisecondsSinceEpoch,
-        signalLevel: asInt(m['signalLevel']),
-        serviceState: asInt(m['serviceState']),
-        operatorName: asString(m['operatorName']),
-        networkOperator: asString(m['networkOperator']),
-        isRoaming: asBool(m['isRoaming']),
-        dataNetworkType: asInt(m['dataNetworkType']),
-        voiceNetworkType: asInt(m['voiceNetworkType']),
-        hasDataNetwork: asBool(m['hasDataNetwork']),
-        ipv4: asString(m['ipv4']),
-        ipv6: asStringList(m['ipv6']),
-        ipv6LinkLocal: asStringList(m['ipv6LinkLocal']),
-        overrideNetworkType: asInt(m['overrideNetworkType']),
-        primaryRat: asString(m['primaryRat']),
-        primaryDbm: asInt(m['primaryDbm']),
-        lte: asMapList(m['lte']).map(LteSignalInfo.fromMap).toList(growable: false),
-        nr: asMapList(m['nr']).map(NrSignalInfo.fromMap).toList(growable: false),
-        legacy: asMapList(m['legacy']).map(LegacyCellInfo.fromMap).toList(growable: false),
-        cellInfoAvailable: asBool(m['cellInfoAvailable']) ?? false,
-        issues: asStringList(m['issues']),
-      );
+    subscriptionId: asInt(m['subscriptionId']) ?? -1,
+    timestampMs:
+        asInt(m['timestampMs']) ?? DateTime.now().millisecondsSinceEpoch,
+    signalLevel: asInt(m['signalLevel']),
+    serviceState: asInt(m['serviceState']),
+    operatorName: asString(m['operatorName']),
+    networkOperator: asString(m['networkOperator']),
+    isRoaming: asBool(m['isRoaming']),
+    dataNetworkType: asInt(m['dataNetworkType']),
+    voiceNetworkType: asInt(m['voiceNetworkType']),
+    hasDataNetwork: asBool(m['hasDataNetwork']),
+    ipv4: asString(m['ipv4']),
+    ipv6: asStringList(m['ipv6']),
+    ipv6LinkLocal: asStringList(m['ipv6LinkLocal']),
+    overrideNetworkType: asInt(m['overrideNetworkType']),
+    primaryRat: asString(m['primaryRat']),
+    primaryDbm: asInt(m['primaryDbm']),
+    lte: asMapList(m['lte']).map(LteSignalInfo.fromMap).toList(growable: false),
+    nr: asMapList(m['nr']).map(NrSignalInfo.fromMap).toList(growable: false),
+    legacy: asMapList(m['legacy'])
+        .map(LegacyCellInfo.fromMap)
+        .toList(growable: false),
+    cellInfoAvailable: asBool(m['cellInfoAvailable']) ?? false,
+    issues: asStringList(m['issues']),
+  );
 
   Map<String, Object?> toMap() => {
-        'subscriptionId': subscriptionId,
-        'timestampMs': timestampMs,
-        'signalLevel': signalLevel,
-        'serviceState': serviceState,
-        'operatorName': operatorName,
-        'networkOperator': networkOperator,
-        'isRoaming': isRoaming,
-        'dataNetworkType': dataNetworkType,
-        'dataNetworkTypeName': NetworkTypes.name(dataNetworkType),
-        'voiceNetworkType': voiceNetworkType,
-        'hasDataNetwork': hasDataNetwork,
-        'ipv4': ipv4,
-        'ipv6': ipv6,
-        'ipv6LinkLocal': ipv6LinkLocal,
-        'overrideNetworkType': overrideNetworkType,
-        'nrMode_derived': nrMode,
-        'primaryRat': primaryRat,
-        'primaryDbm': primaryDbm,
-        'lte': lte.map((e) => e.toMap()).toList(),
-        'nr': nr.map((e) => e.toMap()).toList(),
-        'legacy': legacy.map((e) => e.toMap()).toList(),
-        'cellInfoAvailable': cellInfoAvailable,
-        'issues': issues,
-      };
+    'subscriptionId': subscriptionId,
+    'timestampMs': timestampMs,
+    'signalLevel': signalLevel,
+    'serviceState': serviceState,
+    'operatorName': operatorName,
+    'networkOperator': networkOperator,
+    'isRoaming': isRoaming,
+    'dataNetworkType': dataNetworkType,
+    'dataNetworkTypeName': NetworkTypes.name(dataNetworkType),
+    'voiceNetworkType': voiceNetworkType,
+    'hasDataNetwork': hasDataNetwork,
+    'ipv4': ipv4,
+    'ipv6': ipv6,
+    'ipv6LinkLocal': ipv6LinkLocal,
+    'overrideNetworkType': overrideNetworkType,
+    'nrMode_derived': nrMode,
+    'primaryRat': primaryRat,
+    'primaryDbm': primaryDbm,
+    'lte': lte.map((e) => e.toMap()).toList(),
+    'nr': nr.map((e) => e.toMap()).toList(),
+    'legacy': legacy.map((e) => e.toMap()).toList(),
+    'cellInfoAvailable': cellInfoAvailable,
+    'issues': issues,
+  };
 }

@@ -37,8 +37,7 @@ const Map<String, String> stringsZh = {
 
   // platform
   'platform.unsupportedTitle': '此平台暂不支持',
-  'platform.unsupportedBody':
-      '{0} 平台没有可用的原生信号采集实现，因此这里不会显示任何数据。SignalScope 的蜂窝、Wi-Fi 与 GNSS 采集目前仅支持 Android。',
+  'platform.unsupportedBody': '{0} 平台没有可用的原生信号采集实现，因此这里不会显示任何数据。SignalScope 的蜂窝、Wi-Fi 与 GNSS 采集目前仅支持 Android。',
 
   // settings
   'settings.title': '设置',
@@ -70,8 +69,7 @@ const Map<String, String> stringsZh = {
   'settings.minutes': '{0} 分钟',
   'settings.milliseconds': '{0} 毫秒',
   'settings.version': '版本 {0}',
-  'settings.aboutBody':
-      'SignalScope 是一款使用 Android 公开 API 的网络信号检测工具。所有数值均来自系统实际返回的数据；系统未提供的字段显示为“--”，不会用 0 或模拟值代替。',
+  'settings.aboutBody': 'SignalScope 是一款使用 Android 公开 API 的网络信号检测工具。所有数值均来自系统实际返回的数据；系统未提供的字段显示为“--”，不会用 0 或模拟值代替。',
   'common.updatedAt': '更新于 {0}',
 
   // permissions
@@ -158,7 +156,8 @@ const Map<String, String> stringsZh = {
   'issue.callback_denied': '部分系统回调被拒绝（权限不足）。',
   'issue.telephony_unavailable': '此设备没有可用的电话服务。',
   // wifi
-  'wifi.permWhy': 'Android 要求“位置”权限（Android 13+ 还有“附近的 Wi-Fi 设备”）才能返回 SSID、BSSID 和附近热点。',
+  'wifi.permWhy':
+      'Android 要求“位置”权限（Android 13+ 还有“附近的 Wi-Fi 设备”）才能返回 SSID、BSSID 和附近热点。',
   'wifi.disabled': 'Wi-Fi 已关闭',
   'wifi.disabledHint': '开启 Wi-Fi 后才能查看连接信息和附近热点。',
   'wifi.openWifiSettings': '打开 Wi-Fi 设置',
@@ -238,7 +237,8 @@ const Map<String, String> stringsZh = {
   'gnss.skyPlot': '天空图',
   'gnss.skyNote': '上方为正北，圆心为天顶。实心 = 参与定位，空心 = 未参与，淡色 = 未跟踪。',
   'gnss.cn0Chart': '各卫星 C/N0 (dB-Hz)',
-  'gnss.cn0Note': '亮边实心柱 = 参与定位，半透明柱 = 未参与；“--” = 未跟踪；柱下圆点颜色表示星座，顶部国旗为星座所属国家/组织。',
+  'gnss.cn0Note':
+      '亮边实心柱 = 参与定位，半透明柱 = 未参与；“--” = 未跟踪；柱下圆点颜色表示星座，顶部国旗为星座所属国家/组织。',
   'gnss.cn0.tapHint': '点击柱子查看该卫星详情',
   'gnss.cn0.avg': '平均',
   'gnss.baseband': '基带 C/N0',
@@ -290,7 +290,8 @@ const Map<String, String> stringsZh = {
   'settings.permissionsHint': '授权状态在返回应用时自动刷新。被永久拒绝的权限只能在系统设置中手动开启。',
   'settings.demo': '演示模式',
   'settings.demoMode': '使用内置示例数据',
-  'settings.demoModeHint': '仅用于预览界面：数据是固定公式生成的示例（虚构运营商、位置 0°N 0°E），不是你设备的真实信号。仅本次运行有效，重启后自动关闭。',
+  'settings.demoModeHint':
+      '仅用于预览界面：数据是固定公式生成的示例（虚构运营商、位置 0°N 0°E），不是你设备的真实信号。仅本次运行有效，重启后自动关闭。',
   'demo.banner': '演示模式 · 以下数据为内置示例，并非真实信号',
   'demo.turnOff': '关闭',
   'perm.status.granted': '已授权',
@@ -298,7 +299,8 @@ const Map<String, String> stringsZh = {
   'perm.status.permanentlyDenied': '已永久拒绝',
   'perm.status.notApplicable': '无需授权',
   'perm.group.location': '位置（精确）',
-  'perm.group.location.desc': '读取小区标识 (PCI/TAC/CI)、Wi-Fi 名称与扫描结果，以及 GNSS 定位和卫星。',
+  'perm.group.location.desc':
+      '读取小区标识 (PCI/TAC/CI)、Wi-Fi 名称与扫描结果，以及 GNSS 定位和卫星。',
   'perm.group.phone': '电话',
   'perm.group.phone.desc': '读取 SIM 卡、运营商和蜂窝信号强度。应用不会拨打电话，也不会读取通话记录。',
   'perm.group.nearbyWifi': '附近的 Wi-Fi 设备',

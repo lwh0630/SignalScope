@@ -32,21 +32,81 @@ class LatencyTarget {
 
   /// Built-in popular sites. Brand names are shown as they are.
   static const List<LatencyTarget> mainland = [
-    LatencyTarget(id: 'cn-baidu', name: 'Baidu 百度', host: 'www.baidu.com', group: LatencyGroup.mainland),
-    LatencyTarget(id: 'cn-qq', name: 'Tencent QQ 腾讯', host: 'www.qq.com', group: LatencyGroup.mainland),
-    LatencyTarget(id: 'cn-taobao', name: 'Taobao 淘宝', host: 'www.taobao.com', group: LatencyGroup.mainland),
-    LatencyTarget(id: 'cn-bilibili', name: 'Bilibili 哔哩哔哩', host: 'www.bilibili.com', group: LatencyGroup.mainland),
-    LatencyTarget(id: 'cn-163', name: 'NetEase 网易', host: 'www.163.com', group: LatencyGroup.mainland),
-    LatencyTarget(id: 'cn-jd', name: 'JD 京东', host: 'www.jd.com', group: LatencyGroup.mainland),
+    LatencyTarget(
+      id: 'cn-baidu',
+      name: 'Baidu 百度',
+      host: 'www.baidu.com',
+      group: LatencyGroup.mainland,
+    ),
+    LatencyTarget(
+      id: 'cn-qq',
+      name: 'Tencent QQ 腾讯',
+      host: 'www.qq.com',
+      group: LatencyGroup.mainland,
+    ),
+    LatencyTarget(
+      id: 'cn-taobao',
+      name: 'Taobao 淘宝',
+      host: 'www.taobao.com',
+      group: LatencyGroup.mainland,
+    ),
+    LatencyTarget(
+      id: 'cn-bilibili',
+      name: 'Bilibili 哔哩哔哩',
+      host: 'www.bilibili.com',
+      group: LatencyGroup.mainland,
+    ),
+    LatencyTarget(
+      id: 'cn-163',
+      name: 'NetEase 网易',
+      host: 'www.163.com',
+      group: LatencyGroup.mainland,
+    ),
+    LatencyTarget(
+      id: 'cn-jd',
+      name: 'JD 京东',
+      host: 'www.jd.com',
+      group: LatencyGroup.mainland,
+    ),
   ];
 
   static const List<LatencyTarget> international = [
-    LatencyTarget(id: 'us-google', name: 'Google', host: 'www.google.com', group: LatencyGroup.international),
-    LatencyTarget(id: 'us-cloudflare', name: 'Cloudflare', host: 'www.cloudflare.com', group: LatencyGroup.international),
-    LatencyTarget(id: 'us-github', name: 'GitHub', host: 'github.com', group: LatencyGroup.international),
-    LatencyTarget(id: 'us-microsoft', name: 'Microsoft', host: 'www.microsoft.com', group: LatencyGroup.international),
-    LatencyTarget(id: 'us-amazon', name: 'Amazon', host: 'www.amazon.com', group: LatencyGroup.international),
-    LatencyTarget(id: 'us-apple', name: 'Apple', host: 'www.apple.com', group: LatencyGroup.international),
+    LatencyTarget(
+      id: 'us-google',
+      name: 'Google',
+      host: 'www.google.com',
+      group: LatencyGroup.international,
+    ),
+    LatencyTarget(
+      id: 'us-cloudflare',
+      name: 'Cloudflare',
+      host: 'www.cloudflare.com',
+      group: LatencyGroup.international,
+    ),
+    LatencyTarget(
+      id: 'us-github',
+      name: 'GitHub',
+      host: 'github.com',
+      group: LatencyGroup.international,
+    ),
+    LatencyTarget(
+      id: 'us-microsoft',
+      name: 'Microsoft',
+      host: 'www.microsoft.com',
+      group: LatencyGroup.international,
+    ),
+    LatencyTarget(
+      id: 'us-amazon',
+      name: 'Amazon',
+      host: 'www.amazon.com',
+      group: LatencyGroup.international,
+    ),
+    LatencyTarget(
+      id: 'us-apple',
+      name: 'Apple',
+      host: 'www.apple.com',
+      group: LatencyGroup.international,
+    ),
   ];
 
   static const List<LatencyTarget> builtIn = [...mainland, ...international];
@@ -71,9 +131,15 @@ class LatencyTarget {
 
     var host = uri.host;
     if (host.isEmpty) return null;
-    if (host.startsWith('[') && host.endsWith(']')) host = host.substring(1, host.length - 1);
+    if (host.startsWith('[') && host.endsWith(']')) {
+      host = host.substring(1, host.length - 1);
+    }
     final isIp = InternetAddress.tryParse(host) != null;
-    if (!isIp && (!_hostName.hasMatch(host) || !host.contains('.') && host != 'localhost')) return null;
+    if (!isIp &&
+        (!_hostName.hasMatch(host) ||
+            !host.contains('.') && host != 'localhost')) {
+      return null;
+    }
 
     final defaultPort = hasScheme && uri.scheme == 'http' ? 80 : 443;
     final port = uri.hasPort ? uri.port : defaultPort;
