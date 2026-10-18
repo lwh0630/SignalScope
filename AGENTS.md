@@ -162,6 +162,7 @@ flutter test
 flutter build apk --release --split-per-abi   # when Android code, manifest, or Gradle files changed
 ```
 
+- CI (`.github/workflows/flutter-ci.yml`) runs the same checks plus a debug APK build, with Flutter and JDK versions pinned in the workflow `env`. Update those pins deliberately when the project's Flutter / AGP / Gradle requirements change.
 - `flutter analyze` must report no issues (`analysis_options.yaml` uses `flutter_lints`; `android/`, `web/`, `windows/`, `build/` are excluded).
 - Add or update tests with behavior changes. Platform behavior is tested through `FakeAndroidPlatform`, not real hardware.
 - **Never claim a check passed if you did not run it.** If you could not run something (no device, no SDK, no network), say so explicitly. Native sensor behavior on real multi-SIM / 5G hardware is not covered by the automated tests.

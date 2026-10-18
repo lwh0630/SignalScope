@@ -1,0 +1,100 @@
+name: Flutter CI
+
+# Runs on every push / pull request to main, and can be started by hand
+# from the "Actions" tab. It only builds and checks the project:
+# there is no release signing and no GitHub Release step.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Least privilege: the jobs only need to read the repository contents.
+permissions:
+  contents: read
+
+# A newer run for the same branch / PR cancels the older one.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Keep these in sync with the project (see AGENTS.md, "Testing and Validation"):
+  #   Flutter 3.47.7 ships Dart 3.13.5, which satisfies pubspec.yaml (sdk: ^3.13.5).
+  #   JDK 17 is the minimum for Android Gradle Plugin 9.1.0 / Gradle 9.3.1 and
+  #   matches the Java 17 source/target in android/app/build.gradle.kts.
+  FLUTTER_VERSION: "3.47.7"
+  JAVA_VERSION: "17"
+
+jobs:
+  build:
+    name: Analyze, test and build debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: gradle
+
+      - name: Set up Flutter ${{ env.FLUTTER_VERSION }}
+        # Third-party action: pinned to a full commit SHA (tag v2.23.0).
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Show tool versions
+        run: |
+          flutter --version
+          java -version
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Look for tests
+        id: tests
+        run: |
+          if [ -d test ] && [ -n "$(find test -name '*_test.dart' -print -quit)" ]; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run tests
+        if: steps.tests.outputs.found == 'true'
+        run: flutter test
+
+      - name: Tests skipped (none found)
+        if: steps.tests.outputs.found != 'true'
+        run: |
+          echo "::warning title=flutter test skipped::No *_test.dart files were found under test/, so no tests were run."
+          echo "### flutter test was skipped" >> "$GITHUB_STEP_SUMMARY"
+          echo "No \`*_test.dart\` files were found under \`test/\`. No tests ran; this is not a passing test result." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build debug APK
+        run: flutter build apk --debug
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: signalscope-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7

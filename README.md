@@ -9,6 +9,7 @@ SIM and carrier info, LTE / 5G NR cellular signal, Wi-Fi and nearby access point
 
 [简体中文](README_zh.md) | English
 
+[![Flutter CI](https://github.com/lwh0630/SignalScope/actions/workflows/flutter-ci.yml/badge.svg?branch=main)](https://github.com/lwh0630/SignalScope/actions/workflows/flutter-ci.yml)
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 ![Platform: Android 10+](https://img.shields.io/badge/Android-10%2B%20(API%2029%2B)-3DDC84?logo=android&logoColor=white)
 ![Flutter](https://img.shields.io/badge/Flutter-3.47-02569B?logo=flutter&logoColor=white)
@@ -172,7 +173,7 @@ test/              unit and widget tests
 - Implemented and covered by automated tests (`flutter test`): data parsing ("missing means `null`"), controllers and lifecycle, charts' geometry, latency statistics, i18n key parity, export formats, demo data.
 - **Not yet verified on a wide range of real hardware.** The app has not been fully validated on real multi-SIM 5G devices; NR / NSA field availability depends strongly on the vendor modem.
 - The Windows target is a UI shell only.
-- There is no CI, no published release, and no release signing configuration yet.
+- [GitHub Actions CI](.github/workflows/flutter-ci.yml) checks formatting, runs `flutter analyze` and `flutter test`, and builds a debug APK on every push and pull request to `main`. There is no published release and no release signing configuration yet.
 
 
 ## Contributing

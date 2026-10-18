@@ -9,6 +9,7 @@ SIM 与运营商信息、LTE / 5G NR 蜂窝信号、Wi-Fi 与附近热点、GNSS
 
 简体中文 | [English](README.md)
 
+[![Flutter CI](https://github.com/lwh0630/SignalScope/actions/workflows/flutter-ci.yml/badge.svg?branch=main)](https://github.com/lwh0630/SignalScope/actions/workflows/flutter-ci.yml)
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 ![Platform: Android 10+](https://img.shields.io/badge/Android-10%2B%20(API%2029%2B)-3DDC84?logo=android&logoColor=white)
 ![Flutter](https://img.shields.io/badge/Flutter-3.47-02569B?logo=flutter&logoColor=white)
@@ -172,7 +173,7 @@ test/              单元与组件测试
 - 已实现并有自动化测试覆盖（`flutter test`）：数据解析（“缺失即 `null`”）、控制器与生命周期、图表几何、延迟统计、中英词条一致性、导出格式、演示数据。
 - **尚未在大量真实设备上验证。** 未在真实多卡 5G 设备上做完整验证；NR / NSA 字段是否可用强烈依赖厂商基带。
 - Windows 目标仅为界面外壳。
-- 目前没有 CI、没有已发布版本，也没有发布签名配置。
+- [GitHub Actions CI](.github/workflows/flutter-ci.yml) 会在每次推送和向 `main` 提交 pull request 时检查代码格式、运行 `flutter analyze` 与 `flutter test`，并构建 Debug APK。目前没有已发布版本，也没有发布签名配置。
 
 
 ## 参与贡献
