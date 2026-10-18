@@ -55,13 +55,11 @@ SIM 与运营商信息、LTE / 5G NR 蜂窝信号、Wi-Fi 与附近热点、GNSS
 
 ## 截图
 
-> **暂未发布截图。** 请把图片放到 `docs/screenshots/` 目录，并在此引用，例如：
->
-> ```markdown
-> | 总览 | 蜂窝 | Wi-Fi | GNSS |
-> | --- | --- | --- | --- |
-> | ![总览](docs/screenshots/overview.png) | ![蜂窝](docs/screenshots/cellular.png) | ![Wi-Fi](docs/screenshots/wifi.png) | ![GNSS](docs/screenshots/gnss.png) |
-> ```
+<p align="center">
+  <img src="docs/screenshots/overview_zh.png" alt="SignalScope 总览页（中文界面）" width="260">
+</p>
+
+> 截图来自 Android 模拟器，运营商、地址、位置和信号数值均由模拟器模拟，并非真机实测。其他页面的截图暂未发布。
 
 ## 技术栈
 

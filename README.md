@@ -55,13 +55,11 @@ Notable limits (all explained in the app):
 
 ## Screenshots
 
-> **Screenshots are not published yet.** Add images to a `docs/screenshots/` folder and reference them here, for example:
->
-> ```markdown
-> | Overview | Cellular | Wi-Fi | GNSS |
-> | --- | --- | --- | --- |
-> | ![Overview](docs/screenshots/overview.png) | ![Cellular](docs/screenshots/cellular.png) | ![Wi-Fi](docs/screenshots/wifi.png) | ![GNSS](docs/screenshots/gnss.png) |
-> ```
+<p align="center">
+  <img src="docs/screenshots/overview.png" alt="SignalScope overview page (English UI)" width="260">
+</p>
+
+> The screenshot was taken in the Android Emulator. The carrier, addresses, location and signal values are simulated by the emulator, not measured on a real device. Screenshots of the other pages are not published yet.
 
 ## Tech Stack
 
