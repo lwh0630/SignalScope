@@ -7,6 +7,7 @@ import '../../../core/providers.dart';
 import '../../../shared/widgets/cards.dart';
 import '../../../shared/widgets/page_scaffold.dart';
 import '../../permissions/presentation/permission_manager_card.dart';
+import '../../update/presentation/update_card.dart';
 import '../domain/app_settings.dart';
 import 'data_card.dart';
 
@@ -163,6 +164,7 @@ class SettingsPage extends ConsumerWidget {
         const DataCard(),
         const PermissionManagerCard(),
         const DemoModeCard(),
+        const UpdateCard(),
         SectionCard(
           title: context.tr('settings.about'),
           child: Column(
@@ -170,7 +172,9 @@ class SettingsPage extends ConsumerWidget {
             children: [
               Text('SignalScope', style: theme.textTheme.titleMedium),
               Text(
-                context.tr('settings.version', [kAppVersion]),
+                context.tr('settings.version', [
+                  ref.watch(installedVersionProvider).value ?? kAppVersion,
+                ]),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),

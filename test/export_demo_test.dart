@@ -51,9 +51,11 @@ void main() {
         demo: false,
         historySeconds: 300,
         exportedAt: DateTime.utc(2026, 1, 2, 3, 4, 5),
+        appVersion: '1.4.2',
       );
       final doc = jsonDecode(text) as Map<String, Object?>;
       expect(doc['app'], 'SignalScope');
+      expect(doc['version'], '1.4.2');
       expect(doc['dataSource'], 'device');
       expect(doc['exportedAtUtc'], '2026-01-02T03:04:05.000Z');
       expect(doc['sampleCount'], 2);
@@ -72,6 +74,7 @@ void main() {
         demo: true,
         historySeconds: 60,
         exportedAt: DateTime.utc(2026),
+        appVersion: '1.0.0',
       );
       expect((jsonDecode(text) as Map)['dataSource'], contains('demo'));
       final now = DateTime(2026, 3, 4, 5, 6, 7);

@@ -4,6 +4,7 @@ import '../data/platform/demo_platform.dart';
 import '../data/platform/platform_factory.dart';
 import '../data/platform/signal_platform.dart';
 import '../features/settings/domain/app_settings.dart';
+import 'app_info.dart';
 import 'demo_mode.dart';
 
 /// The real host platform adapter. Overridden in `main()`.
@@ -16,6 +17,13 @@ final realPlatformProvider = Provider<SignalPlatform>(
 final signalPlatformProvider = Provider<SignalPlatform>((ref) {
   final real = ref.watch(realPlatformProvider);
   return ref.watch(demoModeProvider) ? DemoPlatform(real) : real;
+});
+
+/// `versionName` of the installed app as reported by the system (the release tag
+/// without the leading `v`); [kAppVersion] when the host cannot report it.
+final installedVersionProvider = FutureProvider<String>((ref) async {
+  final info = await ref.watch(signalPlatformProvider).getAppBuildInfo();
+  return info?.versionName ?? kAppVersion;
 });
 
 /// Settings loaded before `runApp`. Overridden in `main()` and tests.

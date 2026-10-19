@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Only the private download folder of the in-app updater is shareable with the
+     system package installer (see UpdateInstaller.kt). -->
+<paths>
+    <cache-path name="updates" path="updates/" />
+</paths>

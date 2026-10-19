@@ -14,9 +14,15 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <!-- Only used to ask the OS to start a (system-throttled) Wi-Fi scan. -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <!-- Only used by the latency test, and only after the user taps "Start test":
-         TCP handshake timing to the listed sites. Nothing is uploaded. -->
+    <!-- Used by (1) the latency test, only after the user taps "Start test": TCP
+         handshake timing to the listed sites; (2) the update check / download, which
+         only talks to GitHub Releases (a GET without any device identifier). Nothing
+         is uploaded. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Lets the user hand a downloaded SignalScope update to the system package
+         installer. The system still asks for confirmation and only accepts an APK
+         signed with the same key as the installed app. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!-- Link properties (IP / gateway / DNS) and network callbacks. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Android 13+: scan results. Not marked neverForLocation because SSID/BSSID
@@ -49,6 +55,16 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Shares the downloaded update APK (cache/updates only) with the installer. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.updates"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/update_file_paths" />
+        </provider>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

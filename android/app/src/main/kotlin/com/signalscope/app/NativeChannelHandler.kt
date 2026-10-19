@@ -44,6 +44,7 @@ class NativeChannelHandler(
     private val wifiService = WifiSignalService(appContext)
     private val gnssService = GnssService(appContext)
     private val exportService = ExportService(appContext)
+    private val updateInstaller = UpdateInstaller(appContext)
 
     private val methodChannel = MethodChannel(messenger, METHOD)
     private val cellularChannel = EventChannel(messenger, CELLULAR)
@@ -159,6 +160,23 @@ class NativeChannelHandler(
                         result.success(exportService.save(name, mime, content))
                     }
                 }
+                "getAppBuildInfo" -> result.success(updateInstaller.buildInfo())
+                "prepareUpdateDir" -> result.success(updateInstaller.prepareDir())
+                "installApk" -> {
+                    val path = call.argument<String>("path")
+                    val sha256 = call.argument<String>("sha256")
+                    if (path == null || sha256 == null) {
+                        result.error("bad_args", "path and sha256 are required", null)
+                    } else {
+                        result.success(updateInstaller.install(path, sha256))
+                    }
+                }
+                "openInstallPermissionSettings" -> result.success(
+                    startSettings(
+                        Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
+                            .setData(Uri.fromParts("package", appContext.packageName, null)),
+                    ),
+                )
                 else -> result.notImplemented()
             }
         } catch (e: SecurityException) {

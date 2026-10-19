@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 
+import '../models/app_update_info.dart';
 import '../models/cellular_event.dart';
 import '../models/cellular_info.dart';
 import '../models/gnss_info.dart';
@@ -190,6 +191,41 @@ class AndroidPlatform implements SignalPlatform {
       // best effort
     }
   }
+
+  @override
+  Future<AppBuildInfo?> getAppBuildInfo() async =>
+      AppBuildInfo.fromMap(await _invokeMap('getAppBuildInfo'));
+
+  @override
+  Future<String?> prepareUpdateDir() async {
+    try {
+      return await _method.invokeMethod<String>('prepareUpdateDir');
+    } on PlatformException {
+      return null;
+    } on MissingPluginException {
+      return null;
+    }
+  }
+
+  @override
+  Future<InstallApkResult> installApk(String path, String sha256) async {
+    try {
+      return InstallApkResult.fromCode(
+        await _method.invokeMethod<String>('installApk', {
+          'path': path,
+          'sha256': sha256,
+        }),
+      );
+    } on PlatformException {
+      return InstallApkResult.failed;
+    } on MissingPluginException {
+      return InstallApkResult.failed;
+    }
+  }
+
+  @override
+  Future<bool> openInstallPermissionSettings() =>
+      _invokeBool('openInstallPermissionSettings');
 
   @override
   Future<String?> saveExport(

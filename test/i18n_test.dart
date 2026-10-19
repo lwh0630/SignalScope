@@ -73,6 +73,23 @@ void main() {
         'native_error',
         'fallback_unavailable',
       ],
+      // Codes of UpdateException / UpdateController errors.
+      'update.err': [
+        'network',
+        'rate_limit',
+        'bad_response',
+        'bad_url',
+        'no_asset',
+        'no_checksum',
+        'download',
+        'hash',
+        'signature',
+        'not_newer',
+        'bad_apk',
+        'install',
+        'unsupported',
+        'bad_version',
+      ],
     };
     for (final e in codes.entries) {
       for (final c in e.value) {

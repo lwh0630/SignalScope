@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/app_info.dart';
 import '../../core/demo_mode.dart';
 import '../../core/history.dart';
 import '../../core/providers.dart';
@@ -77,10 +76,11 @@ class ExportFormats {
     required bool demo,
     required int historySeconds,
     required DateTime exportedAt,
+    required String appVersion,
   }) {
     final doc = <String, Object?>{
       'app': 'SignalScope',
-      'version': kAppVersion,
+      'version': appVersion,
       'exportedAtUtc': exportedAt.toUtc().toIso8601String(),
       'platform': platform,
       'dataSource': demo
@@ -132,6 +132,7 @@ class ExportActions {
     final platform = _ref.read(signalPlatformProvider);
     final demo = _ref.read(demoModeProvider);
     final now = DateTime.now();
+    final appVersion = await _ref.read(installedVersionProvider.future);
     final content = switch (format) {
       ExportFormat.csv => ExportFormats.toCsv(points),
       ExportFormat.json => ExportFormats.toJson(
@@ -141,6 +142,7 @@ class ExportActions {
         demo: demo,
         historySeconds: _ref.read(settingsProvider).historySeconds,
         exportedAt: now,
+        appVersion: appVersion,
       ),
     };
     final where = await platform.saveExport(

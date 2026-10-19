@@ -8,6 +8,8 @@ import '../../cellular/presentation/cellular_page.dart';
 import '../../gnss/presentation/gnss_page.dart';
 import '../../overview/presentation/overview_page.dart';
 import '../../settings/presentation/settings_page.dart';
+import '../../update/application/update_controller.dart';
+import '../../update/presentation/update_prompt.dart';
 import '../../wifi/presentation/wifi_page.dart';
 import '../application/navigation.dart';
 
@@ -59,6 +61,15 @@ class HomeShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tab = ref.watch(currentTabProvider);
+    // Also starts the once-a-day background update check (see UpdateController).
+    ref.listen(updateControllerProvider.select((s) => s.pendingPrompt), (
+      _,
+      release,
+    ) {
+      if (release == null || !context.mounted) return;
+      ref.read(updateControllerProvider.notifier).consumePrompt();
+      showUpdatePrompt(context, ref, release);
+    });
     return Scaffold(
       body: SafeArea(
         bottom: false,

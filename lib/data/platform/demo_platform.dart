@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import '../models/app_update_info.dart';
 import '../models/cellular_event.dart';
 import '../models/cellular_info.dart';
 import '../models/gnss_info.dart';
@@ -120,6 +121,22 @@ class DemoPlatform implements SignalPlatform {
     String mimeType,
     String content,
   ) => _real.saveExport(fileName, mimeType, content);
+
+  // ---- app update: not signal data, so it always talks to the real platform ----
+
+  @override
+  Future<AppBuildInfo?> getAppBuildInfo() => _real.getAppBuildInfo();
+
+  @override
+  Future<String?> prepareUpdateDir() => _real.prepareUpdateDir();
+
+  @override
+  Future<InstallApkResult> installApk(String path, String sha256) =>
+      _real.installApk(path, sha256);
+
+  @override
+  Future<bool> openInstallPermissionSettings() =>
+      _real.openInstallPermissionSettings();
 
   /// Emits [build] results immediately and then once per second (per [every]
   /// seconds). The timer is cancelled when the listener cancels.

@@ -43,7 +43,7 @@ SIM 与运营商信息、LTE / 5G NR 蜂窝信号、Wi-Fi 与附近热点、GNSS
 | **Wi-Fi** | 当前连接（SSID、路由器 MAC、RSSI、频率、信道、频宽、连接速率、IPv4 / IPv6、设备 MAC、网关、DNS、安全类型、Wi-Fi 标准）、附近热点（频段过滤、排序）、2.4 / 5 / 6 GHz 信道图（点选看详情）、RSSI 走势。 |
 | **GNSS** | 定位状态、经纬度、海拔、精度、速度、TTFF；可见 / 参与定位 / 已跟踪卫星数；带所属国家 / 组织国旗的星座分布；天空图；按星座分组的 C/N0 柱状图；卫星列表；C/N0 与卫星数走势。没有新鲜的 GNSS 定位时，位置卡片会改为显示系统的融合/网络定位（Wi-Fi、基站），并明确标注“非 GNSS”；一旦有 GNSS 定位就自动切回。 |
 | **延迟测试** | DNS 解析时间 + TCP 握手计时（最小 / 平均 / 最大、抖动、丢包），内置站点分组（中国大陆、美国 / 国际），并支持最多 20 个自定义目标。 |
-| **设置** | 主题（深色优先 / 浅色 / 跟随系统）、语言（中文 / English / 跟随系统）、刷新频率、历史窗口、CSV / JSON 导出、清空历史、权限管理、演示模式、关于。 |
+| **设置** | 主题（深色优先 / 浅色 / 跟随系统）、语言（中文 / English / 跟随系统）、刷新频率、历史窗口、CSV / JSON 导出、清空历史、权限管理、演示模式、应用更新、关于。**应用更新**：检查 GitHub 上最新的 Release（启动时自动检查，最多每 24 小时一次，可在设置中关闭，也可点“检查更新”手动检查），下载与设备 ABI 对应的 APK，用发行版的 `SHA256SUMS.txt` 校验 SHA-256，并校验其签名密钥与已安装应用一致，然后打开系统安装器。只提示正式版，忽略草稿与预发布。 |
 
 另外：多卡支持（按订阅 ID 隔离）、事件驱动采集（不轮询），以及仅限当前会话的**演示模式**（带醒目横幅，数据明确为虚构）。
 
@@ -101,13 +101,16 @@ SIM 与运营商信息、LTE / 5G NR 蜂窝信号、Wi-Fi 与附近热点、GNSS
 | `ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION` | 小区标识、Wi-Fi 名称与扫描结果、GNSS |
 | `NEARBY_WIFI_DEVICES`（Android 13+） | 附近 Wi-Fi 扫描结果 |
 | `ACCESS_WIFI_STATE`、`CHANGE_WIFI_STATE`、`ACCESS_NETWORK_STATE` | 读取 Wi-Fi 状态；`CHANGE_WIFI_STATE` 仅在你点击“扫描”时使用 |
-| `INTERNET` | 仅用于延迟测试；只在你点击开始后才联网；不上传任何数据 |
+| `INTERNET` | (1) 延迟测试：只在你点击开始后才联网。(2) 检查 / 下载更新：向 GitHub Releases 发一次匿名 `GET`（应用版本号只出现在 `User-Agent` 中），自动检查最多每 24 小时一次，可在设置中关闭。不上传任何数据 |
+| `REQUEST_INSTALL_PACKAGES` | 让你把下载好的 SignalScope 更新交给系统安装器；Android 会请你确认，且只接受与已安装应用同一密钥签名的 APK |
 
 应用不拨打电话、不读取通话记录、不上传任何数据。电话、Wi-Fi、GPS 硬件特性在清单中均为 `required=false`，没有这些硬件的设备也能安装，对应页面显示“设备不支持”。
 
 ## 安装与运行
 
-**目前没有已发布的版本。** 请按下文自行构建 APK，并安装到 Android 10+ 设备：
+请从 [Releases 页面](https://github.com/lwh0630/SignalScope/releases) 下载与你的设备匹配的 APK（大多数现代手机选 `arm64-v8a`；可用 `SHA256SUMS.txt` 校验下载文件），并安装到 Android 10+ 设备。包含更新功能的版本（v1.0.0 之后的版本）之后可在 设置 → 应用更新 中自行更新。
+
+或者按下文自行构建 APK 并安装：
 
 ```bash
 adb install build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
@@ -173,12 +176,12 @@ lib/
     models/        SimInfo、CellularInfo、WifiConnectionInfo、GnssSnapshot ...
     platform/      SignalPlatform 及 Android / Unsupported / Demo 实现
   features/        overview、cellular、wifi、gnss、latency、settings、permissions、
-                   export、shell、monitoring        （data / application / presentation）
+                   export、update、shell、monitoring        （data / application / presentation）
   shared/widgets/  卡片、仪表盘、走势图、监听条、地址组件
 android/app/src/main/kotlin/com/signalscope/app/
                    MainActivity、NativeChannelHandler、PermissionService、SimInfoService、
                    CellularService、WifiSignalService、GnssService、NetworkAddresses、
-                   ExportService、NativeUtils
+                   ExportService、UpdateInstaller、NativeUtils
 assets/branding/   应用图标源文件与生成脚本
 test/              单元与组件测试
 ```
@@ -188,7 +191,7 @@ test/              单元与组件测试
 - 已实现并有自动化测试覆盖（`flutter test`）：数据解析（“缺失即 `null`”）、控制器与生命周期、图表几何、延迟统计、中英词条一致性、导出格式、演示数据。
 - **尚未在大量真实设备上验证。** 未在真实多卡 5G 设备上做完整验证；NR / NSA 字段是否可用强烈依赖厂商基带。
 - Windows 目标仅为界面外壳。
-- [GitHub Actions CI](.github/workflows/flutter-ci.yml) 会在每次推送和向 `main` 提交 pull request 时检查代码格式、运行 `flutter analyze` 与 `flutter test`，并构建 Debug APK。目前尚无已发布版本；独立的 Android Release 工作流可按需创建已签名的 Release 草稿（见“发布签名”）。
+- [GitHub Actions CI](.github/workflows/flutter-ci.yml) 会在每次推送和向 `main` 提交 pull request 时检查代码格式、运行 `flutter analyze` 与 `flutter test`，并构建 Debug APK。发行版列在 [Releases 页面](https://github.com/lwh0630/SignalScope/releases)；独立的 Android Release 工作流会构建已签名的 APK 并按需创建 Release 草稿（见“发布签名”），由维护者手动发布。
 
 
 ## 参与贡献

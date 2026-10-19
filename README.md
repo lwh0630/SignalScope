@@ -43,7 +43,7 @@ SIM and carrier info, LTE / 5G NR cellular signal, Wi-Fi and nearby access point
 | **Wi-Fi** | Current connection (SSID, router MAC, RSSI, frequency, channel, width, link speed, IPv4 / IPv6, device MAC, gateway, DNS, security, standard), nearby access points (band filter, sorting), 2.4 / 5 / 6 GHz channel graph (tap for details), RSSI trend. |
 | **GNSS** | Fix status, latitude / longitude, altitude, accuracy, speed, TTFF; visible / used-in-fix / tracked satellite counts; constellation breakdown with country / organization flags; sky plot; C/N0 bar chart grouped by constellation; satellite list; C/N0 and satellite-count trends. While there is no fresh GNSS fix, the position card shows the system's fused / network position (Wi-Fi, cell towers) instead, clearly labelled "not GNSS", and switches back to the GNSS fix automatically once one exists. |
 | **Latency test** | DNS time plus TCP-handshake timing (min / avg / max, jitter, loss) against built-in site lists (Mainland China, US / international) and up to 20 custom targets. |
-| **Settings** | Theme (dark-first / light / system), language (Chinese / English / system), refresh rate, history window, CSV / JSON export, clear history, permission manager, demo mode, about. |
+| **Settings** | Theme (dark-first / light / system), language (Chinese / English / system), refresh rate, history window, CSV / JSON export, clear history, permission manager, demo mode, app update, about. **App update**: checks the latest GitHub Release (automatically at launch at most once every 24 hours, switch-off in Settings, or by tapping "Check for updates"), downloads the APK for the device's ABI, verifies its SHA-256 against the release's `SHA256SUMS.txt` and its signing key against the installed app, then opens the system installer. Stable releases only; drafts and pre-releases are ignored. |
 
 Also: multi-SIM support with per-subscription isolation, event-driven sensing (no polling), and a session-only **demo mode** with a visible banner and clearly fictional data.
 
@@ -101,13 +101,16 @@ Architecture: feature-first folders with a Repository layer; a `SignalPlatform` 
 | `ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION` | Cell identity, Wi-Fi names and scan results, GNSS |
 | `NEARBY_WIFI_DEVICES` (Android 13+) | Nearby Wi-Fi scan results |
 | `ACCESS_WIFI_STATE`, `CHANGE_WIFI_STATE`, `ACCESS_NETWORK_STATE` | Wi-Fi state; `CHANGE_WIFI_STATE` is used only when you tap "Scan" |
-| `INTERNET` | Latency test only; connects only after you tap start; no data is uploaded |
+| `INTERNET` | (1) Latency test: connects only after you tap start. (2) Update check / download: one anonymous `GET` to GitHub Releases (the app version is only in the `User-Agent`), automatic at most once every 24 hours unless you switch it off in Settings. No data is uploaded |
+| `REQUEST_INSTALL_PACKAGES` | Lets you hand a downloaded SignalScope update to the system installer; Android asks you to confirm and only accepts an APK signed with the installed app's key |
 
 The app does not place calls, read call logs, or upload any data. Telephony, Wi-Fi and GPS hardware features are declared `required=false`, so devices without them can still install the app and the matching pages show "not supported".
 
 ## Install and Run
 
-There is **no published release yet**. Build the APK yourself (see below) and install it on an Android 10+ device:
+Download the APK that matches your device from the [Releases page](https://github.com/lwh0630/SignalScope/releases) (`arm64-v8a` for most current phones; `SHA256SUMS.txt` lets you verify the download) and install it on an Android 10+ device. Builds that contain the updater (anything after v1.0.0) can then update themselves from Settings → App update.
+
+Or build the APK yourself (see below) and install it:
 
 ```bash
 adb install build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
@@ -173,12 +176,12 @@ lib/
     models/        SimInfo, CellularInfo, WifiConnectionInfo, GnssSnapshot, ...
     platform/      SignalPlatform + Android / Unsupported / Demo implementations
   features/        overview, cellular, wifi, gnss, latency, settings, permissions,
-                   export, shell, monitoring      (data / application / presentation)
+                   export, update, shell, monitoring      (data / application / presentation)
   shared/widgets/  cards, gauges, trend charts, monitor bar, address widgets
 android/app/src/main/kotlin/com/signalscope/app/
                    MainActivity, NativeChannelHandler, PermissionService, SimInfoService,
                    CellularService, WifiSignalService, GnssService, NetworkAddresses,
-                   ExportService, NativeUtils
+                   ExportService, UpdateInstaller, NativeUtils
 assets/branding/   app icon sources and generator script
 test/              unit and widget tests
 ```
@@ -188,7 +191,7 @@ test/              unit and widget tests
 - Implemented and covered by automated tests (`flutter test`): data parsing ("missing means `null`"), controllers and lifecycle, charts' geometry, latency statistics, i18n key parity, export formats, demo data.
 - **Not yet verified on a wide range of real hardware.** The app has not been fully validated on real multi-SIM 5G devices; NR / NSA field availability depends strongly on the vendor modem.
 - The Windows target is a UI shell only.
-- [GitHub Actions CI](.github/workflows/flutter-ci.yml) checks formatting, runs `flutter analyze` and `flutter test`, and builds a debug APK on every push and pull request to `main`. There is no published release yet; the separate Android Release workflow creates signed draft releases on demand (see "Release signing").
+- [GitHub Actions CI](.github/workflows/flutter-ci.yml) checks formatting, runs `flutter analyze` and `flutter test`, and builds a debug APK on every push and pull request to `main`. Releases are listed on the [Releases page](https://github.com/lwh0630/SignalScope/releases); the separate Android Release workflow builds the signed APKs and creates a draft release on demand (see "Release signing"), which the maintainer publishes by hand.
 
 
 ## Contributing

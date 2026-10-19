@@ -283,6 +283,51 @@ const Map<String, String> stringsEn = {
   'gnssissue.native_error': 'A native error occurred while reading GNSS data.',
   'gnssissue.fallback_unavailable': 'This device offers no fused or network location provider, so no stand-in position can be shown while GNSS has no fix.',
 
+  // app update
+  'update.title': 'App update',
+  'update.auto': 'Check for updates automatically',
+  'update.autoHint':
+      'Checks GitHub Releases at launch, at most once every 24 hours.',
+  'update.privacy': 'Checking sends one anonymous request to GitHub (the app version is only in the User-Agent). No device information is uploaded.',
+  'update.check': 'Check for updates',
+  'update.checking': 'Checking…',
+  'update.upToDate': 'You are on the latest version.',
+  'update.available': 'New version {0} available',
+  'update.download': 'Download and install',
+  'update.downloading': 'Downloading {0}%',
+  'update.downloadingUnknown': 'Downloading…',
+  'update.cancel': 'Cancel',
+  'update.needPermission': 'SignalScope must first be allowed to "Install unknown apps". Allow it, then come back and tap "Continue".',
+  'update.openPermission': 'Open permission settings',
+  'update.continueInstall': 'Continue',
+  'update.installStarted': 'The system installer is open; confirm the installation there. The app restarts once it is installed.',
+  'update.prompt.title': 'Update available',
+  'update.prompt.body': 'SignalScope {0} is out (you have {1}). Update now?',
+  'update.later': 'Later',
+  'update.now': 'Update now',
+  'update.err.network': 'Cannot reach GitHub. Check your connection and try again (a proxy may be needed in some regions).',
+  'update.err.rate_limit':
+      'GitHub is temporarily limiting requests. Try again later.',
+  'update.err.bad_response':
+      'GitHub returned data that could not be understood.',
+  'update.err.bad_url':
+      'The update address is outside the allowed hosts; aborted.',
+  'update.err.no_asset':
+      'This release has no package for this device (CPU architecture).',
+  'update.err.no_checksum':
+      'The release has no SHA-256 checksum file, so it will not be installed.',
+  'update.err.download': 'The download failed or the file is incomplete.',
+  'update.err.hash': 'The package failed the SHA-256 check and was deleted.',
+  'update.err.signature': 'The package is not signed with the same key as the installed app; refused.',
+  'update.err.not_newer':
+      'The package is not newer than the installed version; refused.',
+  'update.err.bad_apk': 'The package is not valid and was deleted.',
+  'update.err.install': 'The system installer could not be started.',
+  'update.err.unsupported':
+      'In-app updates are not supported on this platform.',
+  'update.err.bad_version':
+      'The installed app version could not be recognised.',
+
   // overview
   'overview.permWhy': 'SignalScope needs the Phone permission (SIM and cellular signal) and the Location permission (cell identity, Wi-Fi, GNSS). Each page also explains what it needs.',
   'overview.cellular': 'Cellular',

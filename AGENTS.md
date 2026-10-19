@@ -13,6 +13,7 @@ For user-facing documentation see [`README.md`](README.md) / [`README_zh.md`](RE
 - GNSS location and satellites (constellations, sky plot, C/N0 chart)
 - IPv4 / IPv6 / MAC display where the OS allows it
 - A TCP-handshake / DNS latency test (not ICMP ping)
+- An in-app updater that checks / downloads the latest GitHub Release (section 8 lists its limits)
 - Signal history charts, CSV / JSON export, settings, and a session-only demo mode
 
 Facts you should rely on (verify in `pubspec.yaml` and `android/` before changing):
@@ -85,6 +86,7 @@ All in `android/app/src/main/kotlin/com/signalscope/app/`:
 | `GnssService.kt` | `LocationManager` + `GnssStatus.Callback` |
 | `NetworkAddresses.kt` | IPv4 / IPv6 from `LinkProperties`; per-SIM matching; real MAC only |
 | `ExportService.kt` | Writes exports to `MediaStore.Downloads` |
+| `UpdateInstaller.kt` | Installed version / ABIs, private download dir, pre-install checks (SHA-256, package, newer version, same signing key), opens the system installer through a `FileProvider` limited to `cache/updates` |
 | `NativeUtils.kt` | Small shared helpers |
 
 ### 2.4 MethodChannel / EventChannel contract
@@ -133,7 +135,7 @@ Android callback -> Kotlin service (merge 200-300 ms) -> EventChannel
 
 - **Public SDK APIs only.** No hidden APIs, no reflection into framework internals, no root, no `@hide` access, no shelling out to system tools.
 - **Strict SDK checks.** Guard every API with `Build.VERSION.SDK_INT` (`minSdk` is 29) and give API 29/30 a working fallback when the newer API is missing.
-- **Correct permissions.** Declare in `AndroidManifest.xml` only what the code uses, and check them at runtime before the call. Current set: `READ_PHONE_STATE`, `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, `NEARBY_WIFI_DEVICES`, `ACCESS_WIFI_STATE`, `CHANGE_WIFI_STATE`, `ACCESS_NETWORK_STATE`, `INTERNET` (latency test only). Hardware features (telephony, Wi-Fi, GPS) stay `required=false`.
+- **Correct permissions.** Declare in `AndroidManifest.xml` only what the code uses, and check them at runtime before the call. Current set: `READ_PHONE_STATE`, `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, `NEARBY_WIFI_DEVICES`, `ACCESS_WIFI_STATE`, `CHANGE_WIFI_STATE`, `ACCESS_NETWORK_STATE`, `INTERNET` (latency test and the update check / download only), `REQUEST_INSTALL_PACKAGES` (hand the downloaded SignalScope update to the system installer). Hardware features (telephony, Wi-Fi, GPS) stay `required=false`.
 - **Do not bypass system limits.** Wi-Fi scan throttling, `CellInfo` update frequency, location-gated SSID/BSSID, and the Android 10+ MAC restriction are respected and explained in the UI.
 - **Never fake signal data.** No random numbers or constants in real mode. If a field is unavailable, return `null` and show `--` with a reason. In particular:
   - `Integer.MAX_VALUE` / `UNAVAILABLE` -> `null`;
@@ -181,7 +183,12 @@ flutter build apk --release --split-per-abi   # when Android code, manifest, or 
 - `android/local.properties` is local-only (it holds SDK paths) and is git-ignored.
 - Release signing: the `release` build type is signed only with the real release key, read from `ANDROID_KEYSTORE_PATH` / `ANDROID_STORE_PASSWORD` / `ANDROID_KEY_PASSWORD` / `ANDROID_KEY_ALIAS` or the git-ignored `android/key.properties`. Gradle fails the release build when these are missing; never add a fallback to the debug key. The key lives outside the repository; in CI it comes only from the `production` environment secrets and is used only by the `build` job of `android-release.yml`. Never regenerate or rotate the key casually: it breaks upgrades for installed apps.
 - If you find a suspected real secret, stop, do not copy it into output, and report it. Adding a path to `.gitignore` does not erase it from Git history; a leaked secret must be rotated.
-- `INTERNET` is used only by the latency test after the user taps start. Do not add network calls, analytics, or uploads. Exported files stay on the device.
+- `INTERNET` is used only by (1) the latency test after the user taps start, and (2) the updater (`lib/features/update/`). Do not add other network calls, analytics, or uploads. Exported files stay on the device.
+- Updater limits (maintainer-approved exception to "no network calls"; keep them):
+  - Only anonymous `GET`s of GitHub Releases for `kUpdateRepo`, over HTTPS to `github.com` / `*.githubusercontent.com` (`githubOnlyPolicy`, applied to every redirect). The only identifying data is the app version in the `User-Agent`; never send device identifiers.
+  - The automatic check runs at most once per 24 h at launch and must stay switchable in Settings (`autoCheckUpdates`). Stable releases only; drafts and pre-releases are ignored.
+  - An APK is installed only after its SHA-256 matches `SHA256SUMS.txt` of the same release, and `UpdateInstaller` confirms the package name, a higher version code and the installed app's signing certificate. If a check cannot be done, fail closed. The user confirms in the system installer; the app never installs silently.
+  - Release asset names (`signalscope-<tag>-<abi>.apk`, `SHA256SUMS.txt`) are produced by `android-release.yml`; change both sides together.
 
 ## 9. Agent Working Guidelines
 

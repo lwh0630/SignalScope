@@ -1,3 +1,4 @@
+import '../models/app_update_info.dart';
 import '../models/cellular_event.dart';
 import '../models/gnss_info.dart';
 import '../models/platform_info.dart';
@@ -57,4 +58,20 @@ abstract class SignalPlatform {
   /// Saves [content] as a file the user can find; returns a human readable
   /// location, or `null` on failure.
   Future<String?> saveExport(String fileName, String mimeType, String content);
+
+  // ---- app update (Android only; the download itself uses dart:io) ----
+
+  /// Installed version and device ABIs; `null` when unknown / unsupported.
+  Future<AppBuildInfo?> getAppBuildInfo();
+
+  /// Empty, app-private directory for the downloaded update APK; `null` when
+  /// the platform cannot install updates.
+  Future<String?> prepareUpdateDir();
+
+  /// Re-verifies [path] (SHA-256 [sha256], package, newer version, same signing
+  /// key) and opens the system installer.
+  Future<InstallApkResult> installApk(String path, String sha256);
+
+  /// Opens the system "install unknown apps" screen for this app.
+  Future<bool> openInstallPermissionSettings();
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_application/data/models/app_update_info.dart';
 import 'package:flutter_application/data/models/platform_info.dart';
 import 'package:flutter_application/data/platform/android_platform.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -59,6 +60,74 @@ void main() {
     expect((sent as Map)['groups'], containsAll(['location', 'phone']));
     expect(p.phone, PermStatus.granted);
   });
+
+  test('app build info is parsed; missing version means unknown', () async {
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      expect(call.method, 'getAppBuildInfo');
+      return {
+        'versionName': '1.2.0',
+        'versionCode': 4001,
+        'supportedAbis': ['arm64-v8a', 'armeabi-v7a'],
+      };
+    });
+    final info = await AndroidPlatform().getAppBuildInfo();
+    expect(info!.versionName, '1.2.0');
+    expect(info.versionCode, 4001);
+    expect(info.supportedAbis, ['arm64-v8a', 'armeabi-v7a']);
+
+    messenger.setMockMethodCallHandler(
+      channel,
+      (call) async => {'versionCode': 1},
+    );
+    expect(await AndroidPlatform().getAppBuildInfo(), isNull);
+  });
+
+  test('installApk sends path and hash and maps every native result', () async {
+    Object? sent;
+    String reply = 'started';
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      expect(call.method, 'installApk');
+      sent = call.arguments;
+      return reply;
+    });
+    final p = AndroidPlatform();
+    expect(
+      await p.installApk('/c/updates/update.apk', 'ab'),
+      InstallApkResult.started,
+    );
+    expect(sent, {'path': '/c/updates/update.apk', 'sha256': 'ab'});
+    for (final r in InstallApkResult.values) {
+      reply = r.code;
+      expect(await p.installApk('/x', 'y'), r);
+    }
+    reply = 'something_new';
+    expect(await p.installApk('/x', 'y'), InstallApkResult.failed);
+  });
+
+  test(
+    'update directory and permission screen go through the channel',
+    () async {
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        switch (call.method) {
+          case 'prepareUpdateDir':
+            return '/cache/updates';
+          case 'openInstallPermissionSettings':
+            return true;
+        }
+        return null;
+      });
+      final p = AndroidPlatform();
+      expect(await p.prepareUpdateDir(), '/cache/updates');
+      expect(await p.openInstallPermissionSettings(), isTrue);
+
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        throw PlatformException(code: 'native_error');
+      });
+      expect(await p.prepareUpdateDir(), isNull);
+      expect(await p.installApk('/x', 'y'), InstallApkResult.failed);
+      expect(await p.openInstallPermissionSettings(), isFalse);
+    },
+  );
 
   test('native failure degrades to empty data, not exceptions', () async {
     messenger.setMockMethodCallHandler(channel, (call) async {

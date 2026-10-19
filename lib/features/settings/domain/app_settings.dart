@@ -11,6 +11,8 @@ class AppSettings {
     this.historySeconds = 300,
     this.recordHistory = true,
     this.customLatencyTargets = const [],
+    this.autoCheckUpdates = true,
+    this.lastUpdateCheckMs,
   });
 
   static const List<int> updateIntervalOptionsMs = [500, 1000, 2000, 5000];
@@ -33,6 +35,12 @@ class AppSettings {
   /// User-added latency test targets as `host:port` strings.
   final List<String> customLatencyTargets;
 
+  /// Check GitHub Releases for a newer version at most once per day at launch.
+  final bool autoCheckUpdates;
+
+  /// Epoch ms of the last successful update check; `null` if never.
+  final int? lastUpdateCheckMs;
+
   Locale? get locale {
     switch (languageCode) {
       case 'zh':
@@ -51,8 +59,12 @@ class AppSettings {
     int? historySeconds,
     bool? recordHistory,
     List<String>? customLatencyTargets,
+    bool? autoCheckUpdates,
+    int? lastUpdateCheckMs,
   }) => AppSettings(
     customLatencyTargets: customLatencyTargets ?? this.customLatencyTargets,
+    autoCheckUpdates: autoCheckUpdates ?? this.autoCheckUpdates,
+    lastUpdateCheckMs: lastUpdateCheckMs ?? this.lastUpdateCheckMs,
     themeMode: themeMode ?? this.themeMode,
     languageCode: languageCode ?? this.languageCode,
     updateIntervalMs: updateIntervalMs ?? this.updateIntervalMs,
@@ -67,6 +79,8 @@ class AppSettings {
     'historySeconds': historySeconds,
     'recordHistory': recordHistory,
     'customLatencyTargets': customLatencyTargets,
+    'autoCheckUpdates': autoCheckUpdates,
+    'lastUpdateCheckMs': lastUpdateCheckMs,
   });
 
   factory AppSettings.fromJson(String? source) {
@@ -100,6 +114,12 @@ class AppSettings {
                   if (e is String && e.isNotEmpty) e,
               ].take(20).toList()
             : const [],
+        autoCheckUpdates: m['autoCheckUpdates'] is bool
+            ? m['autoCheckUpdates'] as bool
+            : true,
+        lastUpdateCheckMs: m['lastUpdateCheckMs'] is int
+            ? m['lastUpdateCheckMs'] as int
+            : null,
       );
     } on Object {
       return const AppSettings();

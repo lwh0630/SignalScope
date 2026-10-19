@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import '../models/app_update_info.dart';
 import '../models/cellular_event.dart';
 import '../models/gnss_info.dart';
 import '../models/platform_info.dart';
@@ -102,6 +103,19 @@ class UnsupportedPlatform implements SignalPlatform {
       // Persisting settings is best-effort.
     }
   }
+
+  @override
+  Future<AppBuildInfo?> getAppBuildInfo() async => null;
+
+  @override
+  Future<String?> prepareUpdateDir() async => null;
+
+  @override
+  Future<InstallApkResult> installApk(String path, String sha256) async =>
+      InstallApkResult.failed;
+
+  @override
+  Future<bool> openInstallPermissionSettings() async => false;
 
   @override
   Future<String?> saveExport(
