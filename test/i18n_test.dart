@@ -71,6 +71,7 @@ void main() {
         'gps_provider_disabled',
         'platform_unsupported',
         'native_error',
+        'fallback_unavailable',
       ],
     };
     for (final e in codes.entries) {

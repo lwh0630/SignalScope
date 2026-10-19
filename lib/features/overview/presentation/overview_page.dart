@@ -419,7 +419,7 @@ class _GnssSummary extends ConsumerWidget {
     final fix = state.fixState;
     final (color, key) = fixStateStyle(fix);
     final snap = state.snapshot;
-    final loc = snap?.location;
+    final loc = state.displayLocation;
     final showCounts =
         fix != FixState.unsupported && fix != FixState.unknown && snap != null;
     final avg = snap == null
@@ -461,6 +461,13 @@ class _GnssSummary extends ConsumerWidget {
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
+            if (state.usingFallback)
+              Text(
+                context.tr('gnss.fallback.tag'),
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: SignalColors.fair,
+                ),
+              ),
           ],
           if (loc?.horizontalAccuracyM != null || avg != null) ...[
             const SizedBox(height: 4),

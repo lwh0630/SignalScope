@@ -234,6 +234,147 @@ void main() {
     );
   });
 
+  group('fallback (fused / network) position', () {
+    const gnssFix = GnssLocationInfo(
+      latitude: 1,
+      longitude: 2,
+      timeMs: 99000,
+      provider: 'gps',
+    );
+    const staleGnss = GnssLocationInfo(
+      latitude: 1,
+      longitude: 2,
+      timeMs: 50000,
+      provider: 'gps',
+    );
+    const fb = GnssLocationInfo(
+      latitude: 3,
+      longitude: 4,
+      horizontalAccuracyM: 40,
+      timeMs: 98000,
+      provider: 'fused',
+    );
+    GnssState stateOf(GnssSnapshot s) => GnssState(snapshot: s);
+
+    test('model parses fallbackLocation and exports it separately', () {
+      final s = GnssSnapshot.fromMap({
+        'location': null,
+        'fallbackLocation': {
+          'latitude': 3.0,
+          'longitude': 4.0,
+          'provider': 'network',
+        },
+      });
+      expect(s.location, isNull);
+      expect(s.fallbackLocation!.hasFix, isTrue);
+      expect(s.fallbackLocation!.provider, 'network');
+      expect(s.fallbackLocation!.altitudeM, isNull);
+      expect(s.toMap()['fallbackLocation'], isNotNull);
+      expect(GnssSnapshot.fromMap(const {}).fallbackLocation, isNull);
+    });
+
+    test('shown while searching, labelled as not GNSS', () {
+      final st = stateOf(
+        const GnssSnapshot(
+          gnssSupported: true,
+          timestampMs: 100000,
+          fallbackLocation: fb,
+        ),
+      );
+      expect(st.fixState, FixState.searching);
+      expect(st.usingFallback, isTrue);
+      expect(st.displayLocation, same(fb));
+      expect(st.displayAgeMs, 2000);
+    });
+
+    test('GNSS fix wins as soon as there is a fresh one', () {
+      final st = stateOf(
+        const GnssSnapshot(
+          gnssSupported: true,
+          timestampMs: 100000,
+          location: gnssFix,
+          fallbackLocation: fb,
+        ),
+      );
+      expect(st.fixState, FixState.fixed);
+      expect(st.usingFallback, isFalse);
+      expect(st.displayLocation, same(gnssFix));
+      expect(st.displayAgeMs, 1000);
+    });
+
+    test('stale GNSS fix is replaced by a fallback; without one it stays', () {
+      final withFb = stateOf(
+        const GnssSnapshot(
+          gnssSupported: true,
+          timestampMs: 100000,
+          location: staleGnss,
+          fallbackLocation: fb,
+        ),
+      );
+      expect(withFb.fixState, FixState.stale);
+      expect(withFb.displayLocation, same(fb));
+
+      final without = stateOf(
+        const GnssSnapshot(
+          gnssSupported: true,
+          timestampMs: 100000,
+          location: staleGnss,
+        ),
+      );
+      expect(without.usingFallback, isFalse);
+      expect(without.displayLocation, same(staleGnss));
+    });
+
+    test(
+      'GPS provider disabled still allows a fallback; unsupported does not',
+      () {
+        final blocked = stateOf(
+          const GnssSnapshot(
+            gnssSupported: true,
+            issues: ['gps_provider_disabled'],
+            fallbackLocation: fb,
+          ),
+        );
+        expect(blocked.fixState, FixState.blocked);
+        expect(blocked.usingFallback, isTrue);
+
+        final unsupported = stateOf(
+          const GnssSnapshot(gnssSupported: false, fallbackLocation: fb),
+        );
+        expect(unsupported.usingFallback, isFalse);
+      },
+    );
+
+    test('fallback never feeds the GNSS accuracy history', () async {
+      final p = FakeAndroidPlatform();
+      final c = ProviderContainer(
+        overrides: [
+          signalPlatformProvider.overrideWithValue(p),
+          initialSettingsProvider.overrideWithValue(
+            const AppSettings(updateIntervalMs: 500),
+          ),
+        ],
+      );
+      addTearDown(c.dispose);
+      c.listen(gnssControllerProvider, (_, _) {});
+      c.read(currentTabProvider.notifier).select(AppTab.gnss);
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+      p.gnssController.add(
+        const GnssSnapshot(
+          gnssSupported: true,
+          timestampMs: 100000,
+          fallbackLocation: fb,
+        ),
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+      expect(
+        c.read(historyProvider).series.containsKey('gnss.accuracy'),
+        isFalse,
+      );
+      expect(c.read(gnssControllerProvider).usingFallback, isTrue);
+    });
+  });
+
   group('GnssController', () {
     ProviderContainer makeContainer(FakeAndroidPlatform p) {
       final c = ProviderContainer(

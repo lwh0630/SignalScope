@@ -65,11 +65,32 @@ class GnssState {
     return FixState.fixed;
   }
 
-  /// Snapshot time minus fix time. `null` when either is unknown.
-  int? get fixAgeMs {
-    final s = snapshot;
-    final t = s?.location?.timeMs;
-    final now = s?.timestampMs;
+  /// Snapshot time minus GNSS fix time. `null` when either is unknown.
+  int? get fixAgeMs => _ageOf(snapshot?.location);
+
+  /// True while the position on screen is the fused / network stand-in rather
+  /// than a GNSS fix: there is no fresh GNSS fix (searching, stale, or the GPS
+  /// provider is blocked) and the system did report a fallback position.
+  bool get usingFallback {
+    final fb = snapshot?.fallbackLocation;
+    if (fb == null || !fb.hasFix) return false;
+    return switch (fixState) {
+      FixState.searching || FixState.stale || FixState.blocked => true,
+      _ => false,
+    };
+  }
+
+  /// What the position card shows: the fallback while [usingFallback], otherwise
+  /// the GNSS fix (possibly stale). `null` when nothing was reported.
+  GnssLocationInfo? get displayLocation =>
+      usingFallback ? snapshot!.fallbackLocation : snapshot?.location;
+
+  /// Age of [displayLocation], see [fixAgeMs].
+  int? get displayAgeMs => _ageOf(displayLocation);
+
+  int? _ageOf(GnssLocationInfo? loc) {
+    final t = loc?.timeMs;
+    final now = snapshot?.timestampMs;
     if (t == null || now == null) return null;
     final age = now - t;
     return age < 0 ? 0 : age;

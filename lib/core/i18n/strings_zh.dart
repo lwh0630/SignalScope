@@ -210,6 +210,8 @@ const Map<String, String> stringsZh = {
   'gnss.hint.searching': '正在搜索卫星。请到视野开阔的室外；首次定位可能需要几秒到几分钟，室内通常无法定位。',
   'gnss.hint.stale': '最近一次定位已超过 10 秒未更新，显示的是旧位置。',
   'gnss.hint.mock': '当前位置来自模拟定位提供者，并非真实卫星定位。',
+  'gnss.fallback.tag': '融合/网络定位，非 GNSS',
+  'gnss.fallback.note': '目前还没有可用的 GNSS 定位，这里显示的是系统融合/网络定位来源（Wi-Fi、基站等）给出的位置。它不是纯卫星定位结果，精度通常差很多。一旦获得 GNSS 定位，会自动切换为 GNSS 结果。',
   'gnss.position': '位置',
   'gnss.latitude': '纬度',
   'gnss.longitude': '经度',
@@ -267,6 +269,7 @@ const Map<String, String> stringsZh = {
   'gnssissue.gps_provider_disabled': 'GPS 定位来源已被系统禁用（例如省电模式或仅使用网络定位）。',
   'gnssissue.platform_unsupported': '此平台不支持 GNSS 信息采集。',
   'gnssissue.native_error': '读取 GNSS 数据时发生原生错误。',
+  'gnssissue.fallback_unavailable': '此设备没有融合或网络定位来源，GNSS 未定位时无法显示替补位置。',
 
   // overview
   'overview.permWhy': 'SignalScope 需要“电话”权限（SIM 与蜂窝信号）和“位置”权限（小区标识、Wi-Fi、GNSS）。每个页面也会说明各自需要的权限。',

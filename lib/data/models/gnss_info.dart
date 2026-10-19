@@ -138,6 +138,7 @@ class GnssLocationInfo {
 class GnssSnapshot {
   const GnssSnapshot({
     this.location,
+    this.fallbackLocation,
     this.satellites = const [],
     this.ttffMs,
     this.gnssSupported,
@@ -147,7 +148,12 @@ class GnssSnapshot {
     this.timestampMs,
   });
 
+  /// Pure GNSS fix (`GPS_PROVIDER`).
   final GnssLocationInfo? location;
+
+  /// Fused / network position (`provider` says which). **Not** a GNSS result:
+  /// the UI may show it only while there is no usable [location], and must say so.
+  final GnssLocationInfo? fallbackLocation;
   final List<SatelliteInfo> satellites;
 
   /// Time-to-first-fix of the current session (ms), `null` until reported.
@@ -165,9 +171,13 @@ class GnssSnapshot {
 
   factory GnssSnapshot.fromMap(Map<Object?, Object?> m) {
     final loc = m['location'];
+    final fallback = m['fallbackLocation'];
     return GnssSnapshot(
       location: loc is Map
           ? GnssLocationInfo.fromMap(loc.cast<Object?, Object?>())
+          : null,
+      fallbackLocation: fallback is Map
+          ? GnssLocationInfo.fromMap(fallback.cast<Object?, Object?>())
           : null,
       satellites: asMapList(m['satellites'])
           .map(SatelliteInfo.fromMap)
@@ -184,6 +194,7 @@ class GnssSnapshot {
   Map<String, Object?> toMap() => {
     'timestampMs': timestampMs,
     'location': location?.toMap(),
+    'fallbackLocation': fallbackLocation?.toMap(),
     'visibleSatellites': visibleCount,
     'usedSatellites': usedCount,
     'ttff_ms': ttffMs,

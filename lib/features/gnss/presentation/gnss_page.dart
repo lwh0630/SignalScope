@@ -74,7 +74,7 @@ class GnssPage extends ConsumerWidget {
         ),
         _FixCard(state: state),
         if (!unsupported) ...[
-          if (snap?.location != null) _PositionCard(state: state),
+          if (state.displayLocation != null) _PositionCard(state: state),
           _SatelliteSummary(snap: snap),
           if (snap != null && snap.satellites.isNotEmpty) ...[
             _SkyCard(sats: snap.satellites),
@@ -102,7 +102,7 @@ class _FixCard extends ConsumerWidget {
     final fix = state.fixState;
     final (color, key) = fixStateStyle(fix);
     final snap = state.snapshot;
-    final mock = snap?.location?.isMock == true;
+    final mock = state.displayLocation?.isMock == true;
 
     final hint = switch (fix) {
       FixState.searching => context.tr('gnss.hint.searching'),
@@ -188,12 +188,43 @@ class _PositionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loc = state.snapshot!.location!;
-    final age = state.fixAgeMs;
+    final theme = Theme.of(context);
+    final fallback = state.usingFallback;
+    final loc = state.displayLocation!;
+    final age = state.displayAgeMs;
     return SectionCard(
       title: context.tr('gnss.position'),
+      trailing: fallback
+          ? StatusPill(
+              text: context.tr('gnss.fallback.tag'),
+              color: SignalColors.fair,
+              icon: Icons.wifi_tethering_rounded,
+            )
+          : null,
       child: Column(
         children: [
+          if (fallback) ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.info_outline_rounded,
+                  size: 16,
+                  color: SignalColors.fair,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    context.tr('gnss.fallback.note'),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: SignalColors.fair,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
           InfoRow(
             label: context.tr('gnss.latitude'),
             value: fmtCoord(loc.latitude, isLat: true),

@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import io.flutter.plugin.common.EventChannel
 import java.util.concurrent.Executor
 
@@ -20,6 +21,9 @@ import java.util.concurrent.Executor
  * Everything comes from the public platform APIs:
  *  * `LocationManager.requestLocationUpdates(GPS_PROVIDER)` for the fix (pure GNSS, no network provider).
  *  * `GnssStatus.Callback` for satellites, C/N0, used-in-fix flags and TTFF.
+ *  * A separate, clearly labelled *fallback* position from the platform's fused
+ *    (API 31+) and network (Wi-Fi / cell) providers. It is **not** a GNSS result:
+ *    it is reported in its own `fallbackLocation` field and never replaces `location`.
  *
  * Listeners exist only while the Flutter side is subscribed. TTFF is the value
  * reported by `onFirstFixReceived` for the current subscription; if the chipset
@@ -30,6 +34,10 @@ class GnssService(private val context: Context) {
     companion object {
         private const val EMIT_COALESCE_MS = 250L
         private const val MIN_TIME_MS = 1000L
+        private const val FALLBACK_MIN_TIME_MS = 2000L
+
+        /** Fallback fixes older than this lose to fresher ones when choosing the best. */
+        private const val FALLBACK_FRESH_NS = 60_000_000_000L
     }
 
     private val locationManager: LocationManager? =
@@ -40,6 +48,10 @@ class GnssService(private val context: Context) {
     private var sink: EventChannel.EventSink? = null
     private var locationListener: LocationListener? = null
     private var statusCallback: GnssStatus.Callback? = null
+
+    /** Fused / network listeners (registered per provider that exists on this device). */
+    private val fallbackListeners = ArrayList<LocationListener>()
+    private val fallbackLocations = HashMap<String, Location>()
 
     private var location: Location? = null
     private var satellites: List<Map<String, Any?>> = emptyList()
@@ -66,6 +78,7 @@ class GnssService(private val context: Context) {
         stop()
         this.sink = sink
         location = null
+        fallbackLocations.clear()
         satellites = emptyList()
         ttffMs = null
         engineStarted = null
@@ -139,12 +152,73 @@ class GnssService(private val context: Context) {
             }
         } catch (_: SecurityException) {
         }
+        registerFallbackListeners(lm)
+    }
+
+    /** Listener for one fallback provider; keeps only that provider's latest fix. */
+    private inner class FallbackListener(private val providerName: String) : LocationListener {
+        override fun onLocationChanged(loc: Location) {
+            fallbackLocations[providerName] = loc
+            scheduleEmit()
+        }
+
+        override fun onProviderEnabled(provider: String) = scheduleEmit()
+
+        override fun onProviderDisabled(provider: String) {
+            if (provider == providerName) fallbackLocations.remove(providerName)
+            scheduleEmit()
+        }
+
+        @Deprecated("Deprecated in Java")
+        @Suppress("OVERRIDE_DEPRECATION")
+        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+        }
+    }
+
+    /**
+     * Fused (API 31+) and network providers, used only as a labelled stand-in while
+     * there is no GNSS fix. Only providers that exist on this device are requested;
+     * the system, not this app, does any Wi-Fi / cell lookup.
+     */
+    @SuppressLint("MissingPermission")
+    private fun registerFallbackListeners(lm: LocationManager) {
+        val existing = safe { lm.allProviders } ?: return
+        val wanted = ArrayList<String>(2)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) wanted += LocationManager.FUSED_PROVIDER
+        wanted += LocationManager.NETWORK_PROVIDER
+        for (name in wanted) {
+            if (name !in existing) continue
+            val listener = FallbackListener(name)
+            try {
+                lm.requestLocationUpdates(name, FALLBACK_MIN_TIME_MS, 0f, listener, Looper.getMainLooper())
+                fallbackListeners += listener
+            } catch (_: IllegalArgumentException) {
+                // Provider vanished between the lookup and the request.
+            } catch (_: SecurityException) {
+            }
+        }
+    }
+
+    /**
+     * Most accurate fallback fix among those received within the last minute; if all are
+     * older, the newest one (the UI shows its age).
+     */
+    private fun pickFallback(): Location? {
+        if (fallbackLocations.isEmpty()) return null
+        val nowNs = SystemClock.elapsedRealtimeNanos()
+        val all = fallbackLocations.values
+        val fresh = all.filter { nowNs - it.elapsedRealtimeNanos <= FALLBACK_FRESH_NS }
+        if (fresh.isEmpty()) return all.maxByOrNull { it.elapsedRealtimeNanos }
+        return fresh.minByOrNull { if (it.hasAccuracy()) it.accuracy else Float.MAX_VALUE }
     }
 
     fun stop() {
         handler.removeCallbacks(emit)
         emitScheduled = false
         val lm = locationManager
+        fallbackListeners.forEach { l -> safe { lm?.removeUpdates(l) } }
+        fallbackListeners.clear()
+        fallbackLocations.clear()
         locationListener?.let { l -> safe { lm?.removeUpdates(l) } }
         statusCallback?.let { c -> safe { lm?.unregisterGnssStatusCallback(c) } }
         locationListener = null
@@ -212,9 +286,13 @@ class GnssService(private val context: Context) {
         if (supported && !permitted) issues += "no_location_permission"
         if (supported && permitted && locationOn == false) issues += "location_off"
         if (supported && permitted && locationOn != false && provider == false) issues += "gps_provider_disabled"
+        if (supported && permitted && locationOn != false && fallbackListeners.isEmpty()) {
+            issues += "fallback_unavailable"
+        }
         return mapOf(
             "timestampMs" to System.currentTimeMillis(),
             "location" to location?.let { mapLocation(it) },
+            "fallbackLocation" to pickFallback()?.let { mapLocation(it) },
             "satellites" to satellites,
             "ttffMs" to ttffMs,
             "gnssSupported" to supported,

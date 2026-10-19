@@ -219,6 +219,8 @@ const Map<String, String> stringsEn = {
   'gnss.hint.searching': 'Searching for satellites. Go outdoors with a clear view of the sky; a first fix can take seconds to minutes and usually fails indoors.',
   'gnss.hint.stale': 'The last fix has not been updated for over 10 s; the position shown is old.',
   'gnss.hint.mock': 'This position comes from a mock location provider, not from real satellites.',
+  'gnss.fallback.tag': 'Fused / network position, not GNSS',
+  'gnss.fallback.note': 'There is no usable GNSS fix yet, so this position comes from the system\'s fused / network provider (Wi-Fi, cell towers, etc.). It is NOT a pure satellite result and is usually far less accurate. It switches to the GNSS fix automatically once one is available.',
   'gnss.position': 'Position',
   'gnss.latitude': 'Latitude',
   'gnss.longitude': 'Longitude',
@@ -279,6 +281,7 @@ const Map<String, String> stringsEn = {
   'gnssissue.platform_unsupported':
       'GNSS collection is not supported on this platform.',
   'gnssissue.native_error': 'A native error occurred while reading GNSS data.',
+  'gnssissue.fallback_unavailable': 'This device offers no fused or network location provider, so no stand-in position can be shown while GNSS has no fix.',
 
   // overview
   'overview.permWhy': 'SignalScope needs the Phone permission (SIM and cellular signal) and the Location permission (cell identity, Wi-Fi, GNSS). Each page also explains what it needs.',
