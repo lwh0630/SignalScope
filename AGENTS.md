@@ -179,7 +179,7 @@ flutter build apk --release --split-per-abi   # when Android code, manifest, or 
 
 - Never commit: `.env*` (except `.env.example`), `*.jks`, `*.keystore`, `*.p12`, `*.pfx`, `*.pem`, `key.properties`, `google-services.json`, API keys, tokens, passwords, private certificates, or any local machine paths.
 - `android/local.properties` is local-only (it holds SDK paths) and is git-ignored.
-- Release signing: the current `release` build type uses the debug key, which is fine for self-testing only. A real release key must live outside the repository and be wired in through ignored files (for example `android/key.properties`) or CI secrets.
+- Release signing: the `release` build type is signed only with the real release key, read from `ANDROID_KEYSTORE_PATH` / `ANDROID_STORE_PASSWORD` / `ANDROID_KEY_PASSWORD` / `ANDROID_KEY_ALIAS` or the git-ignored `android/key.properties`. Gradle fails the release build when these are missing; never add a fallback to the debug key. The key lives outside the repository; in CI it comes only from the `production` environment secrets and is used only by the `build` job of `android-release.yml`. Never regenerate or rotate the key casually: it breaks upgrades for installed apps.
 - If you find a suspected real secret, stop, do not copy it into output, and report it. Adding a path to `.gitignore` does not erase it from Git history; a leaked secret must be rotated.
 - `INTERNET` is used only by the latency test after the user taps start. Do not add network calls, analytics, or uploads. Exported files stay on the device.
 

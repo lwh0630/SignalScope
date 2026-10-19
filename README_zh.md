@@ -119,7 +119,7 @@ adb install build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
 flutter run -d <device-id>
 ```
 
-> 目前的发布构建使用 Flutter 默认的 **debug** 签名，仅用于自测。分发前请配置你自己的签名。
+> 发布构建使用维护者的发布密钥签名，该密钥**不在**本仓库中。自行构建发布版需要你自己的签名密钥（见下文“发布签名”）；调试构建无需任何配置。
 
 ## 从源码构建
 
@@ -140,6 +140,21 @@ flutter run -d <android 设备>
 flutter build apk --release --split-per-abi
 # -> build/app/outputs/flutter-apk/app-<abi>-release.apk
 ```
+
+### 发布签名
+
+发布构建不会回退到 debug 签名：缺少签名材料时，`flutter build apk --release` 会失败并给出说明。请通过被 git 忽略的 `android/key.properties` 提供你自己的密钥：
+
+```properties
+storeFile=C:/path/outside/the/repo/release.jks
+storePassword=...
+keyPassword=...
+keyAlias=...
+```
+
+或通过环境变量 `ANDROID_KEYSTORE_PATH`、`ANDROID_STORE_PASSWORD`、`ANDROID_KEY_PASSWORD`、`ANDROID_KEY_ALIAS` 提供（环境变量优先）。切勿提交密钥库或这些值。
+
+[Android Release 工作流](.github/workflows/android-release.yml) 在推送 `v*.*.*` 标签或手动运行时触发：它从 `production` 环境的 Secrets 读取密钥库，按 ABI 构建 APK，用 `apksigner` 校验签名证书，并创建 GitHub Release **草稿**；不会自动公开发布。
 
 Windows 界面外壳需要安装 Visual Studio 的“使用 C++ 的桌面开发”：
 
@@ -173,7 +188,7 @@ test/              单元与组件测试
 - 已实现并有自动化测试覆盖（`flutter test`）：数据解析（“缺失即 `null`”）、控制器与生命周期、图表几何、延迟统计、中英词条一致性、导出格式、演示数据。
 - **尚未在大量真实设备上验证。** 未在真实多卡 5G 设备上做完整验证；NR / NSA 字段是否可用强烈依赖厂商基带。
 - Windows 目标仅为界面外壳。
-- [GitHub Actions CI](.github/workflows/flutter-ci.yml) 会在每次推送和向 `main` 提交 pull request 时检查代码格式、运行 `flutter analyze` 与 `flutter test`，并构建 Debug APK。目前没有已发布版本，也没有发布签名配置。
+- [GitHub Actions CI](.github/workflows/flutter-ci.yml) 会在每次推送和向 `main` 提交 pull request 时检查代码格式、运行 `flutter analyze` 与 `flutter test`，并构建 Debug APK。目前尚无已发布版本；独立的 Android Release 工作流可按需创建已签名的 Release 草稿（见“发布签名”）。
 
 
 ## 参与贡献

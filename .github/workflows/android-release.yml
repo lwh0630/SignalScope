@@ -1,0 +1,268 @@
+name: Android Release
+
+# Builds signed release APKs (one per ABI) and creates a DRAFT GitHub Release.
+# Nothing is published automatically: review the draft, then publish it by hand.
+#
+#  - Automatic: push a version tag such as `v1.0.0`.
+#  - Manual:    "Actions" tab -> "Android Release" -> "Run workflow", enter a
+#               version such as `v1.0.0`. The tag is created when the draft is
+#               published, on the commit the workflow ran from.
+#
+# Signing:
+#  - The release keystore and passwords live ONLY in the `production` GitHub
+#    Environment secrets (ANDROID_KEYSTORE_BASE64, ANDROID_STORE_PASSWORD,
+#    ANDROID_KEY_PASSWORD, ANDROID_KEY_ALIAS) and are used only by the `build` job.
+#  - This workflow has no pull_request trigger, so untrusted PRs never get them.
+#    Restrict the `production` environment to the `main` branch and `v*` tags
+#    (Settings -> Environments -> production -> Deployment branches and tags).
+#  - Gradle refuses to build a release without signing material; there is no
+#    fallback to the debug key (android/app/build.gradle.kts).
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g. v1.0.0 or v1.0.0-beta.1)"
+        required: true
+        type: string
+
+# Least privilege by default; only the publish job gets write access.
+permissions:
+  contents: read
+
+# Never run two releases for the same version at once, and never cancel one
+# that is already publishing.
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.version || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  # Keep these in sync with .github/workflows/flutter-ci.yml and AGENTS.md.
+  FLUTTER_VERSION: "3.47.7"
+  JAVA_VERSION: "17"
+  # SHA-256 fingerprint of the release signing certificate (public information).
+  # Every APK must be signed with exactly this certificate. Changing it is a
+  # signing-key rotation and breaks in-place upgrades: review it carefully.
+  EXPECTED_CERT_SHA256: "1f33b7c1f7d45bfb08bdafbf8cf47f5a586ab74bd11318dad823e67ebaa7cbe8"
+
+jobs:
+  build:
+    name: Check and build signed release APKs
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    # Gives this job (and only this job) access to the environment secrets.
+    environment: production
+    outputs:
+      version: ${{ steps.version.outputs.tag }}
+
+    steps:
+      - name: Resolve and validate the version
+        id: version
+        env:
+          # Passed through env (not interpolated into the script) to avoid
+          # shell injection through the manual input.
+          INPUT_VERSION: ${{ inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            tag="$INPUT_VERSION"
+          else
+            tag="$REF_NAME"
+          fi
+
+          # vMAJOR.MINOR.PATCH with an optional pre-release suffix.
+          if ! [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error title=Invalid version::'$tag' must look like v1.0.0 or v1.0.0-beta.1"
+            exit 1
+          fi
+
+          name="${tag#v}"
+          {
+            echo "tag=$tag"
+            echo "name=$name"
+            if [[ "$name" == *-* ]]; then
+              echo "prerelease=true"
+            else
+              echo "prerelease=false"
+            fi
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Check out the repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: gradle
+
+      - name: Set up Flutter ${{ env.FLUTTER_VERSION }}
+        # Third-party action: pinned to a full commit SHA (tag v2.23.0).
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Show tool versions
+        run: |
+          flutter --version
+          java -version
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+
+      # Secrets are exposed only to the steps below that list them in `env`.
+      # The keystore is written outside the workspace and deleted at the end.
+      - name: Restore release keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          missing=0
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_STORE_PASSWORD ANDROID_KEY_PASSWORD ANDROID_KEY_ALIAS; do
+            if [ -z "${!name}" ]; then
+              echo "::error title=Missing secret::$name is not set in the 'production' environment."
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ] || exit 1
+
+          keystore="$RUNNER_TEMP/signalscope-release.jks"
+          umask 077
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$keystore"
+          echo "ANDROID_KEYSTORE_PATH=$keystore" >> "$GITHUB_ENV"
+
+      # build-name comes from the tag. build-number (Android versionCode) must
+      # grow with every release so that newer APKs can update older ones;
+      # the workflow run number is monotonic. Flutter adds the per-ABI offset.
+      - name: Build signed release APKs (split per ABI)
+        env:
+          BUILD_NAME: ${{ steps.version.outputs.name }}
+          BUILD_NUMBER: ${{ github.run_number }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          flutter build apk --release --split-per-abi \
+            --build-name="$BUILD_NAME" \
+            --build-number="$BUILD_NUMBER"
+
+      - name: Verify APK signatures
+        run: |
+          apksigner="$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -n 1)"
+          echo "Using $apksigner"
+
+          expected="${EXPECTED_CERT_SHA256,,}"
+          shopt -s nullglob
+          apks=(build/app/outputs/flutter-apk/app-*-release.apk)
+          if [ "${#apks[@]}" -eq 0 ]; then
+            echo "::error title=No APKs::No release APKs were produced."
+            exit 1
+          fi
+
+          for apk in "${apks[@]}"; do
+            report="$("$apksigner" verify --verbose --print-certs --min-sdk-version 29 "$apk")"
+
+            signers="$(grep -c 'certificate SHA-256 digest:' <<< "$report" || true)"
+            actual="$(grep 'certificate SHA-256 digest:' <<< "$report" | awk '{print tolower($NF)}' | sort -u)"
+
+            if [ "$signers" -lt 1 ] || [ "$actual" != "$expected" ]; then
+              echo "::error title=Signature mismatch::$apk is not signed by the expected release certificate."
+              echo "expected: $expected"
+              echo "actual:   $actual"
+              exit 1
+            fi
+            echo "OK  $apk  (cert SHA-256 $actual)"
+          done
+
+      - name: Remove release keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/signalscope-release.jks"
+
+      - name: Collect and checksum artifacts
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          mkdir -p dist
+          shopt -s nullglob
+          for apk in build/app/outputs/flutter-apk/app-*-release.apk; do
+            abi="${apk##*/app-}"
+            abi="${abi%-release.apk}"
+            cp "$apk" "dist/signalscope-${TAG}-${abi}.apk"
+          done
+
+          if [ -z "$(ls -A dist)" ]; then
+            echo "::error title=No APKs::No release APKs were produced."
+            exit 1
+          fi
+
+          (cd dist && sha256sum *.apk > SHA256SUMS.txt)
+          ls -l dist
+          cat dist/SHA256SUMS.txt
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: signalscope-release-apks
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    name: Create draft GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # No signing secrets here: this job only uploads the already signed APKs.
+    permissions:
+      contents: write # create the draft release
+
+    steps:
+      - name: Download release artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: signalscope-release-apks
+          path: dist
+
+      - name: Create the draft GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.build.outputs.version }}
+          TARGET_SHA: ${{ github.sha }}
+        run: |
+          # Pre-release when the version has a suffix such as -beta.1.
+          prerelease=()
+          if [[ "$TAG" == *-* ]]; then
+            prerelease=(--prerelease)
+          fi
+
+          # Always a DRAFT: it is not public until you publish it by hand.
+          # It fails (and overwrites nothing) if a release for $TAG exists.
+          # --target is ignored when the tag already exists (tag-push case);
+          # for a manual run the tag is created on that commit at publish time.
+          gh release create "$TAG" dist/* \
+            --draft \
+            --title "SignalScope $TAG" \
+            --generate-notes \
+            --target "$TARGET_SHA" \
+            "${prerelease[@]}"

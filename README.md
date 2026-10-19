@@ -119,7 +119,7 @@ Or run directly on a connected device or emulator:
 flutter run -d <device-id>
 ```
 
-> The release build is currently signed with the Flutter **debug** key, for self-testing only. Configure your own signing before distributing it.
+> Release builds are signed with the maintainer's release key, which is **not** in this repository. Building a release yourself requires your own signing key (see "Release signing" below); debug builds need no setup.
 
 ## Build from Source
 
@@ -140,6 +140,21 @@ flutter run -d <android-device>
 flutter build apk --release --split-per-abi
 # -> build/app/outputs/flutter-apk/app-<abi>-release.apk
 ```
+
+### Release signing
+
+A release build never falls back to the debug key: without signing material, `flutter build apk --release` fails with an explanatory message. Provide your own key either through a git-ignored `android/key.properties`:
+
+```properties
+storeFile=C:/path/outside/the/repo/release.jks
+storePassword=...
+keyPassword=...
+keyAlias=...
+```
+
+or through the environment variables `ANDROID_KEYSTORE_PATH`, `ANDROID_STORE_PASSWORD`, `ANDROID_KEY_PASSWORD` and `ANDROID_KEY_ALIAS` (environment variables take precedence). Never commit the keystore or these values.
+
+The [Android Release workflow](.github/workflows/android-release.yml) runs when a `v*.*.*` tag is pushed or when started manually. It reads the keystore from the `production` environment secrets, builds one APK per ABI, verifies the signing certificate with `apksigner`, and creates a **draft** GitHub Release; nothing is published automatically.
 
 The Windows UI shell needs Visual Studio with "Desktop development with C++":
 
@@ -173,7 +188,7 @@ test/              unit and widget tests
 - Implemented and covered by automated tests (`flutter test`): data parsing ("missing means `null`"), controllers and lifecycle, charts' geometry, latency statistics, i18n key parity, export formats, demo data.
 - **Not yet verified on a wide range of real hardware.** The app has not been fully validated on real multi-SIM 5G devices; NR / NSA field availability depends strongly on the vendor modem.
 - The Windows target is a UI shell only.
-- [GitHub Actions CI](.github/workflows/flutter-ci.yml) checks formatting, runs `flutter analyze` and `flutter test`, and builds a debug APK on every push and pull request to `main`. There is no published release and no release signing configuration yet.
+- [GitHub Actions CI](.github/workflows/flutter-ci.yml) checks formatting, runs `flutter analyze` and `flutter test`, and builds a debug APK on every push and pull request to `main`. There is no published release yet; the separate Android Release workflow creates signed draft releases on demand (see "Release signing").
 
 
 ## Contributing
