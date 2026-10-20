@@ -130,6 +130,11 @@ Android callback -> Kotlin service (merge 200-300 ms) -> EventChannel
 7. **Strings:** user-visible text goes through `context.tr('key')` with entries in **both** `strings_zh.dart` and `strings_en.dart`. `test/i18n_test.dart` enforces key parity and that every literal key exists.
 8. **Derived values** may only use documented formulas (for example ECI >> 8, Wi-Fi percent from RSSI, channel from frequency, mean C/N0, unique-band EARFCN lookup). Label them as computed in the UI and document the formula.
 9. **Generated and local files** (`build/`, `.dart_tool/`, `android/local.properties`, `GeneratedPluginRegistrant.java`, `windows/flutter/ephemeral/`) are not hand-edited and not committed.
+10. **Version bump goes with the tag.** The release workflow (`android-release.yml`) takes the APK `versionName` from the git tag, but local builds and the Windows fallback use the values in source. Before creating a release tag `vX.Y.Z`, commit a version bump so these match, and tag that commit:
+    - `version:` in `pubspec.yaml` -> `X.Y.Z+N` (the build number `N` only matters for local builds; CI overrides it with `--build-number=${{ github.run_number }}`);
+    - `kAppVersion` in `lib/core/app_info.dart` -> `'X.Y.Z'`.
+
+    Never tag first and bump afterwards. If a tag was placed too early and has not been pushed, move it to the bump commit; never move or delete a tag that has been pushed without the maintainer's approval.
 
 ## 4. Android Native API Rules
 
