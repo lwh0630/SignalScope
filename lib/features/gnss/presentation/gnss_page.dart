@@ -501,6 +501,9 @@ class _GnssTrends extends StatelessWidget {
           minY: 0,
           maxY: 50,
         ),
+        // PageScaffold only separates its direct children, so the gap between
+        // the two cards inside this Column has to be added here.
+        const SizedBox(height: 12),
         TrendCard(
           title:
               '${context.tr('common.trend')} · ${context.tr('gnss.trendUsed')}',
