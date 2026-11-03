@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/demo_mode.dart';
@@ -297,44 +296,14 @@ class _SwipePagesState extends State<_SwipePages> {
     super.dispose();
   }
 
-  /// True while the pages are being dragged or animated sideways: the glass
-  /// switches to its lite look (no blurs, no blurred shadows) like during a route
-  /// transition, so the slide stays smooth.
-  bool _moving = false;
-
-  void _setMoving(bool moving) {
-    if (_moving == moving || !mounted) return;
-    if (SchedulerBinding.instance.schedulerPhase ==
-        SchedulerPhase.persistentCallbacks) {
-      // Notified while the frame is being laid out: rebuild on the next one.
-      WidgetsBinding.instance.addPostFrameCallback((_) => _setMoving(moving));
-      return;
-    }
-    setState(() => _moving = moving);
-  }
-
   @override
   Widget build(BuildContext context) {
-    return NotificationListener<ScrollNotification>(
-      onNotification: (n) {
-        // Only the PageView itself (depth 0), not the vertical lists inside it.
-        if (n.depth != 0 || n.metrics.axis != Axis.horizontal) return false;
-        if (n is ScrollStartNotification) _setMoving(true);
-        if (n is ScrollEndNotification) _setMoving(false);
-        return false;
+    return PageView(
+      controller: _controller,
+      onPageChanged: (i) {
+        if (!_animating) widget.onChanged(i);
       },
-      child: GlassMotionScope(
-        moving: _moving,
-        child: PageView(
-          controller: _controller,
-          onPageChanged: (i) {
-            if (!_animating) widget.onChanged(i);
-          },
-          children: [
-            for (final page in widget.children) _KeepAlive(child: page),
-          ],
-        ),
-      ),
+      children: [for (final page in widget.children) _KeepAlive(child: page)],
     );
   }
 }

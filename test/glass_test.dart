@@ -45,16 +45,61 @@ void main() {
       expect(find.byType(BackdropFilter), findsNothing);
     });
 
-    testWidgets('is switched off while the glass is moving', (tester) async {
+    testWidgets('stays on while a page slides in (route push, page swipe)', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        _host(
-          const GlassMotionScope(
-            moving: true,
-            child: GlassCardBlur(blur: 14, child: GlassCard(child: Text('x'))),
+        MaterialApp(
+          theme: AppTheme.dark(),
+          home: const GlassCardBlur(
+            blur: 14,
+            child: Scaffold(body: GlassCard(child: Text('home'))),
           ),
         ),
       );
-      expect(_backdrop(tester).enabled, isFalse);
+      final nav = tester.state<NavigatorState>(find.byType(Navigator));
+      nav.push(
+        MaterialPageRoute<void>(
+          builder: (_) => const GlassCardBlur(
+            blur: 14,
+            child: Scaffold(body: GlassCard(child: Text('detail'))),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 120)); // mid-transition
+      final filters = tester.widgetList<BackdropFilter>(
+        find.byType(BackdropFilter),
+      );
+      expect(filters, isNotEmpty);
+      expect(filters.every((f) => f.enabled), isTrue);
+      await tester.pumpAndSettle();
+    });
+  });
+
+  group('card shadow', () {
+    // Painters of the shadow layer: the only CustomPaint with a `painter`.
+    int shadows(WidgetTester tester) => tester
+        .widgetList<CustomPaint>(find.byType(CustomPaint))
+        .where((p) => p.painter != null)
+        .length;
+
+    testWidgets('is a single repaint-isolated layer under the card', (
+      tester,
+    ) async {
+      await tester.pumpWidget(_host(const GlassCard(child: Text('x'))));
+      expect(shadows(tester), 1);
+    });
+
+    testWidgets('does not change the card size', (tester) async {
+      await tester.pumpWidget(
+        _host(
+          const Center(
+            child: GlassCard(child: SizedBox(width: 120, height: 40)),
+          ),
+        ),
+      );
+      expect(tester.getSize(find.byType(GlassCard)), const Size(120, 40));
     });
   });
 
@@ -67,27 +112,6 @@ void main() {
         _host(const GlassSurface(blur: 0, child: Text('x'))),
       );
       expect(find.byType(BackdropFilter), findsNothing);
-    });
-
-    testWidgets('an outer moving scope reaches a nested tracker', (
-      tester,
-    ) async {
-      final done = AnimationController(vsync: tester);
-      addTearDown(done.dispose);
-      await tester.pumpWidget(
-        _host(
-          GlassMotionScope(
-            moving: true,
-            child: GlassMotionTracker(
-              animation: done,
-              secondaryAnimation: done,
-              child: const GlassSurface(child: Text('x')),
-            ),
-          ),
-        ),
-      );
-      // The tracker's own animation is idle, but the outer scope still wins.
-      expect(_backdrop(tester).enabled, isFalse);
     });
   });
 

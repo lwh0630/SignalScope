@@ -29,100 +29,6 @@ ImageFilter glassFilter(double blur) {
   );
 }
 
-// ----------------------------------------------------------------- motion
-
-/// Tells the glass below it that its page is currently being slid in or out by a
-/// route transition. While that is true every [BackdropFilter] is switched off
-/// (`enabled: false`: no offscreen layer, no blur pass) and only the translucent
-/// fill is drawn. A page full of cards would otherwise re-blur a screen-sized
-/// area a dozen times per frame during the slide, which makes it stutter.
-///
-/// The widget tree is unchanged by the flag, so no state is lost.
-class GlassMotionScope extends InheritedWidget {
-  const GlassMotionScope({
-    super.key,
-    required this.moving,
-    required super.child,
-  });
-
-  final bool moving;
-
-  static bool of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<GlassMotionScope>()?.moving ??
-      false;
-
-  @override
-  bool updateShouldNotify(GlassMotionScope old) => old.moving != moving;
-}
-
-/// Feeds [GlassMotionScope] from the animations of one route: moving while either
-/// the route's own push / pop or the covering route's push / pop is running.
-/// Listens to status changes only, so it does not rebuild every frame.
-class GlassMotionTracker extends StatefulWidget {
-  const GlassMotionTracker({
-    super.key,
-    required this.animation,
-    required this.secondaryAnimation,
-    required this.child,
-  });
-
-  final Animation<double> animation;
-  final Animation<double> secondaryAnimation;
-  final Widget child;
-
-  @override
-  State<GlassMotionTracker> createState() => _GlassMotionTrackerState();
-}
-
-class _GlassMotionTrackerState extends State<GlassMotionTracker> {
-  bool _moving = false;
-
-  static bool _running(Animation<double> a) =>
-      a.status == AnimationStatus.forward ||
-      a.status == AnimationStatus.reverse;
-
-  @override
-  void initState() {
-    super.initState();
-    _moving = _running(widget.animation) || _running(widget.secondaryAnimation);
-    widget.animation.addStatusListener(_onStatus);
-    widget.secondaryAnimation.addStatusListener(_onStatus);
-  }
-
-  @override
-  void didUpdateWidget(GlassMotionTracker old) {
-    super.didUpdateWidget(old);
-    if (old.animation != widget.animation) {
-      old.animation.removeStatusListener(_onStatus);
-      widget.animation.addStatusListener(_onStatus);
-    }
-    if (old.secondaryAnimation != widget.secondaryAnimation) {
-      old.secondaryAnimation.removeStatusListener(_onStatus);
-      widget.secondaryAnimation.addStatusListener(_onStatus);
-    }
-  }
-
-  @override
-  void dispose() {
-    widget.animation.removeStatusListener(_onStatus);
-    widget.secondaryAnimation.removeStatusListener(_onStatus);
-    super.dispose();
-  }
-
-  void _onStatus(AnimationStatus _) {
-    final moving =
-        _running(widget.animation) || _running(widget.secondaryAnimation);
-    if (moving != _moving) setState(() => _moving = moving);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // An outer scope (the pages sliding past each other) keeps the glass lite too.
-    final outer = GlassMotionScope.of(context);
-    return GlassMotionScope(moving: _moving || outer, child: widget.child);
-  }
-}
-
 /// Strength of the backdrop blur under [GlassCard]s that do not set their own
 /// `blur`.
 ///
@@ -153,7 +59,6 @@ class _OuterShadowPainter extends CustomPainter {
     required this.radius,
     required this.color,
     required this.elevation,
-    required this.lite,
   });
 
   final double radius;
@@ -162,12 +67,9 @@ class _OuterShadowPainter extends CustomPainter {
   /// 0 = flat, 1 = resting card, 2 = floating chrome.
   final double elevation;
 
-  /// Draw nothing: a blurred shadow is an offscreen blur pass per shape per frame.
-  final bool lite;
-
   @override
   void paint(Canvas canvas, Size size) {
-    if (lite || elevation <= 0 || size.isEmpty) return;
+    if (elevation <= 0 || size.isEmpty) return;
     final rrect = RRect.fromRectAndRadius(
       Offset.zero & size,
       Radius.circular(radius),
@@ -197,10 +99,31 @@ class _OuterShadowPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_OuterShadowPainter old) =>
-      old.radius != radius ||
-      old.color != color ||
-      old.elevation != elevation ||
-      old.lite != lite;
+      old.radius != radius || old.color != color || old.elevation != elevation;
+}
+
+/// Lays [shadow] under [child] on its own repaint boundary.
+///
+/// The blurred shadow is the expensive part of a card, and it never changes
+/// while the card slides or its live content repaints, so it is rasterised once
+/// and reused. It therefore stays visible while pages slide (hiding it there made
+/// the shadows vanish and pop back in).
+Widget _withShadow({
+  required _OuterShadowPainter shadow,
+  required Widget child,
+}) {
+  return Stack(
+    clipBehavior: Clip.none,
+    fit: StackFit.passthrough,
+    children: [
+      Positioned.fill(
+        child: IgnorePointer(
+          child: RepaintBoundary(child: CustomPaint(painter: shadow)),
+        ),
+      ),
+      child,
+    ],
+  );
 }
 
 /// 1 px "lit glass" rim: bright along the top-left, dim along the bottom-right,
@@ -305,7 +228,6 @@ class GlassSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     final g = context.glass;
     final shape = BorderRadius.circular(radius);
-    final lite = GlassMotionScope.of(context);
     Widget content = child;
     if (padding != null) content = Padding(padding: padding!, child: content);
     final surface = CustomPaint(
@@ -321,22 +243,17 @@ class GlassSurface extends StatelessWidget {
         child: Material(type: MaterialType.transparency, child: content),
       ),
     );
-    return CustomPaint(
-      painter: _OuterShadowPainter(
+    return _withShadow(
+      shadow: _OuterShadowPainter(
         radius: radius,
         color: g.shadow,
         elevation: elevation,
-        lite: lite,
       ),
       child: ClipRRect(
         borderRadius: shape,
         child: blur <= 0
             ? surface
-            : BackdropFilter(
-                enabled: !lite,
-                filter: glassFilter(blur),
-                child: surface,
-              ),
+            : BackdropFilter(filter: glassFilter(blur), child: surface),
       ),
     );
   }
@@ -452,19 +369,14 @@ class GlassCard extends StatelessWidget {
   final double? blur;
   final Color? tint;
 
-  Widget _maybeBlur(double sigma, bool lite, Widget child) => sigma <= 0
+  Widget _maybeBlur(double sigma, Widget child) => sigma <= 0
       ? child
-      : BackdropFilter(
-          enabled: !lite,
-          filter: glassFilter(sigma),
-          child: child,
-        );
+      : BackdropFilter(filter: glassFilter(sigma), child: child);
 
   @override
   Widget build(BuildContext context) {
     final g = context.glass;
     final accent = Theme.of(context).colorScheme.primary;
-    final lite = GlassMotionScope.of(context);
     final sigma = blur ?? GlassCardBlur.of(context);
     final fill = tint == null
         ? g.fill
@@ -477,30 +389,33 @@ class GlassCard extends StatelessWidget {
       final content = padding == null
           ? child
           : Padding(padding: padding!, child: child);
-      return CustomPaint(
-        painter: _OuterShadowPainter(
+      return _withShadow(
+        shadow: _OuterShadowPainter(
           radius: radius,
           color: g.shadow,
           elevation: 1,
-          lite: lite,
         ),
-        foregroundPainter: _RimPainter(
-          radius: radius,
-          light: tint == null ? g.edgeLight : tint!.withValues(alpha: 0.55),
-          dark: tint == null ? g.edgeDark : tint!.withValues(alpha: 0.15),
-          sheen: g.highlight.withValues(alpha: g.highlight.a * 0.18),
-          focus: focused ? accent.withValues(alpha: 0.7) : null,
-        ),
-        child: ClipRRect(
-          borderRadius: shape,
-          // A transparent Material under the tinted fill keeps ListTile / InkWell
-          // children from painting their ink behind the fill.
-          child: _maybeBlur(
-            sigma,
-            lite,
-            ColoredBox(
-              color: fill,
-              child: Material(type: MaterialType.transparency, child: content),
+        child: CustomPaint(
+          foregroundPainter: _RimPainter(
+            radius: radius,
+            light: tint == null ? g.edgeLight : tint!.withValues(alpha: 0.55),
+            dark: tint == null ? g.edgeDark : tint!.withValues(alpha: 0.15),
+            sheen: g.highlight.withValues(alpha: g.highlight.a * 0.18),
+            focus: focused ? accent.withValues(alpha: 0.7) : null,
+          ),
+          child: ClipRRect(
+            borderRadius: shape,
+            // A transparent Material under the tinted fill keeps ListTile / InkWell
+            // children from painting their ink behind the fill.
+            child: _maybeBlur(
+              sigma,
+              ColoredBox(
+                color: fill,
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: content,
+                ),
+              ),
             ),
           ),
         ),

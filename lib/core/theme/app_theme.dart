@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 
-import 'glass.dart';
 import 'glass_tokens.dart';
 
 /// Colours used to express signal quality consistently across the app.
@@ -281,7 +280,7 @@ const _overlayDark = SystemUiOverlayStyle(
 /// Never fade or `Opacity` a page here: that creates an offscreen layer, so every
 /// `BackdropFilter` inside samples an empty backdrop (the glass looks flat while
 /// the transition runs, then pops into place) and each frame costs a full-screen
-/// copy. [GlassMotionTracker] also switches the blur off while the slide runs.
+/// copy.
 class _GlassPageTransitions extends PageTransitionsBuilder {
   const _GlassPageTransitions();
 
@@ -306,15 +305,11 @@ class _GlassPageTransitions extends PageTransitionsBuilder {
     Widget child,
   ) {
     if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) return child;
-    return GlassMotionTracker(
-      animation: animation,
-      secondaryAnimation: secondaryAnimation,
+    return SlideTransition(
+      position: animation.drive(_enter),
       child: SlideTransition(
-        position: animation.drive(_enter),
-        child: SlideTransition(
-          position: secondaryAnimation.drive(_exit),
-          child: RepaintBoundary(child: child),
-        ),
+        position: secondaryAnimation.drive(_exit),
+        child: RepaintBoundary(child: child),
       ),
     );
   }
