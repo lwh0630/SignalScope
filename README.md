@@ -43,9 +43,9 @@ SIM and carrier info, LTE / 5G NR cellular signal, Wi-Fi and nearby access point
 | **Wi-Fi** | Current connection (SSID, router MAC, RSSI, frequency, channel, width, link speed, IPv4 / IPv6, device MAC, gateway, DNS, security, standard), nearby access points (band filter, sorting), 2.4 / 5 / 6 GHz channel graph (tap for details), RSSI trend. |
 | **GNSS** | Fix status, latitude / longitude, altitude, accuracy, speed, TTFF; visible / used-in-fix / tracked satellite counts; constellation breakdown with country / organization flags; sky plot; C/N0 bar chart grouped by constellation; satellite list; C/N0 and satellite-count trends. While there is no fresh GNSS fix, the position card shows the system's fused / network position (Wi-Fi, cell towers) instead, clearly labelled "not GNSS", and switches back to the GNSS fix automatically once one exists. |
 | **Latency test** | DNS time plus TCP-handshake timing (min / avg / max, jitter, loss) against built-in site lists (Mainland China, US / international) and up to 20 custom targets. |
-| **Settings** | Theme (dark-first / light / system), language (Chinese / English / system), refresh rate, history window, CSV / JSON export, clear history, permission manager, demo mode, app update, about. **App update**: checks the latest GitHub Release (automatically at launch at most once every 24 hours, switch-off in Settings, or by tapping "Check for updates"), downloads the APK for the device's ABI, verifies its SHA-256 against the release's `SHA256SUMS.txt` and its signing key against the installed app, then opens the system installer. Stable releases only; drafts and pre-releases are ignored. |
+| **Settings** | Theme (dark-first / light / system), background (five built-in glow themes, or a picture of your own with an adjustable overlay), language (Chinese / English / system), refresh rate, history window, CSV / JSON export, clear history, permission manager, demo mode, app update, about. **App update**: checks the latest GitHub Release (automatically at launch at most once every 24 hours, switch-off in Settings, or by tapping "Check for updates"), downloads the APK for the device's ABI, verifies its SHA-256 against the release's `SHA256SUMS.txt` and its signing key against the installed app, then opens the system installer. Stable releases only; drafts and pre-releases are ignored. |
 
-Also: multi-SIM support with per-subscription isolation, event-driven sensing (no polling), and a session-only **demo mode** with a visible banner and clearly fictional data.
+Also: a frosted "liquid glass" look with swipe navigation between the five pages, multi-SIM support with per-subscription isolation, event-driven sensing (no polling), and a session-only **demo mode** with a visible banner and clearly fictional data.
 
 Notable limits (all explained in the app):
 
@@ -67,7 +67,7 @@ Notable limits (all explained in the app):
 | Area | Choice |
 | --- | --- |
 | Framework | Flutter 3.47.x, Dart ^3.13.5 |
-| UI | Material 3, custom `CustomPainter` charts, `fl_chart` |
+| UI | Material 3 with a custom "liquid glass" layer, custom `CustomPainter` charts, `fl_chart` |
 | State management | Riverpod 3.x (`flutter_riverpod`) |
 | Localization | `flutter_localizations`, `intl`, built-in zh / en string table |
 | Native layer | Kotlin (Android): `TelephonyManager`, `WifiManager`, `LocationManager` / `GnssStatus`, `ConnectivityManager` |

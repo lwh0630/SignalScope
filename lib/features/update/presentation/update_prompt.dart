@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/i18n/strings.dart';
+import '../../../core/theme/glass.dart';
 import '../../shell/application/navigation.dart';
 import '../application/update_controller.dart';
 import '../data/update_repository.dart';
@@ -13,9 +14,9 @@ Future<void> showUpdatePrompt(
   WidgetRef ref,
   ReleaseInfo release,
 ) {
-  return showDialog<void>(
+  return showGlassDialog<void>(
     context: context,
-    builder: (ctx) => AlertDialog(
+    builder: (ctx) => GlassDialog(
       title: Text(ctx.tr('update.prompt.title')),
       content: Text(
         ctx.tr('update.prompt.body', [

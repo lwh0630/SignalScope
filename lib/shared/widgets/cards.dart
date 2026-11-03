@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../core/i18n/strings.dart';
+import '../../core/theme/glass.dart';
+import '../../core/theme/glass_tokens.dart';
 import '../../core/utils/format.dart';
 
-/// Rounded card with an optional title row.
+/// Glass card with an optional title row.
 class SectionCard extends StatelessWidget {
   const SectionCard({
     super.key,
@@ -21,33 +23,31 @@ class SectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: padding,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (title != null) ...[
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      title!,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: theme.colorScheme.primary,
-                        letterSpacing: 0.4,
-                      ),
+    return GlassCard(
+      padding: padding,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (title != null) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title!,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.primary,
+                      letterSpacing: 0.4,
                     ),
                   ),
-                  ?trailing,
-                ],
-              ),
-              const SizedBox(height: 12),
-            ],
-            child,
+                ),
+                ?trailing,
+              ],
+            ),
+            const SizedBox(height: Sp.x3),
           ],
-        ),
+          child,
+        ],
       ),
     );
   }

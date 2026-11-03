@@ -3,7 +3,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/providers.dart';
+import 'core/theme/ambient_background.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/background.dart';
 import 'features/shell/presentation/home_shell.dart';
 
 class SignalScopeApp extends ConsumerWidget {
@@ -13,6 +15,11 @@ class SignalScopeApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(settingsProvider.select((s) => s.themeMode));
     final locale = ref.watch(settingsProvider.select((s) => s.locale));
+    final (style, imagePath, dim) = ref.watch(
+      settingsProvider.select(
+        (s) => (s.background, s.backgroundImage, s.backgroundDim),
+      ),
+    );
     return MaterialApp(
       title: 'SignalScope',
       debugShowCheckedModeBanner: false,
@@ -34,6 +41,16 @@ class SignalScopeApp extends ConsumerWidget {
         }
         return const Locale('en');
       },
+      // The ambient glow (or the user's picture) sits under the Navigator;
+      // every Scaffold is transparent.
+      builder: (context, child) => AmbientBackground(
+        style: style,
+        image: style == BackgroundStyle.image
+            ? backgroundImageProvider(imagePath)
+            : null,
+        dim: dim,
+        child: child,
+      ),
       home: const HomeShell(),
     );
   }

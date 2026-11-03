@@ -14,7 +14,7 @@ For user-facing documentation see [`README.md`](README.md) / [`README_zh.md`](RE
 - IPv4 / IPv6 / MAC display where the OS allows it
 - A TCP-handshake / DNS latency test (not ICMP ping)
 - An in-app updater that checks / downloads the latest GitHub Release (section 8 lists its limits)
-- Signal history charts, CSV / JSON export, settings, and a session-only demo mode
+- Signal history charts, CSV / JSON export, settings (theme, language, background preset or the user's own picture), and a session-only demo mode
 
 Facts you should rely on (verify in `pubspec.yaml` and `android/` before changing):
 
@@ -44,7 +44,9 @@ lib/
     lifecycle.dart           Foreground + page-visibility gating of sensors
     history.dart             In-memory ring buffer (5 min, <= 700 points per series)
     demo_mode.dart           Session-only demo mode switch
-    theme/                   app_theme.dart (SignalColors, dark + light themes)
+    theme/                   app_theme.dart (SignalColors, dark + light themes), glass_tokens.dart (Sp / Rd / Motion, GlassColors),
+                             glass.dart (GlassCard, GlassSurface, GlassDialog, motion scope), ambient_background.dart,
+                             background.dart (BackgroundStyle presets / palettes, picture provider)
     i18n/                    strings_zh.dart, strings_en.dart, strings.dart (context.tr)
     utils/                   band_lookup, signal_quality, wifi_utils, throttle, format, network_type
   data/
@@ -86,6 +88,7 @@ All in `android/app/src/main/kotlin/com/signalscope/app/`:
 | `GnssService.kt` | `LocationManager` + `GnssStatus.Callback` |
 | `NetworkAddresses.kt` | IPv4 / IPv6 from `LinkProperties`; per-SIM matching; real MAC only |
 | `ExportService.kt` | Writes exports to `MediaStore.Downloads` |
+| `BackgroundImageService.kt` | Background picture: system document picker (`ACTION_OPEN_DOCUMENT`, no storage permission), validated private copy under `filesDir/backgrounds` with a fresh file name per pick, deletion restricted to that folder |
 | `UpdateInstaller.kt` | Installed version / ABIs, private download dir, pre-install checks (SHA-256, package, newer version, same signing key), opens the system installer through a `FileProvider` limited to `cache/updates` |
 | `NativeUtils.kt` | Small shared helpers |
 
@@ -93,7 +96,7 @@ All in `android/app/src/main/kotlin/com/signalscope/app/`:
 
 | Channel | Type | Purpose |
 | --- | --- | --- |
-| `signalscope/method` | MethodChannel | Capabilities, permissions, SIM list, one-shot Wi-Fi query / scan request, settings read/write, export |
+| `signalscope/method` | MethodChannel | Capabilities, permissions, SIM list, one-shot Wi-Fi query / scan request, settings read/write, export, background picture pick / delete |
 | `signalscope/cellular` | EventChannel | Per-subscription cellular snapshots and SIM-change events |
 | `signalscope/wifi` | EventChannel | Current Wi-Fi connection changes |
 | `signalscope/wifi_scan` | EventChannel | New scan results published by the system |
@@ -117,7 +120,7 @@ Android callback -> Kotlin service (merge 200-300 ms) -> EventChannel
 - Controllers are Riverpod `Notifier`s (some `autoDispose`). Prefer `ref.watch` in widgets, `ref.listen` for side effects.
 - Sensors listen only while the app is in the foreground **and** the relevant page is visible (`lib/core/lifecycle.dart`). Keep it that way.
 - Cellular state is keyed by subscription ID; data from one SIM must never appear under another.
-- Persisted settings (`AppSettings`, including custom latency targets) are stored natively on Android and in `%APPDATA%\SignalScope\settings.json` on Windows.
+- Persisted settings (`AppSettings`, including custom latency targets and the background choice) are stored natively on Android and in `%APPDATA%\SignalScope\settings.json` on Windows.
 
 ## 3. Development Rules
 
@@ -153,6 +156,9 @@ Android callback -> Kotlin service (merge 200-300 ms) -> EventChannel
 
 - Use the theme in `lib/core/theme/app_theme.dart` (`SignalColors`, Material 3 color scheme). Do not hard-code colors per widget when a theme color exists. Dark theme is the default look; light and system modes must also work.
 - Reuse components from `lib/shared/widgets/` (cards, gauges, trend chart, monitor bar, address widgets) and the page scaffold before creating new ones.
+- Liquid-glass look: every colour / radius / spacing / duration comes from `glass_tokens.dart` and `AppTheme` (dark and light variants live in `GlassColors`). `Scaffold`s are transparent because `app.dart` paints `AmbientBackground` under the Navigator (static blobs on purpose: the pages repaint with live sensor data, so a drifting background would re-blur every card). Use `GlassSurface` (full backdrop blur) only for chrome (the floating navigation bar, dialogs); anything in a scrolling page uses `GlassCard` / `SectionCard` (light blur; pass `tint` for warnings). Dialogs go through `showGlassDialog` + `GlassDialog`. Never wrap a page in `FadeTransition` / `Opacity`: an offscreen layer makes every `BackdropFilter` below sample an empty backdrop; `AppTheme` uses a slide-only page transition and `GlassMotionTracker` switches the blur off while it runs.
+- Background: `AppSettings.background` (`BackgroundStyle`: glow presets `aurora` (default, the `GlassColors` glow) / `sunset` / `ocean` / `forest` / `graphite`, or `image`), `backgroundImage` (app-private path) and `backgroundDim` (veil over the picture, 0-0.85, white on light / black on dark). Palettes live in `lib/core/theme/background.dart`; `app.dart` feeds the setting into `AmbientBackground`; the picker is `features/settings/presentation/background_picker.dart`. The picture is chosen through the native `pickBackgroundImage` channel method (no Flutter plugin, no storage permission, see `BackgroundImageService.kt`); every pick gets a fresh file name, so Flutter's image cache never serves a stale picture, and Dart deletes the previous file. It is decoded at most 2560 px (`ResizeImage`) and falls back to the glow when unreadable; only Android offers it (`SignalPlatform.supportsBackgroundImage`). The background stays static: no drifting animation (see above). Do not paint hard-edged shapes in the glow presets.
+- Navigation: `HomeShell` shows the five pages in a `PageView` (`_SwipePages`, every page kept alive): a horizontal swipe changes tab, a tap on the floating `NavigationBar` animates there (`_animating` keeps the in-between pages from being reported). Sensors stay gated by the selected tab, which only changes when a swipe settles. The shell reserves the bar through `MediaQuery` bottom padding; `PageScaffold` adds it to its list padding, so any new scrolling page must do the same. Do not put an overflowing horizontal scroller directly in a page without thinking about the swipe conflict. `NavigationBar` wraps itself in a `SafeArea`, so the shell removes the top/bottom padding inside the glass pill.
 - Layouts must be responsive: no fixed pixel sizes that overflow on small phones, large text scale, or landscape. Lists that can grow must be lazy.
 - Chart geometry that can be tested (for example `channel_geometry.dart`) stays separate from painting code.
 - Signal-quality colors are a reference grading only; always show the original numeric value and unit.

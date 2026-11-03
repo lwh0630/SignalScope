@@ -105,6 +105,15 @@ class UnsupportedPlatform implements SignalPlatform {
   }
 
   @override
+  bool get supportsBackgroundImage => false;
+
+  @override
+  Future<String?> pickBackgroundImage() async => null;
+
+  @override
+  Future<void> deleteBackgroundImage(String path) async {}
+
+  @override
   Future<AppBuildInfo?> getAppBuildInfo() async => null;
 
   @override

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/i18n/strings.dart';
+import '../../../core/theme/glass.dart';
 import '../../../data/models/platform_info.dart';
 import '../application/permission_controller.dart';
 
@@ -76,45 +77,38 @@ class PermissionBanner extends ConsumerWidget {
       action = controller.openLocationSettings;
     }
 
-    return Card(
-      color: theme.colorScheme.errorContainer.withValues(alpha: 0.35),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Icons.lock_outline_rounded,
-                  color: theme.colorScheme.error,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(message, style: theme.textTheme.bodyMedium),
-                ),
-              ],
-            ),
-            if (missing.isNotEmpty && permanent) ...[
-              const SizedBox(height: 6),
-              Text(
-                context.tr('perm.permanentHint'),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
+    return GlassCard(
+      tint: theme.colorScheme.error,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.lock_outline_rounded, color: theme.colorScheme.error),
+              const SizedBox(width: 12),
+              Expanded(child: Text(message, style: theme.textTheme.bodyMedium)),
             ],
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerRight,
-              child: FilledButton.tonal(
-                onPressed: action,
-                child: Text(actionLabel),
+          ),
+          if (missing.isNotEmpty && permanent) ...[
+            const SizedBox(height: 6),
+            Text(
+              context.tr('perm.permanentHint'),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
           ],
-        ),
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerRight,
+            child: FilledButton.tonal(
+              onPressed: action,
+              child: Text(actionLabel),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/app.dart';
 import 'package:flutter_application/core/providers.dart';
+import 'package:flutter_application/core/theme/glass.dart';
 import 'package:flutter_application/data/models/cellular_event.dart';
 import 'package:flutter_application/data/models/cellular_info.dart';
 import 'package:flutter_application/data/models/gnss_info.dart';
@@ -118,7 +119,7 @@ void main() {
 
     // Chart axes also print numbers, so look inside each card.
     Finder inCard(String title, String text) => find.descendant(
-      of: find.ancestor(of: find.text(title), matching: find.byType(Card)),
+      of: find.ancestor(of: find.text(title), matching: find.byType(GlassCard)),
       matching: find.text(text),
     );
     expect(inCard('SIM1 · Alpha', '-95'), findsOneWidget);

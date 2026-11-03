@@ -122,6 +122,18 @@ class DemoPlatform implements SignalPlatform {
     String content,
   ) => _real.saveExport(fileName, mimeType, content);
 
+  // ---- background picture: a user choice, always the real platform ----
+
+  @override
+  bool get supportsBackgroundImage => _real.supportsBackgroundImage;
+
+  @override
+  Future<String?> pickBackgroundImage() => _real.pickBackgroundImage();
+
+  @override
+  Future<void> deleteBackgroundImage(String path) =>
+      _real.deleteBackgroundImage(path);
+
   // ---- app update: not signal data, so it always talks to the real platform ----
 
   @override

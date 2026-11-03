@@ -9,6 +9,7 @@ import '../../../shared/widgets/page_scaffold.dart';
 import '../../permissions/presentation/permission_manager_card.dart';
 import '../../update/presentation/update_card.dart';
 import '../domain/app_settings.dart';
+import 'background_picker.dart';
 import 'data_card.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -82,6 +83,8 @@ class SettingsPage extends ConsumerWidget {
                 onSelectionChanged: (s) =>
                     notifier.update((c) => c.copyWith(languageCode: s.first)),
               ),
+              const SizedBox(height: 16),
+              const BackgroundPicker(),
             ],
           ),
         ),

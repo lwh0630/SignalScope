@@ -23,7 +23,13 @@ class PageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget list = ListView.separated(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+      // The shell reserves the floating navigation bar through MediaQuery padding.
+      padding: EdgeInsets.fromLTRB(
+        16,
+        4,
+        16,
+        24 + MediaQuery.paddingOf(context).bottom,
+      ),
       itemCount: children.length,
       separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (_, i) => children[i],

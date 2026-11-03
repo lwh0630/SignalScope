@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/glass_tokens.dart';
+
 /// Four-bar signal strength icon. [bars] is 0..4.
 class SignalBars extends StatelessWidget {
   const SignalBars({
@@ -15,7 +17,7 @@ class SignalBars extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final off = Theme.of(context).colorScheme.surfaceContainerHighest;
+    final off = context.glass.track;
     return SizedBox(
       width: size,
       height: size,

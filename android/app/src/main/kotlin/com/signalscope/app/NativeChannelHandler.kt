@@ -45,6 +45,7 @@ class NativeChannelHandler(
     private val gnssService = GnssService(appContext)
     private val exportService = ExportService(appContext)
     private val updateInstaller = UpdateInstaller(appContext)
+    private val backgroundImages = BackgroundImageService(activity)
 
     private val methodChannel = MethodChannel(messenger, METHOD)
     private val cellularChannel = EventChannel(messenger, CELLULAR)
@@ -85,6 +86,9 @@ class NativeChannelHandler(
         simInfoService.dispose()
         permissionService.dispose()
     }
+
+    fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean =
+        backgroundImages.onActivityResult(requestCode, resultCode, data)
 
     fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>) {
         permissionService.onRequestPermissionsResult(requestCode, permissions)
@@ -159,6 +163,11 @@ class NativeChannelHandler(
                     } else {
                         result.success(exportService.save(name, mime, content))
                     }
+                }
+                "pickBackgroundImage" -> backgroundImages.pick(result)
+                "deleteBackgroundImage" -> {
+                    backgroundImages.delete(call.argument<String>("path"))
+                    result.success(null)
                 }
                 "getAppBuildInfo" -> result.success(updateInstaller.buildInfo())
                 "prepareUpdateDir" -> result.success(updateInstaller.prepareDir())

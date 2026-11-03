@@ -193,6 +193,24 @@ class AndroidPlatform implements SignalPlatform {
   }
 
   @override
+  bool get supportsBackgroundImage => true;
+
+  @override
+  Future<String?> pickBackgroundImage() =>
+      _method.invokeMethod<String>('pickBackgroundImage');
+
+  @override
+  Future<void> deleteBackgroundImage(String path) async {
+    try {
+      await _method.invokeMethod<void>('deleteBackgroundImage', {'path': path});
+    } on PlatformException {
+      // best effort
+    } on MissingPluginException {
+      // best effort
+    }
+  }
+
+  @override
   Future<AppBuildInfo?> getAppBuildInfo() async =>
       AppBuildInfo.fromMap(await _invokeMap('getAppBuildInfo'));
 

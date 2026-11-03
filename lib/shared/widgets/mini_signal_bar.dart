@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/glass_tokens.dart';
+
 /// Thin horizontal bar that animates to [fraction] (0..1). `null` shows an
 /// empty track: there is no value, which is different from a weak value.
 class MiniSignalBar extends StatelessWidget {
@@ -16,7 +18,7 @@ class MiniSignalBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final track = Theme.of(context).colorScheme.surfaceContainerHighest;
+    final track = context.glass.track;
     return ClipRRect(
       borderRadius: BorderRadius.circular(height),
       child: SizedBox(

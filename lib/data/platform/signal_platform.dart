@@ -59,6 +59,20 @@ abstract class SignalPlatform {
   /// location, or `null` on failure.
   Future<String?> saveExport(String fileName, String mimeType, String content);
 
+  // ---- custom background picture (Android only) ----
+
+  /// Whether [pickBackgroundImage] can be used on this platform.
+  bool get supportsBackgroundImage;
+
+  /// Lets the user choose a picture and copies it into app-private storage
+  /// under a fresh file name. Returns the new path, or `null` when the user
+  /// cancelled. Throws when the picture cannot be read or is too large.
+  Future<String?> pickBackgroundImage();
+
+  /// Deletes a picture previously returned by [pickBackgroundImage]. Paths
+  /// outside the app's own background folder are ignored.
+  Future<void> deleteBackgroundImage(String path);
+
   // ---- app update (Android only; the download itself uses dart:io) ----
 
   /// Installed version and device ABIs; `null` when unknown / unsupported.

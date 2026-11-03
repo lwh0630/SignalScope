@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../core/theme/glass_tokens.dart';
+
 /// Large arc gauge. [fraction] is 0..1 (null = no data); the arc animates
 /// when the value changes.
 class SignalGauge extends StatelessWidget {
@@ -38,7 +40,7 @@ class SignalGauge extends StatelessWidget {
               fraction: animated,
               hasValue: fraction != null,
               color: color,
-              track: theme.colorScheme.surfaceContainerHighest,
+              track: context.glass.track,
             ),
             child: Center(
               child: Padding(
