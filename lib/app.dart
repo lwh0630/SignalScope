@@ -6,6 +6,7 @@ import 'core/providers.dart';
 import 'core/theme/ambient_background.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/background.dart';
+import 'core/theme/glass.dart' show GlassCardBlur;
 import 'features/shell/presentation/home_shell.dart';
 
 class SignalScopeApp extends ConsumerWidget {
@@ -43,14 +44,23 @@ class SignalScopeApp extends ConsumerWidget {
       },
       // The ambient glow (or the user's picture) sits under the Navigator;
       // every Scaffold is transparent.
-      builder: (context, child) => AmbientBackground(
-        style: style,
-        image: style == BackgroundStyle.image
+      builder: (context, child) {
+        final image = style == BackgroundStyle.image
             ? backgroundImageProvider(imagePath)
-            : null,
-        dim: dim,
-        child: child,
-      ),
+            : null;
+        return AmbientBackground(
+          style: style,
+          image: image,
+          dim: dim,
+          // Cards only blur what is behind them over a picture; the glow
+          // presets are smooth enough that a blur there would cost an
+          // offscreen pass per card for nothing.
+          child: GlassCardBlur(
+            blur: image == null ? 0 : 14,
+            child: child ?? const SizedBox.shrink(),
+          ),
+        );
+      },
       home: const HomeShell(),
     );
   }

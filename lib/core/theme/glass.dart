@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
@@ -115,8 +116,32 @@ class _GlassMotionTrackerState extends State<GlassMotionTracker> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      GlassMotionScope(moving: _moving, child: widget.child);
+  Widget build(BuildContext context) {
+    // An outer scope (the pages sliding past each other) keeps the glass lite too.
+    final outer = GlassMotionScope.of(context);
+    return GlassMotionScope(moving: _moving || outer, child: widget.child);
+  }
+}
+
+/// Strength of the backdrop blur under [GlassCard]s that do not set their own
+/// `blur`.
+///
+/// Cards do no blur by default: they sit on a smooth gradient, where blurring
+/// changes next to nothing, yet every blur is an offscreen pass over the card
+/// area that has to be redone whenever anything under it changes (and these pages
+/// repaint with live sensor data). A picture background is the exception (it has
+/// detail that must be softened behind text), so `app.dart` raises the value
+/// while one is shown.
+class GlassCardBlur extends InheritedWidget {
+  const GlassCardBlur({super.key, required this.blur, required super.child});
+
+  final double blur;
+
+  static double of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<GlassCardBlur>()?.blur ?? 0;
+
+  @override
+  bool updateShouldNotify(GlassCardBlur old) => old.blur != blur;
 }
 
 // --------------------------------------------------------------- painters
@@ -128,6 +153,7 @@ class _OuterShadowPainter extends CustomPainter {
     required this.radius,
     required this.color,
     required this.elevation,
+    required this.lite,
   });
 
   final double radius;
@@ -136,9 +162,12 @@ class _OuterShadowPainter extends CustomPainter {
   /// 0 = flat, 1 = resting card, 2 = floating chrome.
   final double elevation;
 
+  /// Draw nothing: a blurred shadow is an offscreen blur pass per shape per frame.
+  final bool lite;
+
   @override
   void paint(Canvas canvas, Size size) {
-    if (elevation <= 0 || size.isEmpty) return;
+    if (lite || elevation <= 0 || size.isEmpty) return;
     final rrect = RRect.fromRectAndRadius(
       Offset.zero & size,
       Radius.circular(radius),
@@ -168,11 +197,18 @@ class _OuterShadowPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_OuterShadowPainter old) =>
-      old.radius != radius || old.color != color || old.elevation != elevation;
+      old.radius != radius ||
+      old.color != color ||
+      old.elevation != elevation ||
+      old.lite != lite;
 }
 
-/// 1 px gradient edge (bright top-left, dim bottom-right) plus a faint inner
-/// sheen along the top: the "lit glass" rim.
+/// 1 px "lit glass" rim: bright along the top-left, dim along the bottom-right,
+/// plus a faint highlight just inside the top edge.
+///
+/// Built from solid-colour strokes and a diagonal clip only, no gradient shaders:
+/// with Impeller on OpenGL ES every freshly created gradient shader keeps a lot
+/// of native memory alive, and the cards repaint with every live sensor update.
 class _RimPainter extends CustomPainter {
   const _RimPainter({
     required this.radius,
@@ -196,36 +232,31 @@ class _RimPainter extends CustomPainter {
       rect.deflate(0.5),
       Radius.circular(radius - 0.5),
     );
-    canvas.drawRRect(
-      rrect,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1
-        ..shader = LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [light, dark],
-        ).createShader(rect),
-    );
-    // Sheen: a short bright gradient hugging the top edge, inside the rim.
-    final sheenRect = Rect.fromLTWH(
-      0,
-      0,
-      size.width,
-      (size.height * 0.5).clamp(0, 56),
-    );
+    final rim = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    // Whole edge dim, then the half above the bottom-left / top-right diagonal
+    // bright.
+    canvas.drawRRect(rrect, rim..color = dark);
     canvas.save();
-    canvas.clipRRect(RRect.fromRectAndRadius(rect, Radius.circular(radius)));
-    canvas.drawRect(
-      sheenRect,
-      Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [sheen, sheen.withValues(alpha: 0)],
-        ).createShader(sheenRect),
+    canvas.clipPath(
+      Path()
+        ..moveTo(0, 0)
+        ..lineTo(size.width, 0)
+        ..lineTo(0, size.height)
+        ..close(),
     );
+    canvas.drawRRect(rrect, rim..color = light);
     canvas.restore();
+    // Sheen: a hairline just inside the top edge, between the corner curves.
+    final inset = math.min(radius, size.width / 2);
+    canvas.drawLine(
+      Offset(inset, 1.5),
+      Offset(size.width - inset, 1.5),
+      Paint()
+        ..color = sheen
+        ..strokeWidth = 1,
+    );
     final f = focus;
     if (f != null) {
       canvas.drawRRect(
@@ -274,33 +305,38 @@ class GlassSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     final g = context.glass;
     final shape = BorderRadius.circular(radius);
+    final lite = GlassMotionScope.of(context);
     Widget content = child;
     if (padding != null) content = Padding(padding: padding!, child: content);
+    final surface = CustomPaint(
+      foregroundPainter: _RimPainter(
+        radius: radius,
+        light: g.edgeLight,
+        dark: g.edgeDark,
+        sheen: g.highlight.withValues(alpha: g.highlight.a * 0.35),
+        focus: null,
+      ),
+      child: ColoredBox(
+        color: fill ?? g.fillStrong,
+        child: Material(type: MaterialType.transparency, child: content),
+      ),
+    );
     return CustomPaint(
       painter: _OuterShadowPainter(
         radius: radius,
         color: g.shadow,
         elevation: elevation,
+        lite: lite,
       ),
       child: ClipRRect(
         borderRadius: shape,
-        child: BackdropFilter(
-          enabled: !GlassMotionScope.of(context),
-          filter: glassFilter(blur),
-          child: CustomPaint(
-            foregroundPainter: _RimPainter(
-              radius: radius,
-              light: g.edgeLight,
-              dark: g.edgeDark,
-              sheen: g.highlight.withValues(alpha: g.highlight.a * 0.35),
-              focus: null,
-            ),
-            child: ColoredBox(
-              color: fill ?? g.fillStrong,
-              child: Material(type: MaterialType.transparency, child: content),
-            ),
-          ),
-        ),
+        child: blur <= 0
+            ? surface
+            : BackdropFilter(
+                enabled: !lite,
+                filter: glassFilter(blur),
+                child: surface,
+              ),
       ),
     );
   }
@@ -391,10 +427,11 @@ class _PressableState extends State<Pressable> {
 
 // -------------------------------------------------------------------- card
 
-/// Card-level glass: translucent fill over a *light* backdrop blur ([blur],
-/// smaller than chrome's), lit rim and soft shadow. Pass `blur: 0` when the
-/// card already sits on another glass surface. When [onTap] is set it dips on
-/// press. [tint] washes the fill with a status colour (warnings, errors).
+/// Card-level glass: translucent fill, lit rim and soft shadow, and (only over a
+/// picture background, see [GlassCardBlur]) a *light* backdrop blur. [blur]
+/// overrides that; pass `blur: 0` when the card already sits on another glass
+/// surface. When [onTap] is set it dips on press. [tint] washes the fill with a
+/// status colour (warnings, errors).
 class GlassCard extends StatelessWidget {
   const GlassCard({
     super.key,
@@ -402,7 +439,7 @@ class GlassCard extends StatelessWidget {
     this.onTap,
     this.padding,
     this.radius = Rd.lg,
-    this.blur = 14,
+    this.blur,
     this.tint,
   });
 
@@ -410,14 +447,16 @@ class GlassCard extends StatelessWidget {
   final VoidCallback? onTap;
   final EdgeInsetsGeometry? padding;
   final double radius;
-  final double blur;
+
+  /// Backdrop blur sigma; null follows [GlassCardBlur].
+  final double? blur;
   final Color? tint;
 
-  Widget _maybeBlur(BuildContext context, Widget child) => blur <= 0
+  Widget _maybeBlur(double sigma, bool lite, Widget child) => sigma <= 0
       ? child
       : BackdropFilter(
-          enabled: !GlassMotionScope.of(context),
-          filter: glassFilter(blur),
+          enabled: !lite,
+          filter: glassFilter(sigma),
           child: child,
         );
 
@@ -425,6 +464,8 @@ class GlassCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final g = context.glass;
     final accent = Theme.of(context).colorScheme.primary;
+    final lite = GlassMotionScope.of(context);
+    final sigma = blur ?? GlassCardBlur.of(context);
     final fill = tint == null
         ? g.fill
         : Color.alphaBlend(
@@ -441,6 +482,7 @@ class GlassCard extends StatelessWidget {
           radius: radius,
           color: g.shadow,
           elevation: 1,
+          lite: lite,
         ),
         foregroundPainter: _RimPainter(
           radius: radius,
@@ -454,7 +496,8 @@ class GlassCard extends StatelessWidget {
           // A transparent Material under the tinted fill keeps ListTile / InkWell
           // children from painting their ink behind the fill.
           child: _maybeBlur(
-            context,
+            sigma,
+            lite,
             ColoredBox(
               color: fill,
               child: Material(type: MaterialType.transparency, child: content),

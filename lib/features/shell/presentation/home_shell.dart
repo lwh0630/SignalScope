@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/demo_mode.dart';
@@ -55,10 +56,7 @@ class _DemoBanner extends ConsumerWidget {
   }
 }
 
-/// Height of the floating navigation bar and the gap around it. Pages add it to
-/// their bottom padding (through [MediaQuery]) so nothing ends up under the bar.
-const double _navBarHeight = 64;
-const double _navBarGap = Sp.x3;
+typedef _Destination = (IconData outlined, IconData filled, String label);
 
 class HomeShell extends ConsumerWidget {
   const HomeShell({super.key});
@@ -75,98 +73,169 @@ class HomeShell extends ConsumerWidget {
       ref.read(updateControllerProvider.notifier).consumePrompt();
       showUpdatePrompt(context, ref, release);
     });
-    final mq = MediaQuery.of(context);
-    final safeBottom = mq.padding.bottom;
-    final barBottom = safeBottom > _navBarGap ? safeBottom : _navBarGap;
-    final reserved = _navBarHeight + barBottom + _navBarGap;
+    final destinations = <_Destination>[
+      (
+        Icons.dashboard_outlined,
+        Icons.dashboard_rounded,
+        context.tr('nav.overview'),
+      ),
+      (Icons.cell_tower_outlined, Icons.cell_tower, context.tr('nav.cellular')),
+      (Icons.wifi_outlined, Icons.wifi, context.tr('nav.wifi')),
+      (
+        Icons.satellite_alt_outlined,
+        Icons.satellite_alt,
+        context.tr('nav.gnss'),
+      ),
+      (Icons.tune_outlined, Icons.tune, context.tr('nav.settings')),
+    ];
+    void select(int i) =>
+        ref.read(currentTabProvider.notifier).select(AppTab.values[i]);
     return Scaffold(
-      // The pages scroll under the floating bar; they pad themselves by [reserved].
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: MediaQuery(
-              data: mq.copyWith(padding: mq.padding.copyWith(bottom: reserved)),
-              child: SafeArea(
-                bottom: false,
-                child: Column(
-                  children: [
-                    if (ref.watch(demoModeProvider)) const _DemoBanner(),
-                    Expanded(
-                      // Swipe left / right between the pages, or tap the bar.
-                      child: _SwipePages(
-                        index: tab.index,
-                        onChanged: (i) => ref
-                            .read(currentTabProvider.notifier)
-                            .select(AppTab.values[i]),
-                        children: const [
-                          OverviewPage(),
-                          CellularPage(),
-                          WifiPage(),
-                          GnssPage(),
-                          SettingsPage(),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            if (ref.watch(demoModeProvider)) const _DemoBanner(),
+            Expanded(
+              // Swipe left / right between the pages, or tap the bar.
+              child: _SwipePages(
+                index: tab.index,
+                onChanged: select,
+                children: const [
+                  OverviewPage(),
+                  CellularPage(),
+                  WifiPage(),
+                  GnssPage(),
+                  SettingsPage(),
+                ],
               ),
             ),
-          ),
-          Positioned(
-            left: Sp.x4,
-            right: Sp.x4,
-            bottom: barBottom,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 520),
-                child: GlassSurface(
-                  radius: 30,
-                  // NavigationBar wraps itself in a SafeArea; the shell already places the
-                  // pill clear of the system bars.
-                  child: MediaQuery.removePadding(
-                    context: context,
-                    removeTop: true,
-                    removeBottom: true,
-                    child: NavigationBar(
-                      height: _navBarHeight,
-                      selectedIndex: tab.index,
-                      onDestinationSelected: (i) => ref
-                          .read(currentTabProvider.notifier)
-                          .select(AppTab.values[i]),
-                      destinations: [
-                        NavigationDestination(
-                          icon: const Icon(Icons.dashboard_outlined),
-                          selectedIcon: const Icon(Icons.dashboard_rounded),
-                          label: context.tr('nav.overview'),
+          ],
+        ),
+      ),
+      // The bar sits below the pages (like TokenBar's), so nothing scrolls under
+      // it and the Scaffold removes the bottom inset from the pages' padding.
+      bottomNavigationBar: _BottomBar(
+        index: tab.index,
+        onSelect: select,
+        destinations: destinations,
+      ),
+    );
+  }
+}
+
+/// Floating glass bottom bar: a pill that slides to the selected destination,
+/// the same design as TokenBar's. The 6 px inner padding keeps the pill clear of
+/// the rounded ends when the first or last destination is selected.
+class _BottomBar extends StatelessWidget {
+  const _BottomBar({
+    required this.index,
+    required this.onSelect,
+    required this.destinations,
+  });
+
+  final int index;
+  final ValueChanged<int> onSelect;
+  final List<_Destination> destinations;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final accent = theme.colorScheme.primary;
+    final g = context.glass;
+    final dark = theme.brightness == Brightness.dark;
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(Sp.x4, Sp.x1, Sp.x4, Sp.x3),
+        child: Center(
+          heightFactor: 1,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: GlassSurface(
+              radius: Rd.xl,
+              padding: const EdgeInsets.all(6),
+              child: SizedBox(
+                height: 52,
+                child: LayoutBuilder(
+                  builder: (context, c) {
+                    final w = c.maxWidth / destinations.length;
+                    return Stack(
+                      children: [
+                        AnimatedPositioned(
+                          duration: Motion.of(context, Motion.base),
+                          curve: Motion.curve,
+                          left: index * w,
+                          top: 0,
+                          bottom: 0,
+                          width: w,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(Rd.lg),
+                              color: accent.withValues(
+                                alpha: dark ? 0.24 : 0.14,
+                              ),
+                              border: Border.all(
+                                color: g.edgeLight.withValues(
+                                  alpha: dark ? 0.12 : 0.55,
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                        NavigationDestination(
-                          icon: const Icon(Icons.cell_tower_outlined),
-                          selectedIcon: const Icon(Icons.cell_tower),
-                          label: context.tr('nav.cellular'),
-                        ),
-                        NavigationDestination(
-                          icon: const Icon(Icons.wifi_outlined),
-                          selectedIcon: const Icon(Icons.wifi),
-                          label: context.tr('nav.wifi'),
-                        ),
-                        NavigationDestination(
-                          icon: const Icon(Icons.satellite_alt_outlined),
-                          selectedIcon: const Icon(Icons.satellite_alt),
-                          label: context.tr('nav.gnss'),
-                        ),
-                        NavigationDestination(
-                          icon: const Icon(Icons.tune_outlined),
-                          selectedIcon: const Icon(Icons.tune),
-                          label: context.tr('nav.settings'),
+                        Row(
+                          children: [
+                            for (var i = 0; i < destinations.length; i++)
+                              Expanded(
+                                child: Pressable(
+                                  onTap: () => onSelect(i),
+                                  semanticLabel: destinations[i].$3,
+                                  builder:
+                                      (context, hovered, pressed, focused) {
+                                        final selected = index == i;
+                                        final color = selected
+                                            ? accent
+                                            : theme.colorScheme.onSurface
+                                                  .withValues(alpha: 0.7);
+                                        return Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              selected
+                                                  ? destinations[i].$2
+                                                  : destinations[i].$1,
+                                              size: 22,
+                                              color: color,
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              destinations[i].$3,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: theme.textTheme.labelSmall
+                                                  ?.copyWith(
+                                                    color: color,
+                                                    fontWeight: selected
+                                                        ? FontWeight.w600
+                                                        : FontWeight.w500,
+                                                  ),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                ),
+                              ),
+                          ],
                         ),
                       ],
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -228,14 +297,44 @@ class _SwipePagesState extends State<_SwipePages> {
     super.dispose();
   }
 
+  /// True while the pages are being dragged or animated sideways: the glass
+  /// switches to its lite look (no blurs, no blurred shadows) like during a route
+  /// transition, so the slide stays smooth.
+  bool _moving = false;
+
+  void _setMoving(bool moving) {
+    if (_moving == moving || !mounted) return;
+    if (SchedulerBinding.instance.schedulerPhase ==
+        SchedulerPhase.persistentCallbacks) {
+      // Notified while the frame is being laid out: rebuild on the next one.
+      WidgetsBinding.instance.addPostFrameCallback((_) => _setMoving(moving));
+      return;
+    }
+    setState(() => _moving = moving);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return PageView(
-      controller: _controller,
-      onPageChanged: (i) {
-        if (!_animating) widget.onChanged(i);
+    return NotificationListener<ScrollNotification>(
+      onNotification: (n) {
+        // Only the PageView itself (depth 0), not the vertical lists inside it.
+        if (n.depth != 0 || n.metrics.axis != Axis.horizontal) return false;
+        if (n is ScrollStartNotification) _setMoving(true);
+        if (n is ScrollEndNotification) _setMoving(false);
+        return false;
       },
-      children: [for (final page in widget.children) _KeepAlive(child: page)],
+      child: GlassMotionScope(
+        moving: _moving,
+        child: PageView(
+          controller: _controller,
+          onPageChanged: (i) {
+            if (!_animating) widget.onChanged(i);
+          },
+          children: [
+            for (final page in widget.children) _KeepAlive(child: page),
+          ],
+        ),
+      ),
     );
   }
 }
