@@ -10,6 +10,10 @@ import '../../core/providers.dart';
 import '../../data/models/signal_history_point.dart';
 import 'cards.dart';
 
+/// Stroke width of the trend lines. Thin on purpose: the history holds up to
+/// 700 points per series, and a thick stroke turns a noisy signal into a blob.
+const double kTrendLineWidth = 1.4;
+
 /// Describes one line of a [TrendCard].
 class TrendSeries {
   const TrendSeries({
@@ -86,7 +90,7 @@ class _TrendCardState extends ConsumerState<TrendCard> {
           isCurved: true,
           curveSmoothness: 0.15,
           preventCurveOverShooting: true,
-          barWidth: 2.4,
+          barWidth: kTrendLineWidth,
           color: widget.series[i].color,
           dotData: const FlDotData(show: false),
           belowBarData: BarAreaData(
