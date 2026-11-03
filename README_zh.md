@@ -57,10 +57,22 @@ SIM 与运营商信息、LTE / 5G NR 蜂窝信号、Wi-Fi 与附近热点、GNSS
 ## 截图
 
 <p align="center">
-  <img src="docs/screenshots/overview_zh.png" alt="SignalScope 总览页（中文界面）" width="260">
+  <img src="docs/screenshots/zh/overview.png" alt="总览" width="23%">
+  <img src="docs/screenshots/zh/cellular.png" alt="蜂窝网络" width="23%">
+  <img src="docs/screenshots/zh/wifi.png" alt="Wi-Fi" width="23%">
+  <img src="docs/screenshots/zh/gnss.png" alt="GNSS" width="23%">
 </p>
 
-> 截图来自 Android 模拟器，运营商、地址、位置和信号数值均由模拟器模拟，并非真机实测。其他页面的截图暂未发布。
+背景主题（日落、海洋、森林）与自选图片（可调遮罩强度）：
+
+<p align="center">
+  <img src="docs/screenshots/zh/theme-sunset.png" alt="日落主题（深色）" width="23%">
+  <img src="docs/screenshots/zh/theme-ocean.png" alt="海洋主题（浅色）" width="23%">
+  <img src="docs/screenshots/zh/theme-forest.png" alt="森林主题（深色）" width="23%">
+  <img src="docs/screenshots/zh/settings-picture.png" alt="使用自选图片作为背景的设置页" width="23%">
+</p>
+
+> 所有截图均来自 Android 模拟器的**演示模式**，运营商、地址、位置和信号数值都是虚构的示例数据，并非真机实测。未展示延迟测试页。
 
 ## 技术栈
 

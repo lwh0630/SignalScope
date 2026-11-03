@@ -57,10 +57,22 @@ Notable limits (all explained in the app):
 ## Screenshots
 
 <p align="center">
-  <img src="docs/screenshots/overview.png" alt="SignalScope overview page (English UI)" width="260">
+  <img src="docs/screenshots/overview.png" alt="Overview" width="23%">
+  <img src="docs/screenshots/cellular.png" alt="Cellular" width="23%">
+  <img src="docs/screenshots/wifi.png" alt="Wi-Fi" width="23%">
+  <img src="docs/screenshots/gnss.png" alt="GNSS" width="23%">
 </p>
 
-> The screenshot was taken in the Android Emulator. The carrier, addresses, location and signal values are simulated by the emulator, not measured on a real device. Screenshots of the other pages are not published yet.
+Background themes (Sunset, Ocean, Forest) and your own picture with an adjustable overlay:
+
+<p align="center">
+  <img src="docs/screenshots/theme-sunset.png" alt="Sunset theme (dark)" width="23%">
+  <img src="docs/screenshots/theme-ocean.png" alt="Ocean theme (light)" width="23%">
+  <img src="docs/screenshots/theme-forest.png" alt="Forest theme (dark)" width="23%">
+  <img src="docs/screenshots/settings-picture.png" alt="Settings with a custom background picture" width="23%">
+</p>
+
+> All screenshots were taken in the Android Emulator in **demo mode**, so every carrier, address, position and signal value is fictional sample data, not measured on a real device. The latency test page is not shown.
 
 ## Tech Stack
 

@@ -185,6 +185,7 @@ flutter build apk --release --split-per-abi   # when Android code, manifest, or 
 - Docs must match the source. Describe only implemented behavior; do not present unfinished ideas as features. If planned work is documented, mark it clearly as planned.
 - Update `README.md` **and** `README_zh.md` together when you change: features, supported platforms / Android versions, permissions, build steps, or project structure. Keep the two files structurally identical.
 - Update this file only for long-term rules (architecture, conventions, constraints). Do not record chat history, temporary plans, or task notes here.
+- Screenshots (`docs/screenshots/`, Chinese ones in `docs/screenshots/zh/` with the same file names) are taken in the Android Emulator in **demo mode** (fictional data only; no real carrier, address, position or personal data), with the system bar cleaned through the emulator's demo mode (`sysui_demo_allowed`). Retake them when the UI visibly changes and keep both READMEs on the same set of files.
 - Do not describe third-party products as affiliated with this project, and do not add unverified badges, screenshots, download links, or release claims.
 - License files (`LICENSE`, `NOTICE`, `ATTRIBUTION.md`) are not edited casually. The license is CC BY-NC-SA 4.0 by the maintainer's explicit choice; do not replace or "fix" it.
 
